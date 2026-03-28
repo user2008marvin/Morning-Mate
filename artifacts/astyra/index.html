@@ -882,19 +882,13 @@ body{
     <button class="fb-cta" onclick="showModal('pro-modal')">Claim Free Spot →</button>
   </div>
 
-  <!-- OCCASION MARQUEE -->
-  <div class="occ-marquee">
-    <div class="marquee-track" id="marquee-track">
-      <!-- duplicated for seamless loop -->
-    </div>
-  </div>
 
   <!-- Hero -->
   <div class="hero">
     <div class="hero-stars" id="stars-container"></div>
     <div class="hero-eyebrow">✦ AI-Powered · Occasion-Based · Not a Filter App</div>
     <h1 class="hero-h1">Makeup chosen<br/><em>for your occasion</em></h1>
-    <p class="hero-sub">Upload a bare face. Tell Astyra your occasion. Get 3 expert-level looks with exact lip, eye & blush colours — and the products to buy.</p>
+    <p class="hero-sub">Find makeup chosen for your occasion, then try it on your own face in seconds.</p>
     <div class="hero-proof">
       <div class="hproof-stat"><div class="hps-n">48,200+</div><div class="hps-l">Looks Generated</div></div>
       <div class="hproof-stat"><div class="hps-n">12 Occasions</div><div class="hps-l">Intelligence Library</div></div>
@@ -1000,8 +994,25 @@ body{
     <div class="rh-meta" id="rh-meta"></div>
   </div>
 
+  <!-- Before / After split view -->
+  <div style="padding:12px 14px 0" id="before-after-wrap"></div>
+
   <!-- Look cards -->
   <div style="padding:16px 14px 0" id="results-container"></div>
+
+  <!-- Name / Email capture -->
+  <div style="padding:0 14px" id="lead-capture-wrap">
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-top:8px">
+      <div style="font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:6px">✦ Save Your Look Report</div>
+      <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:14px">Optional — get your look emailed to you. No spam ever.</div>
+      <input id="lead-firstname" type="text" placeholder="First name (optional)" autocomplete="given-name"
+        style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:.8rem;margin-bottom:8px;outline:none"/>
+      <input id="lead-email" type="email" placeholder="Email address (optional)" autocomplete="email"
+        style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:.8rem;margin-bottom:12px;outline:none"/>
+      <button onclick="saveLead()" style="width:100%;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px;font-size:.75rem;font-weight:800;letter-spacing:.06em;cursor:pointer">SAVE MY LOOK →</button>
+      <div id="lead-confirm" style="display:none;text-align:center;font-size:.75rem;color:var(--accent);margin-top:10px;font-weight:700">✓ Saved! Check your inbox.</div>
+    </div>
+  </div>
 
   <!-- Share strip -->
   <div style="padding:0 14px">
@@ -1077,6 +1088,21 @@ body{
   </div>
 </div>
 
+<!-- ═══════════ ADMIN DASHBOARD MODAL ═══════════ -->
+<div class="modal-overlay" id="admin-modal" onclick="closeModal('admin-modal')" style="display:none;z-index:9999">
+  <div class="modal-box" style="max-width:360px;margin:auto;border-radius:20px;padding:0;overflow:hidden;max-height:85vh;overflow-y:auto" onclick="event.stopPropagation()">
+    <div style="background:var(--surface2);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:.65rem;font-weight:800;letter-spacing:.1em;color:var(--accent);text-transform:uppercase">Admin Dashboard</div>
+        <div style="font-size:1rem;font-weight:900;color:var(--text)">Astyra Metrics</div>
+      </div>
+      <button onclick="closeModal('admin-modal')" style="background:var(--surface3);border:none;border-radius:50%;width:32px;height:32px;color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div style="padding:20px" id="admin-content">
+      <div style="text-align:center;color:var(--text-muted);font-size:.8rem;padding:20px">Loading...</div>
+    </div>
+  </div>
+</div>
 
 <script>
 // ════════════════════════════════════════════════════════════════
@@ -1103,6 +1129,7 @@ const OCCASIONS = [
   { id:'party',         emoji:'🥂', name:'Night Out',       desc:'Party & celebrations' },
   { id:'work',          emoji:'💼', name:'Corporate',       desc:'Office & meetings' },
   { id:'first-date',    emoji:'💕', name:'First Date',      desc:'Dinner & romance' },
+  { id:'date-night',    emoji:'🌙', name:'Date Night',      desc:'Evening & romance' },
   { id:'graduation',    emoji:'🎓', name:'Graduation',      desc:'Ceremony & photos' },
   { id:'gala',          emoji:'✨', name:'Black Tie Gala',  desc:'Formal events', pro:true },
   { id:'brunch',        emoji:'🌸', name:'Brunch',          desc:'Casual daytime' },
@@ -1218,6 +1245,22 @@ const BASE_LOOKS = {
       blush:[{n:'Just-ran-here Flush',h:'#F08080'},{n:'Peachy Warm',h:'#FFA07A'}],
       tip:'The "effortless" look that requires some effort. Blurred edges, no harsh lines, dewy skin.',
       technique:['Dewy skin prep','Peach eye wash','No-liner approach','High flush blush','Blurred stain lip'],
+    },
+  },
+  'date-night':{
+    natural:{ name:'Romantic Glow', desc:'Warm, luminous, effortlessly alluring',
+      lip:[{n:'Dusty Rose',h:'#C17B7B'},{n:'Berry Nude',h:'#B07080'},{n:'MLBB Satin',h:'#C8897A'}],
+      eye:[{n:'Warm Bronze',h:'#CD7F32'},{n:'Tawny Copper',h:'#9E6B4A'},{n:'Soft Espresso',h:'#4A2E1A'}],
+      blush:[{n:'Rosy Warmth',h:'#D4788A'},{n:'Golden Peach',h:'#E8A870'}],
+      tip:'Romantic warmth: bronze lids, flushed cheeks, a lip that looks kissed. Glowy skin is the foundation.',
+      technique:['Luminous skin prep','Bronze shimmer lid','Copper outer blend','High rosy flush','Berry-nude satin lip'],
+    },
+    glam:{ name:'Evening Siren', desc:'Smouldering, magnetic, unforgettable',
+      lip:[{n:'Deep Rosewood',h:'#8B3A52'},{n:'Wine',h:'#722F37'},{n:'Plum Berry',h:'#7A2060'}],
+      eye:[{n:'Smoked Plum',h:'#5C2A5A'},{n:'Deep Bronze',h:'#6B3A20'},{n:'Midnight Black',h:'#1A1A2E'}],
+      blush:[{n:'Sculpted Rose',h:'#C27A7A'},{n:'Deep Contour',h:'#9E6050'}],
+      tip:'Commit fully — smoky plum eye, sculpted cheek, deep lip. This look rewards confidence.',
+      technique:['Full coverage luminous base','Smoked plum eye','Blended outer drama','Sculpted contour','Deep rosewood lip'],
     },
   },
   'graduation':{
@@ -1927,7 +1970,6 @@ window.addEventListener('load',()=>{
   buildStars();
   buildOccasionGrid();
   buildSkinRow();
-  buildMarquee();
   const scanEl = document.getElementById('scan-display');
   scanEl.textContent = STATE.isPro ? '∞' : STATE.scansLeft;
   if(!STATE.isPro && STATE.scansLeft <= 0){
@@ -2048,6 +2090,7 @@ const CONFETTI_THEMES = {
   'party':         { colors:['#a855f7','#c084fc','#f0abfc','#d4af37','#ec4899'], shapes:['★','●','◆','✦'] },
   'work':          { colors:['#1e3a5f','#d4af37','#a0aec0','#e2e8f0','#2d5282'], shapes:['◆','●','▪'] },
   'first-date':    { colors:['#ec4899','#f472b6','#fda4af','#ff6b6b','#fff0f3'], shapes:['❤','✿','●','★'] },
+  'date-night':    { colors:['#7a2060','#c17b7b','#722f37','#d4788a','#fff0f3'], shapes:['🌙','✦','●','★'] },
   'graduation':    { colors:['#1e3a5f','#d4af37','#fbbf24','#1e40af','#fff'], shapes:['★','◆','●','✦'] },
   'gala':          { colors:['#0a0a0f','#d4af37','#c0c0c0','#f5f5f0','#b8860b'], shapes:['◆','★','●'] },
   'brunch':        { colors:['#fde68a','#86efac','#bfdbfe','#fca5a5','#fbcfe8'], shapes:['✿','●','◆','★'] },
@@ -2199,7 +2242,9 @@ function revealResults(){
   flashLookName(occ?.name || 'Your Occasion', firstLookName, ()=>{
     // 2. Show results screen
     buildResults();
+    buildBeforeAfter();
     buildSponsorStrip();
+    saveSubmission();
     showScreen('s-results');
     setStep(4);
     // 3. Launch occasion-aware confetti
@@ -2225,11 +2270,132 @@ function adminTap(){
   clearTimeout(_adminTimer);
   if(_adminTaps >= 5){
     _adminTaps = 0;
-    window.location.href = '/makeup-admin';
+    openAdminDashboard();
   } else {
-    // Reset count if no tap within 1.5 seconds
     _adminTimer = setTimeout(()=>{ _adminTaps = 0; }, 1500);
   }
+}
+
+function openAdminDashboard(){
+  const el = document.getElementById('admin-modal');
+  if(el){ el.style.display = 'flex'; loadAdminStats(); }
+}
+
+async function loadAdminStats(){
+  const box = document.getElementById('admin-content');
+  try {
+    const [statsRes, recentRes] = await Promise.all([
+      fetch('/api-server/api/admin/stats'),
+      fetch('/api-server/api/admin/submissions?pageSize=10')
+    ]);
+    const data = await statsRes.json();
+    const recentData = await recentRes.json();
+    const subs = recentData.submissions || [];
+    const topOcc = data.byOccasion?.[0]?.occasion || '—';
+    const leads = Math.round((data.emailCaptureRate||0) * (data.totalSubmissions||0));
+    box.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:var(--surface3);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:1.4rem;font-weight:900;color:var(--accent)">${data.totalSubmissions||0}</div>
+          <div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Total Scans</div>
+        </div>
+        <div style="background:var(--surface3);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:1.4rem;font-weight:900;color:var(--accent)">${leads}</div>
+          <div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Email Leads</div>
+        </div>
+        <div style="background:var(--surface3);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:1.4rem;font-weight:900;color:var(--accent)">${data.submissionsToday||0}</div>
+          <div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Today</div>
+        </div>
+        <div style="background:var(--surface3);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:.85rem;font-weight:900;color:var(--accent);word-break:break-word">${topOcc}</div>
+          <div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Top Occasion</div>
+        </div>
+      </div>
+      <div style="font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px">Recent Submissions</div>
+      ${subs.length===0?'<div style="font-size:.75rem;color:var(--text-muted);text-align:center;padding:12px">No submissions yet</div>':
+        subs.slice(0,10).map(s=>`
+          <div style="background:var(--surface3);border-radius:8px;padding:10px 12px;margin-bottom:6px;font-size:.72rem">
+            <div style="font-weight:700;color:var(--text)">${s.firstName||'Anonymous'}${s.email?' <span style="color:var(--text-muted)">· '+s.email+'</span>':''}</div>
+            <div style="color:var(--text-muted);margin-top:2px">${s.occasion||''} · ${s.look||''}</div>
+            <div style="color:var(--text-muted);margin-top:2px;font-size:.65rem">${s.createdAt?new Date(s.createdAt).toLocaleString():''}</div>
+          </div>`).join('')}
+    `;
+  } catch(e){
+    box.innerHTML = `<div style="font-size:.75rem;color:var(--text-muted);text-align:center;padding:20px">Could not load stats.<br/><small>${e.message}</small></div>`;
+  }
+}
+
+function buildBeforeAfter(){
+  const wrap = document.getElementById('before-after-wrap');
+  if(!wrap) return;
+  const faceUrl = STATE.faceDataUrl;
+  if(!faceUrl){ wrap.innerHTML=''; return; }
+  const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
+  const lookData = BASE_LOOKS[STATE.occasion] || BASE_LOOKS['party'];
+  const firstLook = lookData?.natural || lookData?.glam || Object.values(lookData||{})[0];
+  const lipColor = firstLook?.lip?.[0]?.h || '#C17B7B';
+  const eyeColor = firstLook?.eye?.[0]?.h || '#8B7355';
+  const blushColor = firstLook?.blush?.[0]?.h || '#E88A8A';
+  wrap.innerHTML = `
+    <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="background:var(--surface2);padding:10px 14px;font-size:.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)">✦ Your Before / After</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div style="position:relative;border-right:1px solid var(--border)">
+          <img src="${faceUrl}" alt="Before" style="width:100%;height:200px;object-fit:cover;display:block;filter:grayscale(0.2)"/>
+          <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);padding:6px 8px;font-size:.6rem;font-weight:800;letter-spacing:.06em;color:#fff;text-transform:uppercase">Before</div>
+        </div>
+        <div style="position:relative">
+          <img src="${faceUrl}" alt="After" style="width:100%;height:200px;object-fit:cover;display:block"/>
+          <div style="position:absolute;inset:0;pointer-events:none">
+            <div style="position:absolute;bottom:40px;left:0;right:0;height:18px;background:${lipColor};opacity:.45;mix-blend-mode:multiply"></div>
+            <div style="position:absolute;top:28px;left:10px;right:10px;height:10px;background:${eyeColor};opacity:.35;border-radius:4px;mix-blend-mode:multiply"></div>
+            <div style="position:absolute;top:60px;left:4px;width:28%;height:12px;background:${blushColor};opacity:.4;border-radius:50%;mix-blend-mode:multiply"></div>
+            <div style="position:absolute;top:60px;right:4px;width:28%;height:12px;background:${blushColor};opacity:.4;border-radius:50%;mix-blend-mode:multiply"></div>
+          </div>
+          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.65));padding:6px 8px;font-size:.6rem;font-weight:800;letter-spacing:.06em;color:#fff;text-transform:uppercase">${firstLook?.name||'Your Look'}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function saveSubmission(){
+  try{
+    const lookData = BASE_LOOKS[STATE.occasion] || BASE_LOOKS['party'];
+    const lookName = lookData?.natural?.name || 'natural';
+    await fetch('/api-server/api/submissions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        occasion: STATE.occasion || 'unknown',
+        look: lookName,
+        firstName: null,
+        email: null
+      })
+    });
+  }catch(e){}
+}
+
+function saveLead(){
+  const firstName = (document.getElementById('lead-firstname')?.value||'').trim();
+  const email = (document.getElementById('lead-email')?.value||'').trim();
+  try{
+    const lookData = BASE_LOOKS[STATE.occasion] || BASE_LOOKS['party'];
+    const lookName = lookData?.natural?.name || 'natural';
+    fetch('/api-server/api/submissions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        occasion: STATE.occasion || 'unknown',
+        look: lookName,
+        firstName: firstName || null,
+        email: email || null
+      })
+    });
+  }catch(e){}
+  const conf = document.getElementById('lead-confirm');
+  if(conf){ conf.style.display='block'; }
+  showToast(firstName ? `✓ Saved, ${firstName}!` : '✓ Saved!');
 }
 
 function activateSkimlinks(){
