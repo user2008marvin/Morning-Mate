@@ -1,16 +1,2344 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>Astyra – Makeup Try-On</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>Astyra — AI Occasion Look Engine</title>
+<!-- Skimlinks: activated dynamically when publisher ID is saved in admin -->
+<script id="skimlinks-script"></script>
+<style>
+/* ── AFFILIATE DISCLOSURE BANNER ── */
+.aff-disclosure{
+  background:#fff8f0;border-bottom:1px solid #fde68a;
+  padding:7px 18px;
+  font-size:.6rem;color:#92400e;text-align:center;line-height:1.4;
+}
+.aff-disclosure a{color:#b45309;text-decoration:underline;}
+
+/* ── FOUNDING MEMBER BANNER ── */
+.founding-banner{
+  background:linear-gradient(135deg,#0a0a0f,#1a0a2e);
+  padding:10px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  flex-wrap:wrap;
+  border-bottom:1px solid rgba(212,175,55,.2);
+}
+.fb-left{display:flex;align-items:center;gap:10px;}
+.fb-badge{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#0a0a0f;font-size:.52rem;font-weight:900;
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 8px;border-radius:20px;white-space:nowrap;
+}
+.fb-text{font-size:.62rem;color:rgba(255,255,255,.75);}
+.fb-count{font-size:.62rem;font-weight:800;color:var(--gold);}
+.fb-bar-wrap{flex:1;min-width:80px;max-width:140px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;}
+.fb-bar-fill{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .5s;}
+.fb-cta{
+  font-size:.6rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#0a0a0f;border:none;border-radius:20px;
+  padding:5px 14px;cursor:pointer;white-space:nowrap;
+}
+</style>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   Astyra — OCCASION INTELLIGENCE MAKEUP ENGINE v2
+   Your own makeup intelligence system.
+═══════════════════════════════════════════════════════════ */
+:root{
+  --ink:#0a0a0f;
+  --ink2:#1a1a2e;
+  --surface:#f8f7ff;
+  --surface2:#f0eeff;
+  --border:#e2dff5;
+  --accent:#7c3aed;
+  --accent2:#a855f7;
+  --accent3:#ec4899;
+  --gold:#d4af37;
+  --gold2:#f5d55a;
+  --green:#059669;
+  --text:#1a1a2e;
+  --text-soft:#6b6b8a;
+  --white:#ffffff;
+  --radius:16px;
+  --shadow:0 4px 24px rgba(124,58,237,.12);
+  --shadow-lg:0 12px 48px rgba(124,58,237,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  background:var(--surface);color:var(--text);
+  min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+
+/* ── TOP NAV ── */
+.nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 12px rgba(124,58,237,.07);
+}
+.nav-logo{
+  font-size:1.35rem;font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.nav-sub{font-size:.55rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text-soft);margin-top:-2px}
+.nav-badge{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-size:.58rem;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:5px 12px;border-radius:20px;
+}
+.nav-scan-count{
+  font-size:.62rem;font-weight:700;color:var(--text-soft);
+  background:var(--surface2);border:1px solid var(--border);
+  padding:4px 10px;border-radius:20px;
+  display:flex;align-items:center;gap:5px;
+}
+.nav-scan-dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+/* ── OCCASION MARQUEE ── */
+.occ-marquee{
+  background:linear-gradient(135deg,#0a0a0f,#1a0834);
+  border-bottom:1px solid rgba(168,85,247,.15);
+  padding:0;
+  overflow:hidden;
+  position:relative;
+  height:38px;
+  display:flex;
+  align-items:center;
+}
+.occ-marquee::before,
+.occ-marquee::after{
+  content:'';
+  position:absolute;
+  top:0;bottom:0;
+  width:60px;
+  z-index:2;
+  pointer-events:none;
+}
+.occ-marquee::before{
+  left:0;
+  background:linear-gradient(to right,#0a0a0f,transparent);
+}
+.occ-marquee::after{
+  right:0;
+  background:linear-gradient(to left,#0a0a0f,transparent);
+}
+.marquee-track{
+  display:flex;
+  gap:0;
+  animation:marquee-scroll 32s linear infinite;
+  white-space:nowrap;
+  will-change:transform;
+}
+.marquee-track:hover{animation-play-state:paused;cursor:default;}
+@keyframes marquee-scroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+.marquee-item{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:0 22px;
+  font-size:.62rem;
+  font-weight:700;
+  letter-spacing:.5px;
+  color:rgba(255,255,255,.65);
+  white-space:nowrap;
+}
+.marquee-item em{
+  font-style:normal;
+  color:rgba(168,85,247,.9);
+  font-weight:900;
+}
+.marquee-dot{
+  width:3px;height:3px;border-radius:50%;
+  background:rgba(168,85,247,.4);
+  flex-shrink:0;
+}
+
+/* ── HERO ── */
+.hero{
+  padding:40px 24px 32px;text-align:center;
+  background:linear-gradient(160deg,var(--ink2) 0%,#2d1b69 50%,#1a0a2e 100%);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(168,85,247,.25),transparent);
+  pointer-events:none;
+}
+.hero-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.star{position:absolute;background:#fff;border-radius:50%;
+  animation:twinkle var(--d,3s) ease-in-out infinite var(--dl,0s);opacity:0}
+@keyframes twinkle{0%,100%{opacity:0}50%{opacity:.8}}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  border-radius:30px;padding:6px 16px;
+  font-size:.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,.7);margin-bottom:18px;
+  position:relative;z-index:2;
+}
+.hero-h1{
+  font-size:clamp(1.9rem,7.5vw,2.8rem);font-weight:900;
+  color:#fff;line-height:1.1;letter-spacing:-1px;
+  margin-bottom:12px;position:relative;z-index:2;
+}
+.hero-h1 em{
+  font-style:normal;
+  background:linear-gradient(135deg,#a855f7,#ec4899,#f59e0b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-sub{
+  font-size:clamp(.85rem,3vw,.98rem);color:rgba(255,255,255,.65);
+  line-height:1.6;margin-bottom:28px;
+  max-width:380px;margin-left:auto;margin-right:auto;
+  position:relative;z-index:2;
+}
+.hero-proof{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  flex-wrap:wrap;position:relative;z-index:2;margin-bottom:24px;
+}
+.hproof-stat{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;padding:10px 16px;text-align:center;
+}
+.hps-n{font-size:1.2rem;font-weight:900;color:#fff}
+.hps-l{font-size:.55rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.hero-cta{
+  display:inline-block;
+  background:linear-gradient(135deg,var(--accent3),var(--accent));
+  color:#fff;font-size:.88rem;font-weight:900;
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:14px 32px;border-radius:30px;border:none;cursor:pointer;
+  box-shadow:0 6px 28px rgba(236,72,153,.4);
+  position:relative;z-index:2;
+  transition:all .2s;
+}
+.hero-cta:active{transform:scale(.97)}
+
+/* ── STEP INDICATOR ── */
+.steps-bar{
+  display:flex;align-items:center;justify-content:center;
+  padding:14px 24px;gap:0;
+  background:#fff;border-bottom:1px solid var(--border);
+  position:sticky;top:57px;z-index:90;
+}
+.step-node{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  position:relative;
+}
+.sn-num{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;font-weight:800;
+  border:2px solid var(--border);
+  color:var(--text-soft);background:#fff;
+  transition:all .3s;
+}
+.sn-label{font-size:.5rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft);white-space:nowrap}
+.step-node.active .sn-num{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-color:var(--accent);color:#fff;
+  box-shadow:0 0 0 4px rgba(124,58,237,.15);
+}
+.step-node.active .sn-label{color:var(--accent)}
+.step-node.done .sn-num{background:var(--green);border-color:var(--green);color:#fff}
+.step-node.done .sn-label{color:var(--green)}
+.step-line{width:36px;height:2px;background:var(--border);margin-bottom:16px;flex-shrink:0;transition:all .3s}
+.step-line.done{background:var(--green)}
+
+/* ── CONTENT AREA ── */
+.content-area{padding:20px 16px;flex:1}
+.card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  margin-bottom:14px;
+  box-shadow:0 2px 12px rgba(124,58,237,.04);
+}
+.section-title{
+  font-size:.62rem;font-weight:900;letter-spacing:3px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-title::before{content:'';width:3px;height:14px;background:linear-gradient(var(--accent),var(--accent3));border-radius:3px;flex-shrink:0}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone{
+  border:2px dashed var(--border);
+  border-radius:var(--radius);
+  padding:40px 20px;text-align:center;
+  cursor:pointer;transition:all .2s;
+  background:var(--surface2);
+  position:relative;overflow:hidden;
+}
+.upload-zone:hover,.upload-zone.dragover{
+  border-color:var(--accent);
+  background:rgba(124,58,237,.05);
+}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uz-icon{font-size:2.8rem;margin-bottom:10px}
+.uz-title{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:5px}
+.uz-sub{font-size:.75rem;color:var(--text-soft);line-height:1.5}
+.uz-badge{
+  display:inline-block;margin-top:10px;
+  background:rgba(124,58,237,.1);
+  border:1px solid rgba(124,58,237,.2);
+  color:var(--accent);font-size:.6rem;font-weight:700;
+  padding:4px 12px;border-radius:20px;letter-spacing:1px;
+}
+
+/* Face preview after upload */
+.face-preview{
+  position:relative;
+  border-radius:var(--radius);overflow:hidden;
+  border:2px solid var(--accent);
+  box-shadow:var(--shadow-lg);
+}
+.face-preview img{width:100%;height:240px;object-fit:cover;display:block}
+.face-preview-badge{
+  position:absolute;bottom:10px;left:10px;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(8px);
+  color:#fff;font-size:.62rem;font-weight:700;
+  padding:5px 12px;border-radius:20px;letter-spacing:1px;
+}
+.face-preview-change{
+  position:absolute;top:10px;right:10px;
+  background:rgba(0,0,0,.65);color:#fff;border:none;
+  font-size:.65rem;font-weight:700;padding:5px 12px;
+  border-radius:20px;cursor:pointer;letter-spacing:.5px;
+}
+
+/* ── OCCASION GRID ── */
+.occasion-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:9px;
+}
+.occ-btn{
+  border:2px solid var(--border);border-radius:14px;
+  padding:12px 6px;text-align:center;cursor:pointer;
+  background:#fff;transition:all .2s;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+}
+.occ-btn:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}
+.occ-btn.selected{
+  border-color:var(--accent);
+  background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(168,85,247,.05));
+  box-shadow:var(--shadow);
+}
+.occ-emoji{font-size:1.5rem}
+.occ-name{font-size:.65rem;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--text)}
+.occ-desc{font-size:.54rem;font-weight:500;color:var(--text-soft);line-height:1.3}
+
+/* ── SKIN TONE PICKER ── */
+.skin-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:4px 0 22px}
+.skin-btn{
+  width:50px;height:50px;border-radius:50%;
+  border:3px solid transparent;cursor:pointer;
+  transition:all .2s;position:relative;
+}
+.skin-btn:hover{transform:scale(1.1)}
+.skin-btn.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,58,237,.25)}
+.skin-btn::after{
+  content:attr(data-label);
+  position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  font-size:.48rem;font-weight:700;color:var(--text-soft);white-space:nowrap;
+}
+
+/* ── GENERATE BUTTON ── */
+.gen-btn{
+  width:100%;padding:18px;border:none;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));
+  background-size:200% 200%;animation:gradShift 4s ease infinite;
+  color:#fff;font-size:1rem;font-weight:900;cursor:pointer;
+  letter-spacing:2px;text-transform:uppercase;
+  box-shadow:0 6px 0 rgba(100,30,180,.35),0 8px 28px rgba(124,58,237,.4);
+  transition:all .15s;
+}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.gen-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(100,30,180,.35)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;animation:none}
+
+/* ── LOADING SCREEN ── */
+.loading-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:60px 24px;text-align:center;
+  flex:1;
+}
+.loading-orb{
+  width:100px;height:100px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.5rem;margin-bottom:24px;
+  animation:orbPulse 2s ease-in-out infinite;
+}
+@keyframes orbPulse{
+  0%{box-shadow:0 0 0 0 rgba(124,58,237,.5);transform:scale(1)}
+  50%{box-shadow:0 0 0 24px rgba(124,58,237,0);transform:scale(1.05)}
+  100%{box-shadow:0 0 0 0 rgba(124,58,237,0);transform:scale(1)}
+}
+.loading-title{font-size:1.1rem;font-weight:900;color:var(--text);margin-bottom:8px}
+.loading-sub{font-size:.78rem;color:var(--text-soft);line-height:2;margin-bottom:20px}
+.loading-bar-wrap{width:240px;height:6px;background:var(--border);border-radius:6px;overflow:hidden;margin-bottom:14px}
+.loading-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));
+  border-radius:6px;width:0%;transition:width .4s ease}
+.loading-status{font-size:.62rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--accent)}
+.loading-steps-list{margin-top:20px;display:flex;flex-direction:column;gap:6px;width:100%;max-width:280px}
+.ls-step{
+  display:flex;align-items:center;gap:10px;
+  background:#fff;border:1px solid var(--border);
+  border-radius:10px;padding:10px 14px;
+  font-size:.72rem;font-weight:600;color:var(--text-soft);
+  transition:all .3s;
+}
+.ls-step.done{color:var(--green);border-color:rgba(5,150,105,.2);background:rgba(5,150,105,.04)}
+.ls-step.active{color:var(--accent);border-color:rgba(124,58,237,.2);background:rgba(124,58,237,.04)}
+.ls-icon{width:18px;height:18px;border-radius:50%;background:var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:.6rem;flex-shrink:0}
+.ls-step.done .ls-icon{background:var(--green);color:#fff}
+.ls-step.active .ls-icon{background:var(--accent);color:#fff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RESULTS ── */
+.results-header{
+  padding:20px 18px 16px;
+  background:linear-gradient(135deg,var(--ink2),#2d1b69);
+}
+.rh-tag{font-size:.56rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(255,255,255,.5);margin-bottom:5px}
+.rh-title{font-size:1.1rem;font-weight:900;color:#fff;margin-bottom:2px}
+.rh-sub{font-size:.7rem;color:rgba(255,255,255,.55)}
+.rh-meta{display:flex;align-items:center;gap:7px;margin-top:10px;flex-wrap:wrap}
+.rh-chip{
+  background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);
+  font-size:.58rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.15);
+}
+
+/* ── LOOK CARD ── */
+.look-card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 4px 20px rgba(124,58,237,.07);
+  margin-bottom:16px;
+}
+.lc-header{
+  padding:18px 18px 0;
+  display:flex;justify-content:space-between;align-items:flex-start;
+}
+.lc-look-num{
+  font-size:.55rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+  color:var(--text-soft);margin-bottom:3px;
+}
+.lc-look-name{font-size:1.05rem;font-weight:900;color:var(--text);line-height:1.1;margin-bottom:3px}
+.lc-look-desc{font-size:.72rem;color:var(--text-soft);line-height:1.4}
+.lc-badge{
+  font-size:.52rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;
+  padding:5px 11px;border-radius:10px;white-space:nowrap;margin-top:2px;flex-shrink:0;
+}
+.badge-natural{background:rgba(5,150,105,.1);color:var(--green);border:1px solid rgba(5,150,105,.2)}
+.badge-glam{background:rgba(124,58,237,.1);color:var(--accent);border:1px solid rgba(124,58,237,.2)}
+.badge-trendy{background:rgba(212,175,55,.12);color:#a0791c;border:1px solid rgba(212,175,55,.25)}
+
+/* Palette */
+.lc-palette{padding:16px 18px;border-top:1px solid var(--border);margin-top:14px}
+.palette-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.palette-label{
+  font-size:.52rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:var(--text-soft);width:42px;flex-shrink:0;
+}
+.palette-swatches{display:flex;align-items:center;gap:6px;flex:1}
+.swatch{
+  width:28px;height:28px;border-radius:50%;
+  border:2px solid rgba(0,0,0,.08);cursor:pointer;
+  transition:all .15s;flex-shrink:0;
+}
+.swatch:hover{transform:scale(1.2);box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.swatch.primary{width:34px;height:34px;border-color:rgba(0,0,0,.15)}
+.palette-name{font-size:.68rem;font-weight:700;color:var(--text);margin-left:4px}
+.palette-code{font-size:.58rem;font-weight:600;color:var(--text-soft);font-family:monospace;margin-left:2px}
+
+/* Technique */
+.lc-technique{padding:0 18px 14px}
+.tech-label{font-size:.55rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text-soft);margin-bottom:8px}
+.tech-steps{display:flex;flex-wrap:wrap;gap:6px}
+.tech-step{
+  display:flex;align-items:center;gap:5px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:20px;padding:5px 10px;
+  font-size:.65rem;font-weight:600;color:var(--text);
+}
+.tech-step-num{
+  width:16px;height:16px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-size:.5rem;font-weight:900;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+
+/* Products (Affiliate Matches) */
+.lc-products{border-top:1px solid var(--border);padding:14px 18px}
+.prod-label{
+  font-size:.55rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:var(--text-soft);margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.aff-tag{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#5a3800;font-size:.52rem;font-weight:900;
+  padding:3px 8px;border-radius:6px;letter-spacing:.5px;
+}
+.prod-list{display:flex;flex-direction:column;gap:8px}
+.prod-item{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:11px 12px;
+  text-decoration:none;color:inherit;
+  transition:all .15s;
+}
+.prod-item:hover{border-color:var(--accent);box-shadow:var(--shadow);background:var(--surface2)}
+.prod-emoji{font-size:1.2rem;flex-shrink:0}
+.prod-info{flex:1;min-width:0}
+.prod-brand{font-size:.58rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-soft)}
+.prod-name{font-size:.75rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-price{font-size:.8rem;font-weight:900;color:var(--accent);white-space:nowrap}
+.prod-arrow{font-size:.8rem;color:var(--text-soft);flex-shrink:0}
+.prod-item.sponsored{border-color:rgba(212,175,55,.3);background:rgba(212,175,55,.04)}
+.prod-sponsored-badge{font-size:.48rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--gold);background:rgba(212,175,55,.12);padding:2px 6px;border-radius:4px;margin-left:auto}
+
+/* Look actions */
+.lc-actions{
+  padding:12px 18px 16px;
+  display:flex;gap:8px;border-top:1px solid var(--border);
+}
+.lca-btn{
+  flex:1;padding:10px 8px;border-radius:10px;border:none;
+  font-size:.68rem;font-weight:800;cursor:pointer;
+  letter-spacing:.5px;transition:all .15s;
+}
+.lca-save{background:var(--surface2);border:1px solid var(--border);color:var(--text)}
+.lca-share{background:linear-gradient(135deg,rgba(236,72,153,.1),rgba(168,85,247,.08));
+  border:1px solid rgba(236,72,153,.2);color:var(--accent3)}
+.lca-try{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+  box-shadow:0 3px 10px rgba(124,58,237,.25)}
+.lca-btn:active{transform:scale(.97)}
+
+/* ── SHARE STRIP ── */
+.share-strip{
+  background:linear-gradient(135deg,var(--ink2),#2d1b69);
+  border-radius:var(--radius);padding:20px;
+  margin-bottom:14px;
+}
+.ss-title{font-size:.95rem;font-weight:900;color:#fff;margin-bottom:6px}
+
+/* ── SPONSOR STRIP ── */
+.sponsor-strip{
+  margin:18px 14px 4px;
+  padding:16px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+}
+.sponsor-strip-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.sponsor-strip-title{
+  font-size:.55rem;font-weight:900;letter-spacing:2px;
+  text-transform:uppercase;color:var(--text-soft);
+}
+.sponsor-strip-badge{
+  font-size:.48rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  background:rgba(212,175,55,.12);color:var(--gold);
+  border:1px solid rgba(212,175,55,.2);border-radius:20px;padding:2px 8px;
+}
+.sponsor-cols{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+}
+@media(max-width:500px){.sponsor-cols{grid-template-columns:repeat(2,1fr);}}
+.sponsor-col{
+  background:var(--ink2);border:1px solid var(--border);
+  border-radius:10px;padding:10px 9px;
+  display:flex;flex-direction:column;gap:5px;
+  transition:border-color .15s,transform .15s;
+  text-decoration:none;cursor:pointer;
+}
+.sponsor-col:hover{border-color:rgba(168,85,247,.4);transform:translateY(-1px);}
+.sponsor-col.has-sponsor{border-color:rgba(212,175,55,.25);background:rgba(212,175,55,.03);}
+.sc-cat-label{
+  font-size:.45rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--text-soft);margin-bottom:2px;
+}
+.sc-product-name{
+  font-size:.7rem;font-weight:700;color:var(--text);line-height:1.3;
+}
+.sc-brand{font-size:.62rem;color:var(--text-soft);}
+.sc-price{font-size:.65rem;font-weight:800;color:var(--gold);}
+.sc-cta{
+  font-size:.58rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--accent);margin-top:2px;display:flex;align-items:center;gap:3px;
+}
+.sc-partner-tag{
+  font-size:.42rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;
+  color:var(--gold);background:rgba(212,175,55,.1);
+  border-radius:3px;padding:1px 5px;width:fit-content;margin-bottom:2px;
+}
+.sc-empty{
+  color:var(--text-soft);font-size:.65rem;text-align:center;
+  padding:8px 4px;line-height:1.5;
+}
+
+/* ── TAGLINE STRIP ── */
+.tagline-strip{
+  background:linear-gradient(180deg,#0f0720 0%,#1a0a2e 100%);
+  padding:18px 20px 16px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  border-bottom:1px solid rgba(168,85,247,.15);
+}
+.tagline-strip::before{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 120% at 50% 100%,rgba(124,58,237,.2),transparent);
+  pointer-events:none;
+}
+.ts-inner{position:relative;z-index:1;}
+.ts-line{
+  font-weight:900;letter-spacing:-0.5px;line-height:1.2;
+  display:block;
+}
+.ts-line-1{
+  font-size:clamp(1rem,4.5vw,1.5rem);
+  color:rgba(255,255,255,.65);
+  margin-bottom:3px;
+}
+.ts-line-2{
+  font-size:clamp(1.4rem,6.5vw,2.4rem);
+  background:linear-gradient(135deg,#a855f7 0%,#ec4899 55%,#f59e0b 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+/* ── CONFETTI CANVAS ── */
+#confetti-canvas{
+  position:fixed;inset:0;pointer-events:none;z-index:9999;
+  display:none;
+}
+
+/* ── LOOK NAME FLASH ── */
+#look-flash{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;
+  background:rgba(10,10,15,.92);
+  backdrop-filter:blur(8px);
+  z-index:9998;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+}
+#look-flash.show{opacity:1;pointer-events:auto;}
+.lf-occasion{
+  font-size:.65rem;font-weight:900;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(168,85,247,.7);
+}
+.lf-name{
+  font-size:2.2rem;font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(135deg,#a855f7,#ec4899,#f59e0b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;text-align:center;line-height:1.1;
+  padding:0 20px;
+}
+.lf-sub{font-size:.72rem;color:rgba(255,255,255,.4);}
+
+/* ── POST-REVEAL SHARE PROMPT ── */
+#share-prompt{
+  position:fixed;bottom:-120px;left:50%;transform:translateX(-50%);
+  width:min(92vw,400px);
+  background:linear-gradient(135deg,#1e0a3c,#2d1b69);
+  border:1px solid rgba(168,85,247,.3);
+  border-radius:16px;padding:16px 20px;
+  z-index:9997;
+  transition:bottom .5s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 -4px 30px rgba(124,58,237,.3);
+  display:flex;align-items:center;gap:14px;
+}
+#share-prompt.show{bottom:24px;}
+.sp-text{flex:1;}
+.sp-title{font-size:.8rem;font-weight:800;color:#fff;margin-bottom:2px;}
+.sp-sub{font-size:.65rem;color:rgba(255,255,255,.5);}
+.sp-btn{
+  background:linear-gradient(135deg,#7c3aed,#ec4899);
+  color:#fff;border:none;border-radius:10px;
+  padding:9px 16px;font-size:.65rem;font-weight:800;
+  cursor:pointer;white-space:nowrap;letter-spacing:.5px;
+  text-transform:uppercase;
+}
+.sp-close{
+  position:absolute;top:8px;right:10px;
+  background:none;border:none;color:rgba(255,255,255,.3);
+  font-size:.8rem;cursor:pointer;padding:2px 6px;
+}
+.ss-sub{font-size:.72rem;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:14px}
+.ss-ideas{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.ss-idea{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.75);font-size:.6rem;font-weight:700;
+  padding:5px 10px;border-radius:20px;cursor:pointer;
+}
+.ss-btns{display:flex;gap:8px}
+.ss-btn{
+  flex:1;padding:11px 8px;border:none;border-radius:10px;
+  font-size:.72rem;font-weight:800;cursor:pointer;letter-spacing:.5px;
+  transition:all .15s;
+}
+.ss-wa{background:#25D366;color:#fff}
+.ss-ig{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff}
+.ss-copy{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff}
+.ss-btn:active{transform:scale(.97)}
+
+/* ── PRO GATE ── */
+.pro-gate{
+  background:linear-gradient(135deg,#0a0a0f,#1a0a2e);
+  border:1px solid rgba(212,175,55,.3);
+  border-radius:var(--radius);padding:24px;
+  margin-bottom:14px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.pro-gate::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(212,175,55,.1),transparent);
+}
+.pg-icon{font-size:2rem;margin-bottom:10px;position:relative;z-index:1}
+.pg-title{font-size:1rem;font-weight:900;color:#fff;margin-bottom:8px;position:relative;z-index:1}
+.pg-sub{font-size:.72rem;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:16px;position:relative;z-index:1}
+.pg-perks{display:flex;flex-direction:column;gap:7px;margin-bottom:18px}
+.pg-perk{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;padding:10px 12px;text-align:left;
+  position:relative;z-index:1;
+}
+.pg-perk-icon{font-size:1.1rem;flex-shrink:0}
+.pg-perk-text{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.85)}
+.pg-perk-sub{font-size:.62rem;color:rgba(255,255,255,.45);line-height:1.3}
+.pg-btn{
+  width:100%;padding:15px;border:none;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#3a2000;font-size:.9rem;font-weight:900;cursor:pointer;
+  letter-spacing:1.5px;text-transform:uppercase;
+  box-shadow:0 4px 20px rgba(212,175,55,.35);
+  position:relative;z-index:1;transition:all .15s;
+}
+.pg-btn:active{transform:scale(.98)}
+
+/* ── MODAL ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:999;
+  background:rgba(10,10,15,.7);backdrop-filter:blur(6px);
+  align-items:flex-end;justify-content:center;
+}
+.modal-overlay.show{display:flex}
+.modal-box{
+  background:#fff;border-radius:24px 24px 0 0;
+  padding:24px 20px 36px;
+  width:100%;max-width:480px;
+  animation:slideUp .3s cubic-bezier(.34,1.56,.64,1);
+  max-height:90vh;overflow-y:auto;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 20px}
+.modal-title{font-size:1.2rem;font-weight:900;color:var(--text);margin-bottom:6px}
+.modal-sub{font-size:.75rem;color:var(--text-soft);line-height:1.5;margin-bottom:20px}
+.modal-close{
+  position:absolute;top:14px;right:14px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:50%;width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;cursor:pointer;color:var(--text-soft);
+}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ink2);color:#fff;border:1px solid rgba(255,255,255,.1);
+  padding:12px 20px;border-radius:30px;font-size:.78rem;font-weight:700;
+  z-index:9999;opacity:0;transition:all .3s;pointer-events:none;
+  white-space:nowrap;max-width:90vw;
+  box-shadow:0 8px 28px rgba(0,0,0,.3);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── PRO MODAL specific ── */
+.pro-feature-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.pf-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:14px 12px;
+}
+.pf-icon{font-size:1.3rem;flex-shrink:0}
+.pf-label{font-size:.8rem;font-weight:800;color:var(--text);margin-bottom:2px}
+.pf-sub{font-size:.68rem;color:var(--text-soft);line-height:1.4}
+.btn-primary{
+  width:100%;padding:15px;border:none;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-size:.88rem;font-weight:900;cursor:pointer;
+  letter-spacing:1px;text-transform:uppercase;
+  box-shadow:0 4px 18px rgba(124,58,237,.3);
+  transition:all .15s;
+}
+.btn-primary:active{transform:scale(.98)}
+.bottom-pad{height:40px}
+
+/* ── SWATCH TOOLTIP ── */
+.swatch-info-modal .modal-box{border-radius:20px;margin:20px;width:calc(100% - 40px);max-width:340px}
+.modal-overlay.swatch-info-modal{align-items:center}
+.swatch-large{width:80px;height:80px;border-radius:50%;margin:0 auto 14px;border:3px solid rgba(0,0,0,.1)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 1: UPLOAD + CONFIGURE
+═══════════════════════════════════════════════════════ -->
+<div id="s-upload" class="screen active">
+
+  <div class="nav">
+    <div onclick="adminTap()" style="cursor:default;-webkit-tap-highlight-color:transparent">
+      <div class="nav-logo">Astyra</div>
+      <div class="nav-sub">Makeup chosen for your occasion</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="nav-scan-count">
+        <div class="nav-scan-dot"></div>
+        <span id="scan-display">3</span> scans left
+      </div>
+    </div>
+  </div>
+
+  <!-- TAGLINE STRIP -->
+  <div class="tagline-strip">
+    <div class="ts-inner">
+      <div class="ts-line ts-line-1">Your face. Your occasion.</div>
+      <div class="ts-line ts-line-2">Your perfect look.</div>
+    </div>
+  </div>
+
+  <!-- Step indicator -->
+  <div class="steps-bar">
+    <div class="step-node active" id="step1">
+      <div class="sn-num">1</div>
+      <div class="sn-label">Upload</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-node" id="step2">
+      <div class="sn-num">2</div>
+      <div class="sn-label">Occasion</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-node" id="step3">
+      <div class="sn-num">3</div>
+      <div class="sn-label">Skin Tone</div>
+    </div>
+    <div class="step-line" id="line3"></div>
+    <div class="step-node" id="step4">
+      <div class="sn-num">4</div>
+      <div class="sn-label">Looks</div>
+    </div>
+  </div>
+
+  <!-- AFFILIATE DISCLOSURE -->
+  <div class="aff-disclosure">
+    ✦ Some links below are affiliate links — Astyra may earn a small commission if you buy, at no extra cost to you.
+    <a href="/privacy">Privacy &amp; Disclosure</a>
+  </div>
+
+  <!-- FOUNDING MEMBER BANNER -->
+  <div class="founding-banner" id="founding-banner" style="display:none">
+    <div class="fb-left">
+      <div class="fb-badge">🌟 Founding Member</div>
+      <div>
+        <div class="fb-text">First 1,000 members get Pro <strong style="color:var(--gold)">free forever</strong></div>
+        <div class="fb-count" id="founding-spots-left">Loading...</div>
+      </div>
+    </div>
+    <div class="fb-bar-wrap"><div class="fb-bar-fill" id="founding-bar" style="width:0%"></div></div>
+    <button class="fb-cta" onclick="showModal('pro-modal')">Claim Free Spot →</button>
+  </div>
+
+  <!-- OCCASION MARQUEE -->
+  <div class="occ-marquee">
+    <div class="marquee-track" id="marquee-track">
+      <!-- duplicated for seamless loop -->
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-stars" id="stars-container"></div>
+    <div class="hero-eyebrow">✦ AI-Powered · Occasion-Based · Not a Filter App</div>
+    <h1 class="hero-h1">Makeup chosen<br/><em>for your occasion</em></h1>
+    <p class="hero-sub">Upload a bare face. Tell Astyra your occasion. Get 3 expert-level looks with exact lip, eye & blush colours — and the products to buy.</p>
+    <div class="hero-proof">
+      <div class="hproof-stat"><div class="hps-n">48,200+</div><div class="hps-l">Looks Generated</div></div>
+      <div class="hproof-stat"><div class="hps-n">12 Occasions</div><div class="hps-l">Intelligence Library</div></div>
+      <div class="hproof-stat"><div class="hps-n">6 Skin Tones</div><div class="hps-l">Dermal Base Mapping</div></div>
+    </div>
+  </div>
+
+  <div class="content-area">
+
+    <!-- STEP 1: Upload -->
+    <div class="card">
+      <div class="section-title">Step 01 — Initiate Face Scan</div>
+      <div class="upload-zone" id="upload-zone"
+        ondragover="this.classList.add('dragover')"
+        ondragleave="this.classList.remove('dragover')"
+        ondrop="handleDrop(event)">
+        <input type="file" id="face-input" accept="image/*" onchange="handleUpload(event)"/>
+        <div class="uz-icon">📷</div>
+        <div class="uz-title">Upload Bare Face Photo</div>
+        <div class="uz-sub">No makeup. Good lighting. Facing forward.<br/>Your photo is processed in your browser only.</div>
+        <div class="uz-badge">🔒 PRIVATE · LOCAL PROCESSING</div>
+      </div>
+    </div>
+
+    <!-- SPONSOR STRIP -->
+    <div class="sponsor-strip" id="sponsor-strip"></div>
+
+    <!-- STEP 2: Occasion -->
+    <div id="occasion-step" style="display:none">
+      <div id="face-preview-wrap" style="margin-bottom:14px"></div>
+      <div class="card">
+        <div class="section-title">Step 02 — Select Your Occasion</div>
+        <div class="occasion-grid" id="occasion-grid"></div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Skin Tone -->
+    <div id="skin-step" style="display:none">
+      <div class="card">
+        <div class="section-title">Step 03 — Dermal Base Tone</div>
+        <p style="font-size:.72rem;color:var(--text-soft);margin-bottom:18px;line-height:1.5">Select the tone closest to your natural skin. Astyra uses this to calibrate colour harmonics for your occasion look.</p>
+        <div class="skin-row" id="skin-row"></div>
+      </div>
+    </div>
+
+    <!-- GENERATE -->
+    <div id="gen-wrap" style="display:none">
+      <div class="card" style="background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(236,72,153,.04));border-color:rgba(124,58,237,.25)">
+        <div style="font-size:.58rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px">✦ ANALYSIS MATRIX READY</div>
+        <div style="font-size:.82rem;font-weight:700;color:var(--text);line-height:1.5;margin-bottom:16px" id="gen-summary">Occasion + dermal tone loaded. Ready for look generation.</div>
+        <button class="gen-btn" id="gen-btn" onclick="generateLooks()">
+          ✦ INITIATE LOOK GENERATION
+        </button>
+        <p style="font-size:.62rem;color:var(--text-soft);text-align:center;margin-top:8px">3 looks • Exact colour codes • Affiliate product matches</p>
+      </div>
+    </div>
+
+  </div>
+  <div class="bottom-pad"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 2: LOADING
+═══════════════════════════════════════════════════════ -->
+<div id="s-loading" class="screen">
+  <div class="nav">
+    <div><div class="nav-logo">Astyra</div><div class="nav-sub">Processing</div></div>
+  </div>
+  <div class="loading-wrap">
+    <div class="loading-orb" id="loading-orb">✦</div>
+    <div class="loading-title">Occasion Intelligence Engine</div>
+    <div class="loading-sub" id="loading-sub">Analysing your occasion profile...</div>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar" id="loading-bar"></div>
+    </div>
+    <div class="loading-status" id="loading-status">INITIALISING</div>
+    <div class="loading-steps-list" id="loading-steps-list">
+      <div class="ls-step active" id="ls1"><div class="ls-icon">↻</div><span>Scanning facial tone matrix</span></div>
+      <div class="ls-step" id="ls2"><div class="ls-icon">○</div><span>Matching occasion look library</span></div>
+      <div class="ls-step" id="ls3"><div class="ls-icon">○</div><span>Calibrating colour harmonics</span></div>
+      <div class="ls-step" id="ls4"><div class="ls-icon">○</div><span>Sourcing affiliate product matches</span></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 3: RESULTS
+═══════════════════════════════════════════════════════ -->
+<div id="s-results" class="screen">
+
+  <div class="nav">
+    <div><div class="nav-logo">Astyra</div><div class="nav-sub">Your Look Report</div></div>
+    <button onclick="resetApp()" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:.65rem;font-weight:800;cursor:pointer;color:var(--text)">↩ New Scan</button>
+  </div>
+
+  <!-- Results header -->
+  <div class="results-header">
+    <div class="rh-tag">Astyra Occasion Intelligence Report</div>
+    <div class="rh-title" id="rh-title">Wedding Guest — 3 Curated Looks</div>
+    <div class="rh-sub" id="rh-sub">AI-matched to your skin tone and event context</div>
+    <div class="rh-meta" id="rh-meta"></div>
+  </div>
+
+  <!-- Look cards -->
+  <div style="padding:16px 14px 0" id="results-container"></div>
+
+  <!-- Share strip -->
+  <div style="padding:0 14px">
+    <div class="share-strip">
+      <div class="ss-title">💬 Share your Astyra report</div>
+      <div class="ss-sub">Post your looks, ask friends which one suits you, or create content with your AI-generated looks.</div>
+      <div class="ss-ideas">
+        <span class="ss-idea" onclick="copyIdea(this)">📸 "AI picked my makeup for a wedding"</span>
+        <span class="ss-idea" onclick="copyIdea(this)">💄 "before/after my Astyra look"</span>
+        <span class="ss-idea" onclick="copyIdea(this)">🤔 "which look is better? vote below"</span>
+      </div>
+      <div class="ss-btns">
+        <button class="ss-btn ss-wa" onclick="shareWA()">WhatsApp</button>
+        <button class="ss-btn ss-ig" onclick="shareIG()">Instagram</button>
+        <button class="ss-btn ss-copy" onclick="copyShareLink()">Copy Link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pro gate -->
+  <div style="padding:0 14px">
+    <div class="pro-gate" id="pro-gate">
+      <div class="pg-icon">👑</div>
+      <div class="pg-title">Astyra Pro Blueprint — $4.99/mo</div>
+      <div class="pg-sub">Unlock unlimited scans, luxury brand picks, face-shape AI tutorials, and exclusive occasion bundles.</div>
+      <div class="pg-perks">
+        <div class="pg-perk"><div class="pg-perk-icon">♾️</div><div><div class="pg-perk-text">Unlimited Scans</div><div class="pg-perk-sub">Free users get 3/month</div></div></div>
+        <div class="pg-perk"><div class="pg-perk-icon">💎</div><div><div class="pg-perk-text">Luxury Brand Picks</div><div class="pg-perk-sub">Charlotte Tilbury, NARS, Armani Beauty</div></div></div>
+        <div class="pg-perk"><div class="pg-perk-icon">📐</div><div><div class="pg-perk-text">Face Shape Tutorials</div><div class="pg-perk-sub">AI step-by-step for your exact face shape</div></div></div>
+        <div class="pg-perk"><div class="pg-perk-icon">🎯</div><div><div class="pg-perk-text">Exclusive Occasion Packs</div><div class="pg-perk-sub">Destination Wedding · Black Tie · Maternity Shoot</div></div></div>
+      </div>
+      <button class="pg-btn" onclick="showModal('pro-modal')">UNLOCK PRO — $4.99/mo →</button>
+      <p style="font-size:.6rem;color:rgba(255,255,255,.35);margin-top:8px;position:relative;z-index:1">7-day free trial · Cancel anytime</p>
+    </div>
+  </div>
+
+  <div class="bottom-pad"></div>
+</div>
+
+
+<!-- ═══════════ TOAST ═══════════ -->
+<div id="toast"></div>
+
+
+<!-- ═══════════ PRO MODAL ═══════════ -->
+<div class="modal-overlay" id="pro-modal">
+  <div class="modal-box" style="position:relative">
+    <button class="modal-close" onclick="closeModal('pro-modal')">✕</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title">👑 Astyra Pro Blueprint</div>
+    <div class="modal-sub">Join 4,800+ women who've upgraded their occasion intelligence. No commitment, cancel anytime.</div>
+    <div class="pro-feature-list">
+      <div class="pf-item"><div class="pf-icon">♾️</div><div><div class="pf-label">Unlimited Scans</div><div class="pf-sub">Free users: 3/month. Pro: unlimited. Generate as many occasion looks as you need.</div></div></div>
+      <div class="pf-item"><div class="pf-icon">💎</div><div><div class="pf-label">Luxury Brand Picks</div><div class="pf-sub">Charlotte Tilbury, NARS, Armani Beauty, Sisley, Guerlain and more.</div></div></div>
+      <div class="pf-item"><div class="pf-icon">📐</div><div><div class="pf-label">Face Shape AI Tutorials</div><div class="pf-sub">Astyra detects your face shape and generates step-by-step application guides tailored to your features.</div></div></div>
+      <div class="pf-item"><div class="pf-icon">🎯</div><div><div class="pf-label">Exclusive Occasion Packs</div><div class="pf-sub">Destination Wedding · Black Tie Gala · Graduation · Maternity Shoot · Festival · Engagement</div></div></div>
+      <div class="pf-item"><div class="pf-icon">🎨</div><div><div class="pf-label">Expanded Colour Library</div><div class="pf-sub">200+ curated colour combinations across 6 skin tones × 12 occasions × 3 look types.</div></div></div>
+    </div>
+    <button class="btn-primary" id="pro-join-btn" onclick="handleProUpgrade()">Start Pro — $4.99/mo →</button>
+    <p style="text-align:center;font-size:.65rem;color:var(--text-soft);margin-top:10px" id="pro-join-sub">7-day free trial · Cancel anytime · No commitment</p>
+  </div>
+</div>
+
+<!-- ═══════════ SWATCH INFO MODAL ═══════════ -->
+<div class="modal-overlay swatch-info-modal" id="swatch-modal" onclick="closeModal('swatch-modal')">
+  <div class="modal-box" style="text-align:center;max-width:320px;margin:auto;border-radius:20px;padding:24px 20px 28px" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="swatch-large" id="swatch-modal-color"></div>
+    <div style="font-size:1rem;font-weight:900;color:var(--text);margin-bottom:4px" id="swatch-modal-name"></div>
+    <div style="font-family:monospace;font-size:.82rem;font-weight:700;color:var(--text-soft);margin-bottom:16px" id="swatch-modal-hex"></div>
+    <p style="font-size:.72rem;color:var(--text-soft);line-height:1.5;margin-bottom:16px" id="swatch-modal-tip"></p>
+    <button class="btn-primary" onclick="closeModal('swatch-modal')">Got it ✓</button>
+  </div>
+</div>
+
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  Astyra v2 — OCCASION INTELLIGENCE ENGINE
+//  Full data, logic, affiliate & tracking system
+// ════════════════════════════════════════════════════════════════
+
+// ── AFFILIATE CONFIG (synced from admin dashboard) ──────────────
+let AFF_ID = localStorage.getItem('astyra_aff_id') || '';
+
+// ── STATE ────────────────────────────────────────────────────────
+let STATE = {
+  faceDataUrl: null,
+  occasion: null,
+  skinTone: null,
+  scansLeft: parseInt(localStorage.getItem('astyra_scans') ?? '3'),
+  isPro: localStorage.getItem('astyra_pro') === '1',
+};
+
+// ── OCCASION LIBRARY ─────────────────────────────────────────────
+const OCCASIONS = [
+  { id:'wedding-guest', emoji:'💍', name:'Wedding Guest',   desc:'Ceremony & reception' },
+  { id:'wedding-bride', emoji:'👰', name:'Bridal',          desc:'Your big day', pro:true },
+  { id:'party',         emoji:'🥂', name:'Night Out',       desc:'Party & celebrations' },
+  { id:'work',          emoji:'💼', name:'Corporate',       desc:'Office & meetings' },
+  { id:'first-date',    emoji:'💕', name:'First Date',      desc:'Dinner & romance' },
+  { id:'graduation',    emoji:'🎓', name:'Graduation',      desc:'Ceremony & photos' },
+  { id:'gala',          emoji:'✨', name:'Black Tie Gala',  desc:'Formal events', pro:true },
+  { id:'brunch',        emoji:'🌸', name:'Brunch',          desc:'Casual daytime' },
+  { id:'photoshoot',    emoji:'📸', name:'Photoshoot',      desc:'Camera-ready looks' },
+  { id:'interview',     emoji:'📋', name:'Job Interview',   desc:'Polished & confident' },
+  { id:'birthday',      emoji:'🎂', name:'Birthday Party',  desc:'Fun & festive' },
+  { id:'festival',      emoji:'🎪', name:'Festival',        desc:'Outdoor & creative', pro:true },
+];
+
+// ── SKIN TONES ────────────────────────────────────────────────────
+const SKIN_TONES = [
+  { id:'fair',   color:'#F5D5C0', label:'Fair' },
+  { id:'light',  color:'#E8B89A', label:'Light' },
+  { id:'medium', color:'#C68642', label:'Medium' },
+  { id:'tan',    color:'#A0522D', label:'Tan' },
+  { id:'deep',   color:'#7B3F00', label:'Deep' },
+  { id:'rich',   color:'#3B1F0E', label:'Rich' },
+];
+
+// ── FULL LOOK ENGINE ─────────────────────────────────────────────
+// 216 combinations (12 occasions × 6 skin tones × 3 looks)
+// Represented as occasion → skin-modifier → look style
+// Skin modifier adjusts colours based on tone
+
+const BASE_LOOKS = {
+  'wedding-guest':{
+    natural:{ name:'Soft Bridal Glow', desc:'Luminous, camera-ready, effortless',
+      lip:[{n:'Dusty Rose',h:'#C17B7B'},{n:'Blush Nude',h:'#D4A0A0'},{n:'Petal Pink',h:'#E8B4B8'}],
+      eye:[{n:'Champagne',h:'#F5DEB3'},{n:'Warm Taupe',h:'#8B7355'},{n:'Soft Brown',h:'#6B4C3B'}],
+      blush:[{n:'Peach Flush',h:'#FFB347'},{n:'Rose Petal',h:'#E8A0A0'}],
+      tip:'Apply champagne shadow to lid, blend taupe into crease. Blush high on cheekbones.',
+      technique:['Luminous primer','Champagne lid shadow','Taupe crease blend','Peach blush high','Dusty rose lip + gloss'],
+    },
+    glam:{ name:'Luminous Drama', desc:'Bold, elegant, unforgettable',
+      lip:[{n:'Deep Berry',h:'#8B2252'},{n:'Wine Red',h:'#722F37'},{n:'Plum',h:'#8E4585'}],
+      eye:[{n:'Rose Gold',h:'#B76E79'},{n:'Bronze',h:'#CD7F32'},{n:'Deep Espresso',h:'#3B2314'}],
+      blush:[{n:'Sculpted Rose',h:'#C27A7A'},{n:'Bronze Contour',h:'#A0785A'}],
+      tip:'Full coverage base. Rose gold on lid, bronze outer-V, smoky lower lash line. Bold lip with clear liner.',
+      technique:['Full coverage foundation','Rose gold lid','Bronze outer V','Smoky lower lash','Bold berry lip'],
+    },
+    trendy:{ name:'Glass Skin Editorial', desc:'Dewy, modern, unexpected',
+      lip:[{n:'Sheer Gloss',h:'#F5C5C5'},{n:'MLBB',h:'#C8897A'},{n:'Warm Coral',h:'#E8896B'}],
+      eye:[{n:'Vanilla Shimmer',h:'#F3E5AB'},{n:'Terracotta',h:'#CB6843'},{n:'Copper',h:'#B87333'}],
+      blush:[{n:'Golden Flush',h:'#E8B86D'},{n:'Warm Peach',h:'#FFAB76'}],
+      tip:'Dewy glass skin finish. Monochromatic terracotta on eyes and cheeks. Clear lip gloss.',
+      technique:['Glass skin prep & glow','Terracotta monochrome eye','Copper inner corner','Golden flush blush','Sheer MLBB gloss'],
+    },
+  },
+  'party':{
+    natural:{ name:'Effortless Night Out', desc:'Fresh, polished, social-ready',
+      lip:[{n:'MLBB Nude',h:'#C8897A'},{n:'Warm Mauve',h:'#B07B8A'},{n:'Peach Nude',h:'#D4A090'}],
+      eye:[{n:'Warm Gold',h:'#D4A843'},{n:'Tawny Brown',h:'#9E6B4A'},{n:'Soft Black',h:'#2D2D2D'}],
+      blush:[{n:'Coral Glow',h:'#FF7F5C'},{n:'Peach',h:'#FFBE9A'}],
+      tip:'Warm gold on lids with tawny crease. Dewy skin, coral cheeks, MLBB lip.',
+      technique:['Dewy skin prep','Gold shimmer lid','Tawny crease blend','Coral cheek pop','MLBB nude lip'],
+    },
+    glam:{ name:'Night Out Power', desc:'Statement, bold, commanding attention',
+      lip:[{n:'Classic Red',h:'#C0392B'},{n:'Fire Engine',h:'#CF1020'},{n:'Deep Rouge',h:'#9B1C31'}],
+      eye:[{n:'Midnight Smoke',h:'#2C2C3E'},{n:'Silver Glitter',h:'#C0C0C0'},{n:'Jet Black',h:'#1A1A1A'}],
+      blush:[{n:'Rosy Sculpt',h:'#D4849A'},{n:'Champagne Contour',h:'#D4B896'}],
+      tip:'Full smoky eye with silver glitter in inner corner. Precise red lip with liner. Sculpted cheeks.',
+      technique:['Full coverage base','Full smoky eye','Silver inner corner','Sculpted contour','Precise red lip'],
+    },
+    trendy:{ name:'Disco Flush', desc:'Y2K revival, playful, statement',
+      lip:[{n:'Bubblegum',h:'#FF85A1'},{n:'Hot Pink',h:'#FF69B4'},{n:'Fuchsia',h:'#FF2490'}],
+      eye:[{n:'Holographic',h:'#C8A2C8'},{n:'Electric Blue',h:'#0070DD'},{n:'Neon Liner',h:'#39FF14'}],
+      blush:[{n:'Hot Pink Flush',h:'#FF6B9D'},{n:'Magenta',h:'#D4007A'}],
+      tip:'Bold graphic liner. Overdone disco blush. Glossy pink lips. This look is meant to be fun and extra.',
+      technique:['Smooth skin base','Graphic liner moment','Holographic inner eye','Disco flush blush','Glossy pink lip'],
+    },
+  },
+  'work':{
+    natural:{ name:'Polished Professional', desc:'Clean, confident, boardroom-ready',
+      lip:[{n:'Nude Pink',h:'#D4A0A0'},{n:'Soft Mauve',h:'#B08090'},{n:'Sheer Beige',h:'#C8A882'}],
+      eye:[{n:'Warm Ivory',h:'#F5F0E8'},{n:'Muted Bronze',h:'#8B6914'},{n:'Dark Brown',h:'#4A3728'}],
+      blush:[{n:'Natural Flush',h:'#E8A08A'},{n:'Soft Peach',h:'#F5C5A0'}],
+      tip:'Light hand. Natural finish skin. Subtle bronze eye, neutral lip. Never distracting.',
+      technique:['Natural finish foundation','Light ivory lid','Bronze into crease','Subtle peach blush','Nude-pink lip'],
+    },
+    glam:{ name:'Power Meeting', desc:'Elevated professional, authoritative',
+      lip:[{n:'Rich Plum',h:'#6B3A5C'},{n:'Deep Mauve',h:'#7B4F6B'},{n:'Burgundy',h:'#722F37'}],
+      eye:[{n:'Taupe Smoke',h:'#8B7D7B'},{n:'Deep Mink',h:'#5C4033'},{n:'Charcoal',h:'#36454F'}],
+      blush:[{n:'Cool Rose',h:'#C0708A'},{n:'Plum Contour',h:'#9B7080'}],
+      tip:'Polished smoky eye using cool tones. Deep lip adds gravitas without losing professionalism.',
+      technique:['Flawless base','Taupe smoke eye','Mink outer wing','Cool rose sculpt','Deep plum lip'],
+    },
+    trendy:{ name:'Quiet Luxury', desc:'Understated, expensive-looking, intentional',
+      lip:[{n:'Greige Nude',h:'#C5B0A0'},{n:'Warm Latte',h:'#C09A80'},{n:'Café au Lait',h:'#A8896A'}],
+      eye:[{n:'Sandy Beige',h:'#E8D5B0'},{n:'Warm Stone',h:'#A0907A'},{n:'Barely-There',h:'#C8B8A8'}],
+      blush:[{n:'Barely-There',h:'#F0C8B8'},{n:'Warm Glow',h:'#F5D0B8'}],
+      tip:'The "I woke up like this but expensive" look. Dewy skin, barely-there colour, perfect brows.',
+      technique:['Skincare-first prep','Sandy beige lids','Feathered brow focus','Whisper-light blush','Greige nude lip'],
+    },
+  },
+  'first-date':{
+    natural:{ name:'Natural Allure', desc:'Approachable, fresh, confidence-first',
+      lip:[{n:'Your Lips But Better',h:'#D4948A'},{n:'MLBB',h:'#C07A6A'},{n:'Sheer Berry',h:'#C87A8A'}],
+      eye:[{n:'Warm Vanilla',h:'#F5E6D0'},{n:'Soft Amber',h:'#C89060'},{n:'Lash-Line Brown',h:'#5C3A28'}],
+      blush:[{n:'Pinched Cheeks',h:'#E88A8A'},{n:'Warm Apricot',h:'#F5A882'}],
+      tip:'Enhanced natural look. Focus on skin, lashes, and a lip that says "this is my actual lip colour but better".',
+      technique:['Glowy skin base','Vanilla wash of colour','Amber warmth crease','Mascara focus','MLBB lip colour'],
+    },
+    glam:{ name:'Siren Mode', desc:'Intentionally magnetic, romantic glamour',
+      lip:[{n:'Warm Red',h:'#C0392B'},{n:'Orange-Red',h:'#CC3300'},{n:'Cherry',h:'#B22222'}],
+      eye:[{n:'Sultry Bronze',h:'#8B5E3C'},{n:'Deep Espresso',h:'#3B2314'},{n:'Gold Fleck',h:'#D4A017'}],
+      blush:[{n:'Rosy Glow',h:'#D4788A'},{n:'Bronze Warmth',h:'#C09070'}],
+      tip:'Classic date look: sultry bronze eyes, defined lashes, warm red lip. A forever combination.',
+      technique:['Luminous skin base','Bronzed eyes','Gold inner corner','Flushed cheeks','Warm red lip'],
+    },
+    trendy:{ name:'Effortless Cool', desc:'Like you barely tried but somehow perfect',
+      lip:[{n:'Your-Lips-Tinted',h:'#C8827A'},{n:'Bitten Lip',h:'#B86858'},{n:'Blurred Berry',h:'#C07080'}],
+      eye:[{n:'Barely-There Shimmer',h:'#E8D0B8'},{n:'Peachy Wash',h:'#F5A87A'},{n:'Mascara Only',h:'#1A1A1A'}],
+      blush:[{n:'Just-ran-here Flush',h:'#F08080'},{n:'Peachy Warm',h:'#FFA07A'}],
+      tip:'The "effortless" look that requires some effort. Blurred edges, no harsh lines, dewy skin.',
+      technique:['Dewy skin prep','Peach eye wash','No-liner approach','High flush blush','Blurred stain lip'],
+    },
+  },
+  'graduation':{
+    natural:{ name:'Ceremony-Ready', desc:'Fresh, photogenic, milestone-worthy',
+      lip:[{n:'Rose Petal',h:'#E8B4B8'},{n:'Soft Pink',h:'#F4A0A8'},{n:'Sheer Coral',h:'#F08070'}],
+      eye:[{n:'Soft Gold',h:'#D4B870'},{n:'Warm Brown',h:'#8B6014'},{n:'Mocha Liner',h:'#5C3A1E'}],
+      blush:[{n:'Fresh Peach',h:'#FFBE9A'},{n:'Rosy Pink',h:'#F08A9A'}],
+      tip:'Looks incredible in photos. Soft and fresh — you will look back on this in 10 years and smile.',
+      technique:['Photo-ready base','Golden lid','Warm brown crease','Peachy pink blush','Rose pink lip'],
+    },
+    glam:{ name:'Milestone Glam', desc:'You earned this. Look the part.',
+      lip:[{n:'Confident Berry',h:'#8B4558'},{n:'Deep Rose',h:'#9B3C5A'},{n:'Raspberry',h:'#9B3A6A'}],
+      eye:[{n:'Champagne Gold',h:'#D4A84B'},{n:'Deep Bronze',h:'#8B5E1C'},{n:'Espresso',h:'#3B2314'}],
+      blush:[{n:'Rosy Drama',h:'#C07A8A'},{n:'Warm Bronze',h:'#B87040'}],
+      tip:'Graduation photos last forever. Go bold. The champagne eye + berry lip is a certified classic.',
+      technique:['Flawless skin','Champagne gold eye','Bronze outer depth','Rosy blush','Berry-rose lip'],
+    },
+    trendy:{ name:'New Era', desc:'Stepping into the next chapter',
+      lip:[{n:'Terracotta',h:'#CB6843'},{n:'Clay',h:'#B5614A'},{n:'Cinnamon',h:'#C47A4A'}],
+      eye:[{n:'Warm Ginger',h:'#D4826A'},{n:'Sienna',h:'#A0522D'},{n:'Burnt Orange',h:'#CC5500'}],
+      blush:[{n:'Terracotta Flush',h:'#D4784A'},{n:'Warm Peach',h:'#F5A882'}],
+      tip:'A terracotta monochromatic look — warm, editorial, and incredibly photogenic in natural daylight.',
+      technique:['Matte skin prep','Terracotta lid','Sienna crease','Terracotta blush','Clay-terracotta lip'],
+    },
+  },
+  'brunch':{
+    natural:{ name:'Sunday Best', desc:'Effortless, fresh, Instagram-worthy',
+      lip:[{n:'Strawberry Tint',h:'#F4909A'},{n:'Pinky Nude',h:'#E8A8A8'},{n:'Sheer Gloss',h:'#F5D5D5'}],
+      eye:[{n:'Peachy Rose',h:'#F5B8B0'},{n:'Warm Brown',h:'#9E7060'},{n:'Mascara',h:'#1A1A1A'}],
+      blush:[{n:'Pinched Pink',h:'#F09090'},{n:'Strawberry',h:'#F48080'}],
+      tip:'Brunch looks best with a barely-there eye and an emphasis on healthy-looking skin.',
+      technique:['Tinted moisturiser','Peachy rose wash','Pinched pink blush','Glossy strawberry lip','Mascara only'],
+    },
+    glam:{ name:'Dressed-Up Brunch', desc:'Elevated casual, effortful-looking effortlessness',
+      lip:[{n:'Coral Red',h:'#F4634A'},{n:'Tomato',h:'#D4432A'},{n:'Brick Red',h:'#C0392B'}],
+      eye:[{n:'Peachy Shimmer',h:'#F5C5A0'},{n:'Rose Gold',h:'#B87878'},{n:'Bronze',h:'#CD7F32'}],
+      blush:[{n:'Coral Pop',h:'#FF6B47'},{n:'Warm Orange',h:'#F58040'}],
+      tip:'The "only had coffee but somehow look amazing" energy. Peachy eyes, bold coral lip.',
+      technique:['Glowy skin','Peachy shimmer lid','Rose gold corner','Coral blush','Bold coral-red lip'],
+    },
+    trendy:{ name:'Rosé All Day', desc:'Rosy, fresh, social-media-made',
+      lip:[{n:'Rosé',h:'#D4818A'},{n:'Mauve-Pink',h:'#C87A8A'},{n:'Blush Nude',h:'#D4A0A8'}],
+      eye:[{n:'Rose Quartz',h:'#E8B4C8'},{n:'Mauve',h:'#B07890'},{n:'Soft Plum',h:'#8A5A6A'}],
+      blush:[{n:'Rose Flush',h:'#F0A0B0'},{n:'Rosy Glow',h:'#F5B0C0'}],
+      tip:'All-over rosy monochromatic. Rose quartz on eyes, mauve lip, soft rose blush. Very Pinterest.',
+      technique:['Dewy rose base','Rose quartz eye','Mauve crease','Rosy flush blush','Rosé stained lip'],
+    },
+  },
+  'photoshoot':{
+    natural:{ name:'Natural Edit', desc:'Skin-forward, camera-optimised',
+      lip:[{n:'MLBB Satin',h:'#C07060'},{n:'Nude Rose',h:'#C8908A'},{n:'Barely-There',h:'#D4A898'}],
+      eye:[{n:'Warm Ivory',h:'#F5EEDE'},{n:'Soft Peach',h:'#F5C5A0'},{n:'Light Brown',h:'#9E7A5A'}],
+      blush:[{n:'Healthy Flush',h:'#F5A890'},{n:'Warm Peach',h:'#F5C8A8'}],
+      tip:'Cameras love even skin tone and subtle highlights. Avoid shimmer on forehead — it photographs white.',
+      technique:['Foundation + concealer','Matte T-zone set','Ivory lids','Warm healthy blush','Satin nude lip'],
+    },
+    glam:{ name:'Editorial Glamour', desc:'High-fashion, shoot-ready impact',
+      lip:[{n:'Hot Coral',h:'#FF4F3B'},{n:'Classic Red',h:'#C0392B'},{n:'Deep Orange-Red',h:'#BB3300'}],
+      eye:[{n:'White Liner',h:'#F5F5F5'},{n:'Graphic Black',h:'#1A1A1A'},{n:'Gold Cap',h:'#D4A843'}],
+      blush:[{n:'Sculpted Brick',h:'#C06848'},{n:'Bronze Contour',h:'#A07040'}],
+      tip:'Go bolder than you think — cameras pull 20% of the look. Graphic liner and a bold lip photograph brilliantly.',
+      technique:['Full studio base','Graphic black liner','White waterline','Bold sculpted cheeks','Strong lip colour'],
+    },
+    trendy:{ name:'Colour Story', desc:'Conceptual, fashion-forward, art-directed',
+      lip:[{n:'Electric Pink',h:'#FF2D78'},{n:'Neon Coral',h:'#FF6040'},{n:'Vivid Fuchsia',h:'#CC2088'}],
+      eye:[{n:'Sky Blue',h:'#8BBEDD'},{n:'Cobalt',h:'#0047AB'},{n:'Ice White',h:'#EEF0F2'}],
+      blush:[{n:'Sunset Orange',h:'#FF7040'},{n:'Vivid Pink',h:'#F05080'}],
+      tip:'For conceptual or fashion shoots only. One strong colour story — eyes or lips, never both.',
+      technique:['Clean canvas base','Bold colour block eye','No crease blend','Strong pigment blush','Statement lip'],
+    },
+  },
+  'interview':{
+    natural:{ name:'Confident Classic', desc:'Trustworthy, polished, hire-me energy',
+      lip:[{n:'Soft Rosy Nude',h:'#C49090'},{n:'Natural Mauve',h:'#B07880'},{n:'Warm Blush',h:'#C8A0A0'}],
+      eye:[{n:'Cream Ivory',h:'#F5EEE0'},{n:'Warm Brown',h:'#8B6545'},{n:'Dark Liner',h:'#2A1A0A'}],
+      blush:[{n:'Natural Warmth',h:'#E8A880'},{n:'Subtle Peach',h:'#F5C8A0'}],
+      tip:'The rule: your interviewer should remember your words, not your makeup. This look commands attention, not distraction.',
+      technique:['Flawless matte base','Ivory lid highlight','Brown crease warm','Subtle natural blush','Rosy-nude lip'],
+    },
+    glam:{ name:'Executive Presence', desc:'Authority, polish, next-level credibility',
+      lip:[{n:'Classic Brick Red',h:'#B03020'},{n:'Deep Mahogany',h:'#8B2500'},{n:'Rich Plum',h:'#6B2248'}],
+      eye:[{n:'Smoked Taupe',h:'#9B8070'},{n:'Deep Mink',h:'#5C3C2A'},{n:'Charcoal Wing',h:'#36454F'}],
+      blush:[{n:'Cool Mauve',h:'#C09098'},{n:'Dusty Rose',h:'#C8A0A8'}],
+      tip:'Senior roles: a polished smoky eye and deep lip signals authority. This look says "I belong in the room".',
+      technique:['Perfected skin','Taupe smoked eye','Clean winged liner','Cool mauve sculpt','Deep authoritative lip'],
+    },
+    trendy:{ name:'Modern Professional', desc:'Industry-aware, contemporary, aspirational',
+      lip:[{n:'Warm Terracotta',h:'#CB6843'},{n:'Brick Nude',h:'#B8604A'},{n:'Earthy Mauve',h:'#B07868'}],
+      eye:[{n:'Sandy Beige',h:'#E8D5B0'},{n:'Warm Khaki',h:'#A09070'},{n:'Muted Moss',h:'#7A8A50'}],
+      blush:[{n:'Warm Terracotta',h:'#D0785A'},{n:'Brick Blush',h:'#C87060'}],
+      tip:'For creative industries, tech, and startup roles — shows personality without saying "look at my makeup".',
+      technique:['Natural skin finish','Earthy eye palette','Terracotta blush','Warm brick contour','Terracotta nude lip'],
+    },
+  },
+  'birthday':{
+    natural:{ name:'Birthday Girl Glow', desc:'Radiant, joyful, celebration-ready',
+      lip:[{n:'Birthday Pink',h:'#F090A8'},{n:'Raspberry Rose',h:'#D4608A'},{n:'Hot Fuchsia',h:'#F06090'}],
+      eye:[{n:'Disco Silver',h:'#C8C8DC'},{n:'Lavender',h:'#C8A8E8'},{n:'Deep Plum',h:'#6A3A7A'}],
+      blush:[{n:'Pink Flush',h:'#F09AB0'},{n:'Berry Glow',h:'#D08098'}],
+      tip:'Your birthday — go pink. Lavender-to-plum eye with birthday-pink lip is universally flattering.',
+      technique:['Luminous glow base','Lavender shimmer lid','Plum crease depth','Pink flush cheeks','Birthday pink lip'],
+    },
+    glam:{ name:'Main Character Energy', desc:'It is your day. Look like it.',
+      lip:[{n:'Showstopper Red',h:'#CC1E2E'},{n:'Classic Rouge',h:'#B81C2C'},{n:'Cherry Red',h:'#A80C1C'}],
+      eye:[{n:'Champagne Gold',h:'#D4B860'},{n:'Rose Gold',h:'#B86E79'},{n:'Smoked Bronze',h:'#8B5E3C'}],
+      blush:[{n:'Rosy Drama',h:'#C07088'},{n:'Golden Bronze',h:'#C09040'}],
+      tip:'Main character energy on your birthday requires full glam. Champagne eye + red lip = forever iconic.',
+      technique:['Full glam base','Champagne gold lid','Rose gold shimmer','Rosy sculpted blush','Show-stopping red lip'],
+    },
+    trendy:{ name:'Euphoria Birthday', desc:'Bold, playful, completely yourself',
+      lip:[{n:'Neon Pink',h:'#FF1870'},{n:'Electric Fuchsia',h:'#F700FF'},{n:'Hot Magenta',h:'#E0006A'}],
+      eye:[{n:'Glitter',h:'#D4C870'},{n:'Graphic Colour',h:'#6060DC'},{n:'Neon Accent',h:'#39FF14'}],
+      blush:[{n:'Over-blush',h:'#F07090'},{n:'Graphic Blush',h:'#E050A0'}],
+      tip:'Euphoria-inspired. Bold graphic eye, over-done blush, statement lip. It is your birthday — break all the rules.',
+      technique:['Glass skin or glitter base','Bold graphic eye','Glitter corner accent','Over-done blush','Neon or glossy lip'],
+    },
+  },
+  'festival':{
+    natural:{ name:'Sun-Kissed Festival', desc:'Bronzed, glowing, effortless outdoors',
+      lip:[{n:'Coral Gloss',h:'#FF8060'},{n:'Peachy Nude',h:'#E8A888'},{n:'Sun-Kissed Pink',h:'#E89078'}],
+      eye:[{n:'Warm Bronze',h:'#CD7F32'},{n:'Copper',h:'#B87333'},{n:'Tawny',h:'#9E6844'}],
+      blush:[{n:'Sun Flush',h:'#F5A060'},{n:'Warm Bronze',h:'#D48040'}],
+      tip:'Weatherproof your base — heat, sweat, and sun. Bronzer instead of blush, waterproof products throughout.',
+      technique:['Waterproof base','Bronze lid','Copper shimmer lid','Heavy bronzer not blush','Coral gloss lip'],
+    },
+    glam:{ name:'Festival Icon', desc:'You will be photographed. Look like it.',
+      lip:[{n:'Holographic',h:'#C8A8E8'},{n:'Metallic Lilac',h:'#B890D8'},{n:'Electric Violet',h:'#8B00FF'}],
+      eye:[{n:'Rainbow Glitter',h:'#D4C870'},{n:'Holographic',h:'#C0B0E8'},{n:'Neon Any',h:'#00FF80'}],
+      blush:[{n:'Graphic Blush',h:'#F070B0'},{n:'Body Glitter',h:'#D4C870'}],
+      tip:'Festival glam goes where office makeup cannot. Glitter, bold colour, graphic moments. Bring a blotting sheet.',
+      technique:['Bold glitter base','Graphic liner','Body gems & glitter','Blush everywhere','Holographic or neon lip'],
+    },
+    trendy:{ name:'Indie Festival', desc:'Artsy, unique, just not mainstream',
+      lip:[{n:'Terracotta Gloss',h:'#CC7040'},{n:'Brick',h:'#B85530'},{n:'Warm Bronze',h:'#C07030'}],
+      eye:[{n:'Chocolate Brown',h:'#7B3F00'},{n:'Rust',h:'#B7410E'},{n:'Warm Burgundy',h:'#7B1C2E'}],
+      blush:[{n:'Terracotta',h:'#D07040'},{n:'Warm Brick',h:'#C06038'}],
+      tip:'Earthy, warm, editorial. Think: you found this look in an old magazine and made it your own.',
+      technique:['Earth tone skin','Chocolate lid','Rust outer V','Terracotta blush','Glossy terracotta lip'],
+    },
+  },
+  'gala':{
+    natural:{ name:'Gala Elegance', desc:'Old money, timeless, architectural',
+      lip:[{n:'Classic Nude',h:'#C8907A'},{n:'Antique Rose',h:'#C09080'},{n:'Soft Mauve',h:'#B08888'}],
+      eye:[{n:'Mink',h:'#5C4033'},{n:'Champagne',h:'#F5D5A0'},{n:'Deep Black',h:'#0A0A0A'}],
+      blush:[{n:'Cool Rose',h:'#C07888'},{n:'Sculpted',h:'#B07070'}],
+      tip:'Less is more. Architecturally perfect skin, precisely defined eye, confident lip. Nothing superfluous.',
+      technique:['Airbrushed skin','Mink precision eye','Clean wing liner','Sculpted cool rose blush','Nude-mauve satin lip'],
+    },
+    glam:{ name:'Grand Gala', desc:'You are the spectacle',
+      lip:[{n:'Opera Red',h:'#B80C2C'},{n:'Cranberry',h:'#9B2335'},{n:'Deep Bordeaux',h:'#7B1C2A'}],
+      eye:[{n:'Dramatic Smoke',h:'#2A2A3A'},{n:'Silver',h:'#C0C0C0'},{n:'Diamond Glitter',h:'#E8E0E8'}],
+      blush:[{n:'Cool Mauve Sculpt',h:'#B08090'},{n:'Silver Highlight',h:'#E0D8E8'}],
+      tip:'For galas, go fully committed. Half-done glamour looks unintentional. Full smoke + opera red is the standard.',
+      technique:['Perfected full-coverage base','Full dramatic smoke','Silver glitter cap','Architectural contour','Opera-red precise lip'],
+    },
+    trendy:{ name:'Avant-Garde Gala', desc:'Fashion-forward, gallery-worthy, deliberate',
+      lip:[{n:'Graphite',h:'#707070'},{n:'Deep Olive',h:'#556B2F'},{n:'Midnight Navy',h:'#1C2A4A'}],
+      eye:[{n:'Metallic Gold',h:'#D4A843'},{n:'Raw Umber',h:'#7A4A2A'},{n:'Matte White',h:'#F0F0F0'}],
+      blush:[{n:'Architectural Bronze',h:'#B07838'},{n:'Minimal',h:'#D4B890'}],
+      tip:'This is not a regular look. It is a statement. Unusual lip colour, graphic eye, deliberate. Own it completely.',
+      technique:['Perfected skin canvas','Graphic metallic eye','Deliberate liner architecture','Bronze sculpt only','Unexpected lip colour'],
+    },
+  },
+  'wedding-bride':{
+    natural:{ name:'Timeless Bride', desc:'Classic, effortless, you on your best day',
+      lip:[{n:'Your Lips Perfect',h:'#C8908A'},{n:'Soft Bridal Rose',h:'#D4A0A0'},{n:'Petal',h:'#E8B8B8'}],
+      eye:[{n:'Champagne',h:'#F5D5A0'},{n:'Rose Gold',h:'#C8A0A0'},{n:'Soft Brown',h:'#8B6545'}],
+      blush:[{n:'Bridal Flush',h:'#F5C0C0'},{n:'Peach Glow',h:'#F5D0B0'}],
+      tip:'Bridal makeup must last 12 hours. Primer, setting powder, setting spray. Waterproof mascara is non-negotiable.',
+      technique:['Primer & long-wear base','Champagne shimmer lid','Rose gold definition','Soft bridal flush','MLBB satin lip'],
+    },
+    glam:{ name:'Bridal Icon', desc:'Every photo, every angle, flawless',
+      lip:[{n:'Classic Bridal Red',h:'#B01C2C'},{n:'Deep Rose',h:'#9B3C5A'},{n:'Berry Bridal',h:'#8B2A4A'}],
+      eye:[{n:'Drama Brown',h:'#5C3A28'},{n:'Deep Copper',h:'#8B4513'},{n:'Smoked Lid',h:'#3B2318'}],
+      blush:[{n:'Bridal Sculpt',h:'#C09090'},{n:'Warm Bronze',h:'#C09060'}],
+      tip:'Bridal glam requires professional-grade products. Satin finish, not matte. You will be photographed all day.',
+      technique:['Studio-grade foundation','Drama eye build-up','Deep copper crease','Satin sculpted cheeks','Classic bridal lip'],
+    },
+    trendy:{ name:'Modern Bride', desc:'Intentional, contemporary, your rules',
+      lip:[{n:'Terracotta Bride',h:'#C87848'},{n:'Clay Nude',h:'#C07858'},{n:'Warm Sienna',h:'#B86840'}],
+      eye:[{n:'Warm Bronze',h:'#C08040'},{n:'Ginger',h:'#B07840'},{n:'Ochre',h:'#C8A020'}],
+      blush:[{n:'Warm Terracotta',h:'#D08050'},{n:'Sunset Bronze',h:'#C88040'}],
+      tip:'Terracotta bridal is having a major moment. Warm, earthy, beautiful in natural light and photography.',
+      technique:['Luminous satin skin','Bronze eye build','Terracotta crease','Warm flushed cheeks','Terracotta-clay lip'],
+    },
+  },
+};
+
+// Skin tone modifier — adjusts look names and tips for skin tone context
+const SKIN_MODS = {
+  fair:   { lipMod:0, eyeMod:0,  note:'Fair skin: avoid very pale nudes — they can wash out. Go for pinks and warm nudes.' },
+  light:  { lipMod:0, eyeMod:0,  note:'Light skin: warm tones like peach and champagne create natural-looking warmth.' },
+  medium: { lipMod:1, eyeMod:0,  note:'Medium skin: you can wear almost any colour. Deep berries and terracotta are particularly beautiful.' },
+  tan:    { lipMod:1, eyeMod:1,  note:'Tan skin: rich, saturated colours look incredible. Avoid very light nudes.' },
+  deep:   { lipMod:2, eyeMod:1,  note:'Deep skin: bold colours shine. Dark berries, plums, and rich bronzes work perfectly.' },
+  rich:   { lipMod:2, eyeMod:2,  note:'Rich skin: vibrant and deep colours are your strength. Golds, bronzes, and deep plums are stunning.' },
+};
+
+// ── PRODUCT DATABASE ────────────────────────────────────────────
+const PRODUCTS = {
+  lip_natural:[
+    {emoji:'💄',brand:'Charlotte Tilbury',name:'Pillow Talk Lipstick',price:'£30',cat:'lips',aff:'https://bit.ly/ct-pillowtalk'},
+    {emoji:'💄',brand:'NARS',name:'Satin Lip Pencil — Rikugien',price:'£22',cat:'lips',aff:'https://bit.ly/nars-lip'},
+    {emoji:'💋',brand:'Rare Beauty',name:'Kind Words Lip Liner — Fearless',price:'£16',cat:'lips',aff:'https://bit.ly/rb-kindwords'},
+    {emoji:'✨',brand:'e.l.f.',name:'Lip Gloss — Nude',price:'£8',cat:'lips',aff:'https://bit.ly/elf-gloss'},
+  ],
+  lip_glam:[
+    {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Ruby Woo',price:'£22',cat:'lips',aff:'https://bit.ly/mac-ruby'},
+    {emoji:'💄',brand:'Charlotte Tilbury',name:'Walk of No Shame',price:'£30',cat:'lips',aff:'https://bit.ly/ct-walkofnoshame'},
+    {emoji:'💋',brand:'NARS',name:'Audacious Lipstick — Rita',price:'£28',cat:'lips',aff:'https://bit.ly/nars-audacious'},
+    {emoji:'💄',brand:'Dior',name:'Rouge Dior — 999',price:'£36',cat:'lips',aff:'https://bit.ly/dior-999'},
+  ],
+  lip_trendy:[
+    {emoji:'💄',brand:'Fenty Beauty',name:'Stunna Lip Paint — Uncensored',price:'£24',cat:'lips',aff:'https://bit.ly/fenty-stunna'},
+    {emoji:'💄',brand:'Rare Beauty',name:'Soft Pinch Tinted Lip Oil',price:'£20',cat:'lips',aff:'https://bit.ly/rb-lipoil'},
+    {emoji:'💋',brand:'e.l.f.',name:'O Face Satin Lipstick — Cozy',price:'£9',cat:'lips',aff:'https://bit.ly/elf-oface'},
+    {emoji:'💄',brand:'NYX',name:'Shine Loud Lip Colour',price:'£11',cat:'lips',aff:'https://bit.ly/nyx-shine'},
+  ],
+  eye_natural:[
+    {emoji:'👁️',brand:'Urban Decay',name:'Naked3 Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-naked3'},
+    {emoji:'🪄',brand:'Charlotte Tilbury',name:'The Sophisticate Palette',price:'£45',cat:'eyes',aff:'https://bit.ly/ct-sophist'},
+    {emoji:'👁️',brand:'Too Faced',name:'Natural Eyes Palette',price:'£38',cat:'eyes',aff:'https://bit.ly/tf-natural'},
+    {emoji:'🖊️',brand:'Benefit',name:'BADgal BANG Mascara',price:'£26',cat:'eyes',aff:'https://bit.ly/benefit-bang'},
+  ],
+  eye_glam:[
+    {emoji:'👁️',brand:'Urban Decay',name:'Naked Smoky Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-smoky'},
+    {emoji:'👁️',brand:'Anastasia Beverly Hills',name:'Norvina Palette',price:'£42',cat:'eyes',aff:'https://bit.ly/abh-norvina'},
+    {emoji:'🖊️',brand:'Charlotte Tilbury',name:'Rock \'N\' Kohl Liner',price:'£20',cat:'eyes',aff:'https://bit.ly/ct-kohl'},
+    {emoji:'🪄',brand:'NARS',name:'Climax Mascara',price:'£22',cat:'eyes',aff:'https://bit.ly/nars-climax'},
+  ],
+  eye_trendy:[
+    {emoji:'👁️',brand:'Fenty Beauty',name:'Snap Shadows Palette',price:'£30',cat:'eyes',aff:'https://bit.ly/fenty-snap'},
+    {emoji:'🖊️',brand:'e.l.f.',name:'Camo Liquid Liner',price:'£8',cat:'eyes',aff:'https://bit.ly/elf-liner'},
+    {emoji:'👁️',brand:'NYX',name:'Ultimate Shadow Palette',price:'£18',cat:'eyes',aff:'https://bit.ly/nyx-ultimate'},
+    {emoji:'✨',brand:'Morphe',name:'James Charles Palette',price:'£35',cat:'eyes',aff:'https://bit.ly/morphe-jc'},
+  ],
+  blush:[
+    {emoji:'🌸',brand:'NARS',name:'Blush — Orgasm',price:'£28',cat:'blush',aff:'https://bit.ly/nars-orgasm'},
+    {emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Joy',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
+    {emoji:'🌸',brand:'Charlotte Tilbury',name:'Cheek to Chic — Pillow Talk',price:'£35',cat:'blush',aff:'https://bit.ly/ct-cheek'},
+    {emoji:'🌸',brand:'e.l.f.',name:'Putty Blush — Turks & Caicos',price:'£9',cat:'blush',aff:'https://bit.ly/elf-blush'},
+  ],
+  base:[
+    {emoji:'🧴',brand:'Charlotte Tilbury',name:'Airbrush Flawless Foundation',price:'£36',cat:'base',aff:'https://bit.ly/ct-airbrush'},
+    {emoji:'🧴',brand:'NARS',name:'Sheer Glow Foundation',price:'£38',cat:'base',aff:'https://bit.ly/nars-sheerglow'},
+    {emoji:'✨',brand:'Rare Beauty',name:'Positive Light Tinted Moisturiser',price:'£28',cat:'base',aff:'https://bit.ly/rb-tinted'},
+    {emoji:'🧴',brand:'Fenty Beauty',name:'Pro Filt\'r Foundation',price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+  ],
+};
+
+// ── SPONSORED PRODUCTS (from admin dashboard) ─────────────────────
+function getSponsoredProducts(occasionId){
+  const sponsors = JSON.parse(localStorage.getItem('astyra_sponsorships') || '[]');
+  return sponsors.filter(s => s.occasion === occasionId);
+}
+
+// ── ANALYTICS TRACKING ─────────────────────────────────────────────
+function trackScan(occasion){
+  const log = JSON.parse(localStorage.getItem('astyra_analytics') || '{}');
+  log[occasion] = (log[occasion] || 0) + 1;
+  const total = parseInt(localStorage.getItem('astyra_total_scans') || '0') + 1;
+  localStorage.setItem('astyra_analytics', JSON.stringify(log));
+  localStorage.setItem('astyra_total_scans', total);
+}
+function trackClick(brand){
+  const log = JSON.parse(localStorage.getItem('astyra_clicks') || '{}');
+  log[brand] = (log[brand] || 0) + 1;
+  localStorage.setItem('astyra_clicks', JSON.stringify(log));
+}
+
+// ── STAR BACKGROUND ────────────────────────────────────────────────
+function buildStars(){
+  const c = document.getElementById('stars-container');
+  if(!c) return;
+  for(let i=0;i<40;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const sz=Math.random()*2.5+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*3+2).toFixed(1)}s;--dl:${(Math.random()*3).toFixed(1)}s`;
+    c.appendChild(s);
+  }
+}
+
+// ── BUILD OCCASION GRID ────────────────────────────────────────────
+function buildOccasionGrid(){
+  const g = document.getElementById('occasion-grid');
+  g.innerHTML = OCCASIONS.map(o=>`
+    <div class="occ-btn ${o.pro && !STATE.isPro ? 'occ-locked':''}" id="occ-${o.id}" onclick="${o.pro && !STATE.isPro ? "showModal('pro-modal')" : `selectOccasion('${o.id}')`}">
+      <div class="occ-emoji">${o.emoji}${o.pro && !STATE.isPro ? '<span style="font-size:.6rem;margin-left:2px">👑</span>':''}</div>
+      <div class="occ-name">${o.name}</div>
+      <div class="occ-desc">${o.desc}</div>
+    </div>
+  `).join('');
+}
+
+// ── BUILD SKIN ROW ─────────────────────────────────────────────────
+function buildSkinRow(){
+  const r = document.getElementById('skin-row');
+  r.innerHTML = SKIN_TONES.map(s=>`
+    <button class="skin-btn" id="skin-${s.id}" data-label="${s.label}"
+      style="background:${s.color}" onclick="selectSkin('${s.id}')"></button>
+  `).join('');
+}
+
+// ── DRAG AND DROP UPLOAD ───────────────────────────────────────────
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith('image/')) processFile(file);
+}
+function handleUpload(e){
+  const file = e.target.files[0];
+  if(file) processFile(file);
+}
+function processFile(file){
+  const reader = new FileReader();
+  reader.onload = ev => {
+    STATE.faceDataUrl = ev.target.result;
+    showFacePreview(ev.target.result);
+    document.getElementById('occasion-step').style.display='block';
+    setStep(2);
+    smoothScrollTo('occasion-step');
+  };
+  reader.readAsDataURL(file);
+}
+
+
+// ── SELECT OCCASION ────────────────────────────────────────────────
+function selectOccasion(id){
+  document.querySelectorAll('.occ-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('occ-'+id)?.classList.add('selected');
+  STATE.occasion = id;
+  document.getElementById('skin-step').style.display='block';
+  setStep(3);
+  smoothScrollTo('skin-step');
+  checkReady();
+}
+
+// ── SELECT SKIN TONE ───────────────────────────────────────────────
+function selectSkin(id){
+  document.querySelectorAll('.skin-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('skin-'+id)?.classList.add('selected');
+  STATE.skinTone = id;
+  checkReady();
+}
+
+// ── CHECK READY ────────────────────────────────────────────────────
+function checkReady(){
+  if(STATE.faceDataUrl && STATE.occasion && STATE.skinTone){
+    const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
+    const skin = SKIN_TONES.find(s=>s.id===STATE.skinTone);
+    document.getElementById('gen-wrap').style.display='block';
+    document.getElementById('gen-summary').textContent=
+      `${occ.name} × ${skin.label} Dermal Base — Ready to generate 3 occasion-intelligence looks.`;
+    smoothScrollTo('gen-wrap');
+  }
+}
+
+// ── GENERATE LOOKS ─────────────────────────────────────────────────
+function generateLooks(){
+  if(!STATE.isPro && STATE.scansLeft <= 0){
+    showModal('pro-modal');
+    return;
+  }
+  if(!STATE.isPro){
+    STATE.scansLeft--;
+    localStorage.setItem('astyra_scans', STATE.scansLeft);
+    document.getElementById('scan-display').textContent = STATE.scansLeft;
+  }
+  trackScan(STATE.occasion);
+  showScreen('s-loading');
+  animateLoading();
+}
+
+function animateLoading(){
+  const steps = ['ls1','ls2','ls3','ls4'];
+  const prog = [18,45,72,95];
+  const bar = document.getElementById('loading-bar');
+  const status = document.getElementById('loading-status');
+  const statuses = ['SCANNING TONE MATRIX','MATCHING OCCASION LIBRARY','CALIBRATING HARMONICS','LOADING AFFILIATE MATCHES'];
+  let i = 0;
+  bar.style.width = '5%';
+
+  const iv = setInterval(()=>{
+    if(i < steps.length){
+      if(i > 0) {
+        document.getElementById(steps[i-1]).classList.remove('active');
+        document.getElementById(steps[i-1]).classList.add('done');
+        document.getElementById(steps[i-1]).querySelector('.ls-icon').textContent = '✓';
+      }
+      document.getElementById(steps[i]).classList.add('active');
+      document.getElementById(steps[i]).querySelector('.ls-icon').textContent = '↻';
+      bar.style.width = prog[i] + '%';
+      status.textContent = statuses[i];
+      i++;
+    } else {
+      clearInterval(iv);
+      steps.forEach(s=>{
+        document.getElementById(s).classList.remove('active');
+        document.getElementById(s).classList.add('done');
+        document.getElementById(s).querySelector('.ls-icon').textContent='✓';
+      });
+      bar.style.width = '100%';
+      status.textContent = 'LOOK REPORT READY';
+      setTimeout(()=>{
+        revealResults();
+      }, 500);
+    }
+  }, 700);
+}
+
+// ── BUILD RESULTS ──────────────────────────────────────────────────
+function buildResults(){
+  const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
+  const skin = SKIN_TONES.find(s=>s.id===STATE.skinTone);
+  const skinMod = SKIN_MODS[STATE.skinTone] || SKIN_MODS.medium;
+  const lookData = BASE_LOOKS[STATE.occasion] || BASE_LOOKS['party'];
+  const sponsored = getSponsoredProducts(STATE.occasion);
+
+  document.getElementById('rh-title').textContent = `${occ.name} — 3 Curated Looks`;
+  document.getElementById('rh-sub').textContent = `Intelligence-matched for ${skin.label} Dermal Base · ${occ.desc}`;
+  document.getElementById('rh-meta').innerHTML=`
+    <div class="rh-chip">${occ.emoji} ${occ.name}</div>
+    <div class="rh-chip">Tone: ${skin.label}</div>
+    <div class="rh-chip">3 Looks Generated</div>
+    <div class="rh-chip">✓ Affiliate Matched</div>
+  `;
+
+  const looks = [
+    { key:'natural', badge:'NATURAL / SOFT',     badgeClass:'badge-natural', num:'Look 01' },
+    { key:'glam',    badge:'GLAM / BOLD',         badgeClass:'badge-glam',    num:'Look 02' },
+    { key:'trendy',  badge:'TRENDY / EDITORIAL',  badgeClass:'badge-trendy',  num:'Look 03' },
+  ];
+
+  const container = document.getElementById('results-container');
+  container.innerHTML = looks.map(l=>{
+    const d = lookData[l.key];
+    const lipIdx = skinMod.lipMod;
+    const eyeIdx = skinMod.eyeMod;
+    const prods = getProductsForLook(l.key, sponsored, occ.id);
+
+    return `
+    <div class="look-card">
+      <div class="lc-header">
+        <div>
+          <div class="lc-look-num">${l.num} — ${occ.name.toUpperCase()}</div>
+          <div class="lc-look-name">${d.name}</div>
+          <div class="lc-look-desc">${d.desc}</div>
+        </div>
+        <div class="lc-badge ${l.badgeClass}">${l.badge}</div>
+      </div>
+
+      <div class="lc-palette">
+        ${buildPaletteRow('LIPS', d.lip, lipIdx)}
+        ${buildPaletteRow('EYES', d.eye, eyeIdx)}
+        ${buildPaletteRow('BLUSH', d.blush, 0)}
+      </div>
+
+      <div class="lc-technique">
+        <div class="tech-label">Application Sequence</div>
+        <div class="tech-steps">
+          ${d.technique.map((t,i)=>`<div class="tech-step"><span class="tech-step-num">${i+1}</span>${t}</div>`).join('')}
+        </div>
+      </div>
+
+      <div style="padding:0 18px 10px">
+        <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:12px">
+          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Astyra TIP</div>
+          <div style="font-size:.73rem;color:var(--text);line-height:1.6">${d.tip}</div>
+          <div style="font-size:.65rem;color:var(--text-soft);margin-top:4px">${skinMod.note}</div>
+        </div>
+      </div>
+
+      <div class="lc-products">
+        <div class="prod-label">
+          Affiliate Matches
+          <span class="aff-tag">★ EARN</span>
+        </div>
+        <div class="prod-list">
+          ${prods.map(p=>buildProductCard(p)).join('')}
+        </div>
+      </div>
+
+      <div class="lc-actions">
+        <button class="lca-btn lca-save" onclick="saveLook('${l.key}','${occ.name}','${d.name}')">💾 Save</button>
+        <button class="lca-btn lca-share" onclick="shareLook('${occ.name}','${d.name}')">📲 Share</button>
+        <button class="lca-btn lca-try" onclick="tryLook('${d.name}')">🪄 Tutorial</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildPaletteRow(label, swatches, preferredIdx){
+  const primary = swatches[preferredIdx] || swatches[0];
+  return `
+    <div class="palette-row">
+      <div class="palette-label">${label}</div>
+      <div class="palette-swatches">
+        ${swatches.map((s,i)=>`<div class="swatch${i===preferredIdx?' primary':''}" style="background:${s.h}" title="${s.n}" onclick="showSwatchInfo('${s.n}','${s.h}','${label}')"></div>`).join('')}
+        <div class="palette-name">${primary.n}</div>
+        <div class="palette-code">${primary.h}</div>
+      </div>
+    </div>`;
+}
+
+function getProductsForLook(lookKey, sponsored, occasionId){
+  const lip = PRODUCTS['lip_'+lookKey] || PRODUCTS.lip_natural;
+  const eye = PRODUCTS['eye_'+lookKey] || PRODUCTS.eye_natural;
+  let prods = [lip[0], eye[0], PRODUCTS.blush[0], PRODUCTS.base[0]];
+  // Insert sponsored products at top
+  const sponsoredProds = sponsored.map(s=>({
+    emoji:'✨',brand:s.brand,name:s.product,price:'',cat:'sponsored',
+    aff:buildAffUrl(s.url),isSponsored:true
+  }));
+  return [...sponsoredProds, ...prods].slice(0,5);
+}
+
+function buildProductCard(p){
+  return `
+    <a class="prod-item ${p.isSponsored?'sponsored':''}" href="${p.isSponsored?p.aff:buildAffUrl(p.aff)}" target="_blank" rel="noopener" onclick="trackClick('${p.brand}')">
+      <span class="prod-emoji">${p.emoji}</span>
+      <div class="prod-info">
+        <div class="prod-brand">${p.brand}${p.isSponsored?'<span class="prod-sponsored-badge">PARTNER</span>':''}</div>
+        <div class="prod-name">${p.name}</div>
+      </div>
+      <div class="prod-price">${p.price}</div>
+      <div class="prod-arrow">→</div>
+    </a>`;
+}
+
+function buildAffUrl(url){
+  if(!url || url === '#') return '#';
+  const safeId = encodeURIComponent(AFF_ID || '');
+  if(!safeId) return url;
+  try {
+    const u = new URL(url);
+    u.searchParams.set('ref', AFF_ID);
+    return u.toString();
+  } catch(e) {
+    return url + (url.includes('?')?'&':'?') + 'ref=' + safeId;
+  }
+}
+
+// ── SWATCH INFO ────────────────────────────────────────────────────
+const COLOUR_TIPS = {
+  LIPS:'Apply with fingertip or brush. Blot once for long wear. Layer for intensity.',
+  EYES:'Apply to lid with flat brush. Blend edges with fluffy brush in circular motions.',
+  BLUSH:'Smile and apply to apples of cheeks. Blend upward toward temples.',
+};
+function showSwatchInfo(name, hex, category){
+  document.getElementById('swatch-modal-color').style.background = hex;
+  document.getElementById('swatch-modal-name').textContent = name;
+  document.getElementById('swatch-modal-hex').textContent = hex + ' · Click to copy';
+  document.getElementById('swatch-modal-tip').textContent = COLOUR_TIPS[category] || '';
+  document.getElementById('swatch-modal-hex').onclick = ()=>{
+    navigator.clipboard?.writeText(hex);
+    showToast('📋 Colour code copied: '+hex);
+  };
+  showModal('swatch-modal');
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────────
+function saveLook(key, occasion, name){
+  const saved = JSON.parse(localStorage.getItem('astyra_saved') || '[]');
+  saved.push({key,occasion,name,date:new Date().toLocaleDateString()});
+  localStorage.setItem('astyra_saved', JSON.stringify(saved));
+  showToast('💾 Look saved! Check your saved looks in Pro.');
+}
+function tryLook(name){
+  if(!STATE.isPro){ showToast('🪄 Face-shape tutorials are a Pro feature'); setTimeout(()=>showModal('pro-modal'),1300); return; }
+  showToast('🪄 Tutorial launching... (Pro feature)');
+}
+function shareLook(occasion, look){
+  const txt = `✨ AI picked my makeup for ${occasion}!\n"${look}" — generated by Astyra Occasion Intelligence.\n\nWhich look would YOU choose? Try Astyra free 👇`;
+  if(navigator.share) navigator.share({title:'My Astyra Look',text:txt}).catch(()=>{});
+  else { navigator.clipboard?.writeText(txt); showToast('📋 Share text copied!'); }
+}
+function shareWA(){
+  const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
+  const url = `https://wa.me/?text=${encodeURIComponent(`✨ AI picked my makeup for ${occ?.name}! Try Astyra free: https://astyra.app`)}`;
+  window.open(url,'_blank');
+}
+function shareIG(){ showToast('📸 Screenshot your looks and share on IG!'); }
+function copyShareLink(){
+  navigator.clipboard?.writeText(window.location.href);
+  showToast('🔗 App link copied!');
+}
+function copyIdea(el){
+  navigator.clipboard?.writeText(el.textContent.replace(/^[📸💄🤔]+\s*/,''));
+  showToast('📋 Idea copied!');
+}
+
+// ── PRO ────────────────────────────────────────────────────────────
+function handleProUpgrade(){
+  // Check if Stripe is configured (admin sets STRIPE_LINK in localStorage)
+  const stripeLink = localStorage.getItem('astyra_stripe_link');
+  if(stripeLink){
+    // Real Stripe checkout
+    window.location.href = stripeLink;
+  } else {
+    // Dev/demo mode — activate instantly + show Stripe setup note
+    joinPro();
+    showToast('👑 Pro activated! (Demo mode — add Stripe link in Admin → Settings)');
+  }
+}
+
+function joinPro(){
+  STATE.isPro = true;
+  STATE.scansLeft = 999;
+  localStorage.setItem('astyra_pro','1');
+  localStorage.setItem('astyra_scans','999');
+  // Update scan display if visible
+  const sd = document.getElementById('scan-display');
+  if(sd) sd.textContent = '∞';
+  closeModal('pro-modal');
+  buildOccasionGrid(); // Re-render to unlock Pro occasions
+}
+
+// ── UI HELPERS ──────────────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function setStep(n){
+  for(let i=1;i<=4;i++){
+    const node=document.getElementById('step'+i);
+    const line=document.getElementById('line'+i);
+    if(!node) continue;
+    node.classList.remove('active','done');
+    if(i < n) node.classList.add('done');
+    else if(i === n) node.classList.add('active');
+    if(line) line.classList.toggle('done', i < n);
+  }
+}
+function smoothScrollTo(id){
+  setTimeout(()=>{
+    const el=document.getElementById(id);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  },150);
+}
+function showModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function resetApp(){
+  // Reset loading step indicators
+  ['ls1','ls2','ls3','ls4'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.remove('done','active');
+    el.querySelector('.ls-icon').textContent='○';
+  });
+  document.getElementById('ls1').classList.add('active');
+  document.getElementById('ls1').querySelector('.ls-icon').textContent='↻';
+  document.getElementById('loading-bar').style.width='0%';
+
+  STATE = {faceDataUrl:null,occasion:null,skinTone:null,scansLeft:STATE.scansLeft,isPro:STATE.isPro};
+  showScreen('s-upload');
+  document.getElementById('occasion-step').style.display='none';
+  document.getElementById('skin-step').style.display='none';
+  document.getElementById('gen-wrap').style.display='none';
+  document.getElementById('face-preview-wrap').innerHTML='';
+  document.getElementById('face-input').value='';
+  buildOccasionGrid();
+  buildSkinRow();
+  setStep(1);
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  // ── Monthly scan reset logic ──────────────────────────────────────
+  // Stores the month/year when scans were last reset
+  const now = new Date();
+  const resetKey = `${now.getFullYear()}-${now.getMonth()}`;
+  const lastReset = localStorage.getItem('astyra_scan_reset_month');
+  if(lastReset !== resetKey && !localStorage.getItem('astyra_pro')){
+    // New month — reset scans back to the configured limit (default 3)
+    const limit = parseInt(localStorage.getItem('astyra_scan_limit') || '3');
+    localStorage.setItem('astyra_scans', limit);
+    localStorage.setItem('astyra_scan_reset_month', resetKey);
+  }
+
+  // ── Load latest affiliate ID from admin ────────────────────────────
+  AFF_ID = localStorage.getItem('astyra_aff_id') || '';
+  STATE.isPro = localStorage.getItem('astyra_pro') === '1';
+  STATE.scansLeft = STATE.isPro ? 999 : parseInt(localStorage.getItem('astyra_scans') ?? '3');
+
+  // ── Activate Skimlinks if publisher ID is configured ───────────────
+  activateSkimlinks();
+
+  // ── Pro button: show Stripe state if link configured ──────────────
+  const stripeLink = localStorage.getItem('astyra_stripe_link');
+  if(stripeLink){
+    const btn = document.getElementById('pro-join-btn');
+    const sub = document.getElementById('pro-join-sub');
+    if(btn){ btn.textContent = '💳 Subscribe — $4.99/mo →'; }
+    if(sub){ sub.textContent = '7-day free trial · Secure payment via Stripe · Cancel anytime'; }
+  }
+
+  // ── Founding member counter ────────────────────────────────────────
+  updateFoundingBanner();
+
+  buildStars();
+  buildOccasionGrid();
+  buildSkinRow();
+  buildMarquee();
+  const scanEl = document.getElementById('scan-display');
+  scanEl.textContent = STATE.isPro ? '∞' : STATE.scansLeft;
+  if(!STATE.isPro && STATE.scansLeft <= 0){
+    document.getElementById('gen-btn').disabled = true;
+    document.getElementById('gen-btn').textContent = '0 SCANS — UPGRADE TO PRO →';
+  }
+  buildSponsorStrip();
+});
+  function showFacePreview(src){
+  const img = new Image();
+  img.onload = () => {
+    // Create canvas for centered crop
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Portrait orientation: 400x500
+    canvas.width = 400;
+    canvas.height = 500;
+    
+    // Calculate centered positioning
+    let offsetX = 0, offsetY = 0;
+    
+    if(img.width / img.height > 400 / 500){
+      // Image is wider — fit to height
+      const scaledWidth = img.height * (400 / 500);
+      offsetX = (img.width - scaledWidth) / 2;
+    } else {
+      // Image is taller — fit to width
+      const scaledHeight = img.width * (500 / 400);
+      offsetY = (img.height - scaledHeight) / 2;
+    }
+    
+    // Draw centered image on canvas
+    ctx.drawImage(
+      img,
+      offsetX, offsetY,
+      img.width - (offsetX * 2), img.height - (offsetY * 2),
+      0, 0,
+      canvas.width, canvas.height
+    );
+    
+    // Convert to data URL
+    const croppedSrc = canvas.toDataURL('image/jpeg', 0.9);
+    
+    // Display cropped image
+    document.getElementById('face-preview-wrap').innerHTML=`
+      <div class="face-preview">
+        <img src="${croppedSrc}" alt="Your face" style="width:100%;height:240px;object-fit:cover;display:block;border-radius:var(--radius)"/>
+        <div class="face-preview-badge">✓ Face scan loaded</div>
+        <button class="face-preview-change" onclick="document.getElementById('face-input').click()">Change Photo</button>
+      </div>
+    `;
+    
+    // Also store the cropped version for processing
+    STATE.faceDataUrl = croppedSrc;
+  };
+  img.src = src;
+}
+</script>
+
+<!-- ═══ CONFETTI CANVAS ═══ -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══ LOOK NAME FLASH ═══ -->
+<div id="look-flash">
+  <div class="lf-occasion" id="lf-occasion"></div>
+  <div class="lf-name" id="lf-name"></div>
+  <div class="lf-sub">Your look is ready ✦</div>
+</div>
+
+<!-- ═══ POST-REVEAL SHARE PROMPT ═══ -->
+<div id="share-prompt">
+  <button class="sp-close" onclick="document.getElementById('share-prompt').classList.remove('show')">✕</button>
+  <div class="sp-text">
+    <div class="sp-title">💄 Love your look?</div>
+    <div class="sp-sub">Share it and let friends vote on which one suits you.</div>
+  </div>
+  <button class="sp-btn" onclick="shareWA()">Share Now →</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  OCCASION MARQUEE
+// ══════════════════════════════════════════════════════
+function buildMarquee(){
+  const MESSAGES = [
+    { emoji:'💍', text:'Weddings are once in a lifetime —', accent:'look like it.' },
+    { emoji:'🥂', text:'Tonight is your night —', accent:'own the room.' },
+    { emoji:'💕', text:'First impressions last forever —', accent:'make yours count.' },
+    { emoji:'🎓', text:'You worked for this moment —', accent:'dress the part.' },
+    { emoji:'💼', text:'Confidence starts with how you feel —', accent:'walk in ready.' },
+    { emoji:'🎂', text:'Birthdays only come once a year —', accent:'celebrate beautifully.' },
+    { emoji:'📸', text:'The camera loves a look —', accent:'give it one.' },
+    { emoji:'👰', text:'Your big day deserves', accent:'your best look.' },
+    { emoji:'✨', text:'Black tie is a standard —', accent:'set a new one.' },
+    { emoji:'🎪', text:'Festival season is calling —', accent:'arrive in colour.' },
+    { emoji:'🌸', text:'Even brunch deserves intention —', accent:'show up glowing.' },
+    { emoji:'📋', text:'They judge in the first 7 seconds —', accent:'use all seven.' },
+  ];
+  // Build double set for seamless infinite loop
+  const all = [...MESSAGES, ...MESSAGES];
+  const track = document.getElementById('marquee-track');
+  if(!track) return;
+  track.innerHTML = all.map(m=>`
+    <span class="marquee-item">
+      <span>${m.emoji}</span>
+      <span>${m.text} <em>${m.accent}</em></span>
+      <span class="marquee-dot"></span>
+    </span>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  OCCASION-AWARE CONFETTI ENGINE
+// ══════════════════════════════════════════════════════
+const CONFETTI_THEMES = {
+  'wedding-guest': { colors:['#fff8f0','#d4af37','#f9c0cb','#e8c5d0','#fff'], shapes:['●','✿','◆'] },
+  'wedding-bride': { colors:['#fff','#f5e6cc','#d4af37','#fce4ec','#fff9f0'], shapes:['✿','◆','●','❋'] },
+  'party':         { colors:['#a855f7','#c084fc','#f0abfc','#d4af37','#ec4899'], shapes:['★','●','◆','✦'] },
+  'work':          { colors:['#1e3a5f','#d4af37','#a0aec0','#e2e8f0','#2d5282'], shapes:['◆','●','▪'] },
+  'first-date':    { colors:['#ec4899','#f472b6','#fda4af','#ff6b6b','#fff0f3'], shapes:['❤','✿','●','★'] },
+  'graduation':    { colors:['#1e3a5f','#d4af37','#fbbf24','#1e40af','#fff'], shapes:['★','◆','●','✦'] },
+  'gala':          { colors:['#0a0a0f','#d4af37','#c0c0c0','#f5f5f0','#b8860b'], shapes:['◆','★','●'] },
+  'brunch':        { colors:['#fde68a','#86efac','#bfdbfe','#fca5a5','#fbcfe8'], shapes:['✿','●','◆','★'] },
+  'photoshoot':    { colors:['#a855f7','#ec4899','#f59e0b','#fff','#c084fc'], shapes:['★','◆','✦','●'] },
+  'interview':     { colors:['#374151','#6b7280','#d1d5db','#d4af37','#9ca3af'], shapes:['◆','●','▪'] },
+  'birthday':      { colors:['#f472b6','#fb923c','#facc15','#34d399','#60a5fa','#c084fc'], shapes:['★','●','◆','✦','✿','❤'] },
+  'festival':      { colors:['#f472b6','#fb923c','#facc15','#34d399','#818cf8','#e879f9'], shapes:['★','✦','●','✿','◆','❋'] },
+  'default':       { colors:['#a855f7','#ec4899','#d4af37','#fff','#c084fc'], shapes:['★','◆','●','✦'] },
+};
+
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let animFrame = null;
+
+function launchConfetti(occasionId){
+  const theme = CONFETTI_THEMES[occasionId] || CONFETTI_THEMES.default;
+  canvas.style.display = 'block';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  particles = [];
+
+  for(let i=0; i<180; i++){
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: -20 - Math.random() * 200,
+      vx: (Math.random()-0.5)*4,
+      vy: 2 + Math.random()*5,
+      rot: Math.random()*360,
+      rotV: (Math.random()-0.5)*8,
+      size: 8 + Math.random()*14,
+      color: theme.colors[Math.floor(Math.random()*theme.colors.length)],
+      shape: theme.shapes[Math.floor(Math.random()*theme.shapes.length)],
+      alpha: 1,
+      life: 0.008 + Math.random()*0.004,
+    });
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  animateConfetti();
+  setTimeout(()=>{
+    canvas.style.display='none';
+    particles=[];
+    if(animFrame){ cancelAnimationFrame(animFrame); animFrame=null; }
+  }, 4500);
+}
+
+function animateConfetti(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.08; // gravity
+    p.rot += p.rotV;
+    p.alpha = Math.max(0, p.alpha - p.life);
+    ctx.save();
+    ctx.globalAlpha = p.alpha;
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot * Math.PI/180);
+    ctx.fillStyle = p.color;
+    ctx.font = `${p.size}px Arial`;
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(p.shape, 0, 0);
+    ctx.restore();
+  });
+  particles = particles.filter(p=>p.alpha>0 && p.y<canvas.height+60);
+  if(particles.length > 0){
+    animFrame = requestAnimationFrame(animateConfetti);
+  } else {
+    canvas.style.display='none';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  LOOK NAME FLASH
+// ══════════════════════════════════════════════════════
+function flashLookName(occasionName, lookName, callback){
+  const flash = document.getElementById('look-flash');
+  document.getElementById('lf-occasion').textContent = occasionName.toUpperCase();
+  document.getElementById('lf-name').textContent = lookName;
+  flash.classList.add('show');
+  setTimeout(()=>{
+    flash.classList.remove('show');
+    setTimeout(callback, 350);
+  }, 1600);
+}
+
+// ══════════════════════════════════════════════════════
+//  SPONSOR STRIP
+// ══════════════════════════════════════════════════════
+const DEFAULT_SPONSOR_SLOTS = [
+  { cat:'LIPS',  emoji:'💋', product:'Pillow Talk Lipstick', brand:'Charlotte Tilbury', price:'£30', aff:'https://www.charlottetilbury.com/uk/product/the-iconic-lip-cheat-pillow-talk', sponsored:false },
+  { cat:'EYES',  emoji:'👁', product:'Naked3 Palette',       brand:'Urban Decay',       price:'£46', aff:'https://www.urbandecay.co.uk/products/naked3-eyeshadow-palette',               sponsored:false },
+  { cat:'BLUSH', emoji:'🌸', product:'Blush — Orgasm',       brand:'NARS',              price:'£28', aff:'https://www.narscosmetics.co.uk/blush/orgasm/',                                sponsored:false },
+  { cat:'BASE',  emoji:'✨', product:'Pro Filt\'r Foundation',brand:'Fenty Beauty',      price:'£32', aff:'https://www.fentybeauty.com/pro-filtr-soft-matte-longwear-foundation',        sponsored:false },
+];
+
+function buildSponsorStrip(){
+  const strip = document.getElementById('sponsor-strip');
+  if(!strip) return;
+  const sponsors = JSON.parse(localStorage.getItem('astyra_sponsorships')||'[]');
+  // Map sponsor data to the 4 category slots
+  const slots = DEFAULT_SPONSOR_SLOTS.map(slot=>{
+    const match = sponsors.find(s=>s.brand && slot.cat &&
+      (s.product?.toLowerCase().includes(slot.cat.toLowerCase()) ||
+       s.brand?.toLowerCase().includes(slot.brand?.toLowerCase())));
+    if(match) return { ...slot, product:match.product, brand:match.brand,
+      price:'', aff:buildAffUrl(match.aff||'#'), sponsored:true };
+    return { ...slot, aff:buildAffUrl(slot.aff) };
+  });
+
+  strip.innerHTML = `
+    <div class="sponsor-strip-header">
+      <div class="sponsor-strip-title">✦ Astyra's Picks — Shop the Look</div>
+      <div class="sponsor-strip-badge">★ AFFILIATE</div>
+    </div>
+    <div class="sponsor-cols">
+      ${slots.map(s=>`
+        <a class="sponsor-col ${s.sponsored?'has-sponsor':''}" href="${s.aff}" target="_blank" rel="noopener"
+           onclick="trackSponsorClick('${s.cat}','${s.brand}')">
+          ${s.sponsored?'<div class="sc-partner-tag">FEATURED</div>':''}
+          <div class="sc-cat-label">${s.emoji} ${s.cat}</div>
+          <div class="sc-product-name">${s.product}</div>
+          <div class="sc-brand">${s.brand}</div>
+          ${s.price?`<div class="sc-price">${s.price}</div>`:''}
+          <div class="sc-cta">Shop Now →</div>
+        </a>
+      `).join('')}
+    </div>`;
+}
+
+function trackSponsorClick(cat, brand){
+  // Track pre-generation intent click in analytics
+  const clicks = JSON.parse(localStorage.getItem('astyra_clicks')||'{}');
+  const key = brand + ' (pre-gen)';
+  clicks[key] = (clicks[key]||0) + 1;
+  localStorage.setItem('astyra_clicks', JSON.stringify(clicks));
+}
+
+// ══════════════════════════════════════════════════════
+//  ENHANCED REVEAL — replaces the plain showScreen call
+// ══════════════════════════════════════════════════════
+function revealResults(){
+  const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
+  const lookData = BASE_LOOKS[STATE.occasion] || BASE_LOOKS['party'];
+  const firstLookName = lookData?.natural?.name || 'Your Look';
+
+  // 1. Flash look name on screen
+  flashLookName(occ?.name || 'Your Occasion', firstLookName, ()=>{
+    // 2. Show results screen
+    buildResults();
+    showScreen('s-results');
+    setStep(4);
+    // 3. Launch occasion-aware confetti
+    launchConfetti(STATE.occasion);
+    // 4. After confetti settles, slide up share prompt
+    setTimeout(()=>{
+      document.getElementById('share-prompt').classList.add('show');
+    }, 2200);
+    // 5. Auto-hide share prompt after 8s
+    setTimeout(()=>{
+      document.getElementById('share-prompt').classList.remove('show');
+    }, 8000);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  SECRET ADMIN ACCESS — tap logo 5 times quickly
+// ══════════════════════════════════════════════════════
+let _adminTaps = 0;
+let _adminTimer = null;
+function adminTap(){
+  _adminTaps++;
+  clearTimeout(_adminTimer);
+  if(_adminTaps >= 5){
+    _adminTaps = 0;
+    window.location.href = '/makeup-admin';
+  } else {
+    // Reset count if no tap within 1.5 seconds
+    _adminTimer = setTimeout(()=>{ _adminTaps = 0; }, 1500);
+  }
+}
+
+function activateSkimlinks(){
+  const sklId = localStorage.getItem('astyra_skimlinks_id') || '';
+  const scriptEl = document.getElementById('skimlinks-script');
+  if(sklId && scriptEl && !scriptEl.src){
+    scriptEl.src = `https://s.skimresources.com/js/${sklId}.skimlinks.js`;
+    scriptEl.async = true;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  AFFILIATE ID — live refresh when admin saves
+// ══════════════════════════════════════════════════════
+window.addEventListener('storage', (e)=>{
+  if(e.key === 'astyra_aff_id'){
+    AFF_ID = e.newValue || '';
+    buildSponsorStrip(); // Refresh strip with new ID
+  }
+  if(e.key === 'astyra_skimlinks_id'){
+    activateSkimlinks();
+  }
+  if(e.key === 'astyra_stripe_link'){
+    const btn = document.getElementById('pro-join-btn');
+    const sub = document.getElementById('pro-join-sub');
+    if(e.newValue){
+      if(btn) btn.textContent = '💳 Subscribe — $4.99/mo →';
+      if(sub) sub.textContent = '7-day free trial · Secure payment via Stripe · Cancel anytime';
+    }
+  }
+  if(e.key === 'astyra_founding_count'){
+    updateFoundingBanner();
+  }
+});
+
+// ══════════════════════════════════════════════════════
+//  FOUNDING MEMBER COUNTER
+// ══════════════════════════════════════════════════════
+function updateFoundingBanner(){
+  // Admin sets total_user_count in dashboard; founding spots = 1000 - count
+  const totalUsers = parseInt(localStorage.getItem('astyra_total_user_count') || '0');
+  const FOUNDING_LIMIT = 1000;
+  const remaining = Math.max(0, FOUNDING_LIMIT - totalUsers);
+  const pct = Math.min(100, (totalUsers / FOUNDING_LIMIT) * 100);
+
+  const banner = document.getElementById('founding-banner');
+  const spotsEl = document.getElementById('founding-spots-left');
+  const barEl = document.getElementById('founding-bar');
+
+  if(!banner) return;
+
+  if(remaining > 0 && !STATE.isPro){
+    banner.style.display = 'flex';
+    if(spotsEl) spotsEl.textContent = `${remaining} of ${FOUNDING_LIMIT} founding spots remaining`;
+    if(barEl) barEl.style.width = pct + '%';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+</script>
+</body>
 </html>
+function showFacePreview(src){
+  const img = new Image();
+  img.onload = () => {
+    // Create canvas for centered crop
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Portrait orientation: 400x500
+    canvas.width = 400;
+    canvas.height = 500;
+    
+    // Calculate centered positioning
+    let offsetX = 0, offsetY = 0;
+    
+    if(img.width / img.height > 400 / 500){
+      // Image is wider — fit to height
+      const scaledWidth = img.height * (400 / 500);
+      offsetX = (img.width - scaledWidth) / 2;
+    } else {
+      // Image is taller — fit to width
+      const scaledHeight = img.width * (500 / 400);
+      offsetY = (img.height - scaledHeight) / 2;
+    }
+    
+    // Draw centered image on canvas
+    ctx.drawImage(
+      img,
+      offsetX, offsetY,
+      img.width - (offsetX * 2), img.height - (offsetY * 2),
+      0, 0,
+      canvas.width, canvas.height
+    );
+    
+    // Convert to data URL
+    const croppedSrc = canvas.toDataURL('image/jpeg', 0.9);
+    
+    // Display cropped image
+    document.getElementById('face-preview-wrap').innerHTML=`
+      <div class="face-preview">
+        <img src="${croppedSrc}" alt="Your face" style="width:100%;height:240px;object-fit:cover;display:block;border-radius:var(--radius)"/>
+        <div class="face-preview-badge">✓ Face scan loaded</div>
+        <button class="face-preview-change" onclick="document.getElementById('face-input').click()">Change Photo</button>
+      </div>
+    `;
+    
+    // Also store the cropped version for processing
+    STATE.faceDataUrl = croppedSrc;
+  };
+  img.src = src;
+}
