@@ -40,26 +40,32 @@ artifacts-monorepo/
 
 **Artifact**: `artifacts/astyra` (preview path: `/`)
 
+**Implementation**: Pure standalone HTML/CSS/JS in `artifacts/astyra/index.html`, served by Vite dev server. The React source files in `src/` are unused — the app is entirely self-contained in `index.html`.
+
+### Flow
+**Occasion → Look → Photo → Result** (4-step)
+
 ### Features
-- **Occasion-first 4-step flow**: Occasion → Look → Upload → Result
+- **Headline**: "Your face. Your occasion. Your perfect look."
 - **6 Occasions**: Wedding Guest, Date Night, Night Out, Work/Professional, Everyday Natural, Photoshoot/Event
-- **2 looks per occasion** with AI prompt descriptions
-- **Canvas-based makeup simulation** using blend modes (soft-light, multiply)
-- **Split-screen before/after** with draggable slider
-- **Optional name + email capture** on photo upload step
-- **Submission storage** in PostgreSQL (occasion, look, name, email, image)
-- **Hidden admin dashboard** accessed by tapping the logo 5 times
-- **Admin metrics**: total submissions, today, this week, by occasion/look, email capture rate
-- **Recharts** bar charts in admin dashboard
+- **2 looks per occasion** (Natural/Soft + Glam/Bold or Trendy), each with AI prompt, colour palettes, technique steps, and pro tips
+- **Split-screen before/after** result view with colour overlay showing look palette
+- **Optional name + email capture** on result screen (skip option available)
+- **Submission storage** via POST `/api-server/api/submissions`
+- **Hidden admin dashboard** accessed by tapping the Astyra logo 5 times
+- **Admin metrics**: total, today, this week, email capture rate; bar charts by occasion and look; recent submissions table
+- **Themed confetti** per occasion on result reveal
+- **Look name flash** animation on transition to result
+- **Swatch tap** modal with colour code copy
+- No scrolling marquee
 
 ### Key Files
-- `artifacts/astyra/src/pages/Home.tsx` — Main 4-step app flow
-- `artifacts/astyra/src/pages/Admin.tsx` — Admin dashboard
-- `artifacts/astyra/src/components/layout/Header.tsx` — Header with 5-tap admin unlock
-- `artifacts/astyra/src/components/SplitImage.tsx` — Before/after slider
-- `artifacts/astyra/src/lib/makeup-simulator.ts` — Canvas makeup overlay simulation
+- `artifacts/astyra/index.html` — Complete standalone app (all HTML/CSS/JS inline)
 - `lib/db/src/schema/submissions.ts` — Submissions DB table
 - `artifacts/api-server/src/routes/submissions.ts` — API routes for submissions & admin
+
+### API Base URL
+`/api-server/api` (Replit path-based routing proxies to the api-server artifact)
 
 ## TypeScript & Composite Projects
 
