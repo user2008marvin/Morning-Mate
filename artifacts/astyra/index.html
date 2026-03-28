@@ -1454,45 +1454,142 @@ const BASE_LOOKS = {
   },
 };
 
-// Skin tone modifier — adjusts look names and tips for skin tone context
-const SKIN_MODS = {
-  fair: {
-    suffix:'— Fair Skin Edit', note:'Fair skin: soft pinks and warm nudes are your go-to. Avoid very pale shades that wash you out.',
-    natural: { lip:{n:'Petal Pink',h:'#F0B8C8'}, eye:{n:'Champagne',h:'#F5DEB3'}, blush:{n:'Baby Pink Flush',h:'#F5C0D0'} },
-    glam:    { lip:{n:'Soft Berry',h:'#C47490'}, eye:{n:'Rose Gold',h:'#C8A0A8'}, blush:{n:'Pink Sculpt',h:'#D4909A'} },
-    trendy:  { lip:{n:'Sheer Pink Gloss',h:'#F0C8D0'}, eye:{n:'Vanilla Shimmer',h:'#F3E5C8'}, blush:{n:'Peachy Glow',h:'#F8B8A0'} },
-  },
-  light: {
-    suffix:'— Light Skin Edit', note:'Light skin: warm peach and champagne tones create a sun-kissed glow. Warm nudes always win.',
-    natural: { lip:{n:'Warm Nude Rose',h:'#D4988A'}, eye:{n:'Warm Champagne',h:'#E8D0A0'}, blush:{n:'Peach Flush',h:'#F5A882'} },
-    glam:    { lip:{n:'Deep Rose',h:'#B86878'}, eye:{n:'Warm Bronze',h:'#C89060'}, blush:{n:'Coral Sculpt',h:'#D4807A'} },
-    trendy:  { lip:{n:'MLBB Peach',h:'#D49880'}, eye:{n:'Terracotta',h:'#C87848'}, blush:{n:'Warm Apricot',h:'#F0A87A'} },
-  },
-  medium: {
-    suffix:'— Medium Skin Edit', note:'Medium skin: earthy terracottas, warm berries and bronzes are your secret weapon.',
-    natural: { lip:{n:'Terracotta Nude',h:'#C07860'}, eye:{n:'Warm Taupe',h:'#9A7858'}, blush:{n:'Sun-Kissed Bronze',h:'#C89068'} },
-    glam:    { lip:{n:'Brick Red',h:'#A03828'}, eye:{n:'Bronze Smoke',h:'#8B5E3C'}, blush:{n:'Warm Berry Sculpt',h:'#C07060'} },
-    trendy:  { lip:{n:'Burnt Orange',h:'#C87040'}, eye:{n:'Copper Shimmer',h:'#B87838'}, blush:{n:'Golden Amber',h:'#D49058'} },
-  },
-  tan: {
-    suffix:'— Tan Skin Edit', note:'Tan skin: saturated, rich colours were made for your tone. Bold always lands.',
-    natural: { lip:{n:'Warm Mauve',h:'#A85860'}, eye:{n:'Warm Brown',h:'#7A4830'}, blush:{n:'Deep Peach Sculpt',h:'#C07858'} },
-    glam:    { lip:{n:'Deep Berry Red',h:'#880028'}, eye:{n:'Deep Bronze',h:'#6B3A20'}, blush:{n:'Rich Coral',h:'#B86848'} },
-    trendy:  { lip:{n:'Burnt Sienna',h:'#A84830'}, eye:{n:'Rust Copper',h:'#A05828'}, blush:{n:'Terracotta Flush',h:'#C07050'} },
-  },
-  deep: {
-    suffix:'— Deep Skin Edit', note:'Deep skin: bold jewel tones and vibrant colours truly shine on you. Own every shade.',
-    natural: { lip:{n:'Warm Plum Nude',h:'#805060'}, eye:{n:'Espresso',h:'#4A2818'}, blush:{n:'Deep Rose',h:'#A06070'} },
-    glam:    { lip:{n:'Deep Plum',h:'#601840'}, eye:{n:'Midnight Brown',h:'#301808'}, blush:{n:'Berry Sculpt',h:'#884060'} },
-    trendy:  { lip:{n:'Jewel Berry',h:'#702050'}, eye:{n:'Deep Copper',h:'#6B3818'}, blush:{n:'Mulberry',h:'#904868'} },
-  },
-  rich: {
-    suffix:'— Rich Skin Edit', note:'Rich skin: gold, bronze and deep plums are your signature. Go bold — you carry every colour.',
-    natural: { lip:{n:'Mahogany Rose',h:'#704050'}, eye:{n:'Dark Espresso',h:'#3A1808'}, blush:{n:'Deep Bronze',h:'#8A5840'} },
-    glam:    { lip:{n:'Blackberry',h:'#481030'}, eye:{n:'Onyx Smoke',h:'#201010'}, blush:{n:'Deep Plum Sculpt',h:'#703050'} },
-    trendy:  { lip:{n:'Metallic Bronze',h:'#805028'}, eye:{n:'Gold Bronze',h:'#9A6818'}, blush:{n:'Amber Glow',h:'#A07038'} },
-  },
+// ── TONE VARIANTS (replacement for SKIN_MODS) ──────────────────────
+const TONE_VARIANTS = {
+fair: {
+  label: 'FAIR SKIN',
+  note: 'Fair skin: soft rosy, petal, champagne and cool pink tones usually look fresh and balanced.',
+  lipPrefix: 'Petal', eyePrefix: 'Champagne', blushPrefix: 'Soft Rose',
+  brighten: 18, warm: -4, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
+},
+light: {
+  label: 'LIGHT SKIN',
+  note: 'Light skin: peach, warm nude and champagne tones add gentle warmth without overpowering.',
+  lipPrefix: 'Warm Nude', eyePrefix: 'Soft Gold', blushPrefix: 'Peach Rose',
+  brighten: 10, warm: 6, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
+},
+medium: {
+  label: 'MEDIUM SKIN',
+  note: 'Medium skin: warm rose, caramel, terracotta and golden tones usually look especially flattering.',
+  lipPrefix: 'Warm Rose', eyePrefix: 'Golden', blushPrefix: 'Apricot Rose',
+  brighten: 2, warm: 14, lipIdx: 1, eyeIdx: 0, blushIdx: 0,
+},
+tan: {
+  label: 'TAN SKIN',
+  note: 'Tan skin: richer peach, bronze, brick and warm gold tones create depth beautifully.',
+  lipPrefix: 'Caramel', eyePrefix: 'Bronze Gold', blushPrefix: 'Warm Coral',
+  brighten: -4, warm: 18, lipIdx: 1, eyeIdx: 1, blushIdx: 0,
+},
+deep: {
+  label: 'DEEP SKIN',
+  note: 'Deep skin: berry, terracotta, bronze, rich gold and espresso tones bring the most impact.',
+  lipPrefix: 'Berry Rose', eyePrefix: 'Rich Bronze', blushPrefix: 'Burnt Rose',
+  brighten: -10, warm: 22, lipIdx: 2, eyeIdx: 1, blushIdx: 1,
+},
+rich: {
+  label: 'RICH SKIN',
+  note: 'Rich skin: deep plum, mahogany, copper, espresso and molten gold tones are especially striking.',
+  lipPrefix: 'Mahogany', eyePrefix: 'Molten Gold', blushPrefix: 'Terracotta Berry',
+  brighten: -16, warm: 26, lipIdx: 2, eyeIdx: 2, blushIdx: 1,
+},
 };
+
+function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
+
+function hexToRgb(hex){
+  const clean=hex.replace('#','').trim();
+  const full=clean.length===3?clean.split('').map(c=>c+c).join(''):clean;
+  const num=parseInt(full,16);
+  return{r:(num>>16)&255,g:(num>>8)&255,b:num&255};
+}
+
+function rgbToHex(r,g,b){
+  return'#'+[r,g,b].map(v=>clamp(Math.round(v),0,255).toString(16).padStart(2,'0')).join('');
+}
+
+function shiftColour(hex,brighten=0,warm=0){
+  const{r,g,b}=hexToRgb(hex);
+  return rgbToHex(
+    r+brighten+warm,
+    g+brighten+Math.round(warm*0.35),
+    b+brighten-Math.round(warm*0.45)
+  );
+}
+
+function rewriteTechniqueStep(step,toneId){
+  let out=step;
+  if(toneId==='fair'){
+    out=out.replace(/bronze/gi,'rose gold').replace(/terracotta/gi,'peach rose').replace(/copper/gi,'champagne');
+  }
+  if(toneId==='light'){
+    out=out.replace(/deep berry/gi,'warm rose').replace(/bronze/gi,'soft bronze');
+  }
+  if(toneId==='medium'){
+    out=out.replace(/champagne/gi,'golden champagne').replace(/peach/gi,'apricot peach');
+  }
+  if(toneId==='tan'){
+    out=out.replace(/champagne/gi,'warm gold').replace(/pink/gi,'coral rose').replace(/taupe/gi,'bronzed taupe');
+  }
+  if(toneId==='deep'){
+    out=out.replace(/champagne/gi,'rich gold').replace(/soft brown/gi,'espresso brown').replace(/pink/gi,'berry rose').replace(/peach/gi,'burnt peach');
+  }
+  if(toneId==='rich'){
+    out=out.replace(/champagne/gi,'molten gold').replace(/soft brown/gi,'deep espresso').replace(/bronze/gi,'dark bronze').replace(/pink/gi,'mahogany rose').replace(/peach/gi,'terracotta peach');
+  }
+  return out;
+}
+
+function buildToneSwatches(swatches,toneId,category){
+  const tone=TONE_VARIANTS[toneId]||TONE_VARIANTS.medium;
+  return swatches.map((s,idx)=>{
+    const brighten=tone.brighten+(category==='eye'?-2:0);
+    const warm=tone.warm+(category==='blush'?4:0);
+    const renamedPrefix=category==='lip'?tone.lipPrefix:category==='eye'?tone.eyePrefix:tone.blushPrefix;
+    return{n:idx===0?`${renamedPrefix} ${s.n}`:s.n, h:shiftColour(s.h,brighten,warm)};
+  });
+}
+
+function tonePreferredIndex(swatches,toneId,category){
+  const tone=TONE_VARIANTS[toneId]||TONE_VARIANTS.medium;
+  const raw=category==='lip'?tone.lipIdx:category==='eye'?tone.eyeIdx:tone.blushIdx;
+  return Math.min(raw,swatches.length-1);
+}
+
+function buildToneLook(baseLook,toneId){
+  if(!baseLook) return null;
+  const lip=buildToneSwatches(baseLook.lip||[],toneId,'lip');
+  const eye=buildToneSwatches(baseLook.eye||[],toneId,'eye');
+  const blush=buildToneSwatches(baseLook.blush||[],toneId,'blush');
+  const tone=TONE_VARIANTS[toneId]||TONE_VARIANTS.medium;
+  return{
+    ...baseLook, lip, eye, blush,
+    preferred:{
+      lip:tonePreferredIndex(lip,toneId,'lip'),
+      eye:tonePreferredIndex(eye,toneId,'eye'),
+      blush:tonePreferredIndex(blush,toneId,'blush'),
+    },
+    technique:(baseLook.technique||[]).map(step=>rewriteTechniqueStep(step,toneId)),
+    toneNote:tone.note,
+    toneLabel:tone.label,
+  };
+}
+
+function buildRecommendations(){
+  const recs={};
+  Object.keys(BASE_LOOKS).forEach(occId=>{
+    recs[occId]={};
+    Object.keys(TONE_VARIANTS).forEach(toneId=>{
+      recs[occId][toneId]={};
+      ['natural','glam','trendy'].forEach(lookKey=>{
+        const base=BASE_LOOKS[occId][lookKey];
+        if(base) recs[occId][toneId][lookKey]=buildToneLook(base,toneId);
+      });
+    });
+  });
+  return recs;
+}
+
+const RECS=buildRecommendations();
 
 // ── PRODUCT DATABASE ────────────────────────────────────────────
 const PRODUCTS = {
@@ -1708,64 +1805,23 @@ function animateLoading(){
   }, 700);
 }
 
-// ── SKIN TONE LANGUAGE ADAPTATION ─────────────────────────────────
-// Substitutes colour language in technique steps / tips per tone group
-const TONE_SUBS = {
-  'fair-light': [
-    [/\bbronze\b/gi,'rose gold'],[/\bBronze\b/g,'Rose Gold'],
-    [/\bterracotta\b/gi,'soft peach'],[/\bTerracotta\b/g,'Soft Peach'],
-    [/\btawny\b/gi,'warm peach'],[/\bTawny\b/g,'Warm Peach'],
-    [/\bcopper\b/gi,'champagne'],[/\bCopper\b/g,'Champagne'],
-    [/\bbold\b/g,'soft'],[/\bBold\b/g,'Soft'],
-    [/\brich\b/g,'delicate'],[/\bRich\b/g,'Delicate'],
-    [/\bdeep\b/g,'sheer'],[/\bDeep\b/g,'Sheer'],
-    [/\bfull smoky/gi,'soft sheer smoky'],
-    [/\bsmoky\b/gi,'softly blended'],
-    [/\bjewel\b/gi,'pastel'],[/\bJewel\b/g,'Pastel'],
-    [/\bplum\b/gi,'soft berry'],[/\bPlum\b/g,'Soft Berry'],
-    [/\bdark\b/g,'light'],[/\bDark\b/g,'Light'],
-  ],
-  'medium-tan': [],  // baseline — no substitutions
-  'deep-rich': [
-    [/\bchampagne\b/gi,'warm gold'],[/\bChampagne\b/g,'Warm Gold'],
-    [/\bivory\b/gi,'rich bronze'],[/\bIvory\b/g,'Rich Bronze'],
-    [/\bvanilla\b/gi,'deep gold'],[/\bVanilla\b/g,'Deep Gold'],
-    [/\bpeach\b/gi,'copper'],[/\bPeach\b/g,'Copper'],
-    [/\bnude\b/gi,'mahogany nude'],[/\bNude\b/g,'Mahogany Nude'],
-    [/\bpink\b/gi,'berry'],[/\bPink\b/g,'Berry'],
-    [/\brose\b/gi,'deep berry'],[/\bRose\b/g,'Deep Berry'],
-    [/\btaupe\b/gi,'espresso'],[/\bTaupe\b/g,'Espresso'],
-    [/\bsoft\b/g,'rich'],[/\bSoft\b/g,'Rich'],
-    [/\bsheer\b/gi,'full-pigment'],[/\bSheer\b/g,'Full-Pigment'],
-    [/\blight-handed\b/gi,'layered for impact'],
-    [/\bdelicate\b/gi,'bold'],[/\bDelicate\b/g,'Bold'],
-    [/\bdusty\b/gi,'deep'],[/\bDusty\b/g,'Deep'],
-  ],
-};
-function getToneGroup(id){
-  if(id==='fair'||id==='light') return 'fair-light';
-  if(id==='medium'||id==='tan') return 'medium-tan';
-  return 'deep-rich';
-}
-function adaptTone(text, skinId){
-  const subs = TONE_SUBS[getToneGroup(skinId)] || [];
-  return subs.reduce((t,[from,to])=>t.replace(from,to), text);
-}
 
 // ── BUILD RESULTS ──────────────────────────────────────────────────
 function buildResults(){
   const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
   const skin = SKIN_TONES.find(s=>s.id===STATE.skinTone);
-  const skinMod = SKIN_MODS[STATE.skinTone] || SKIN_MODS.medium;
-  const lookData = BASE_LOOKS[STATE.occasion] || BASE_LOOKS['party'];
+  const toneId   = STATE.skinTone || 'medium';
+  const occRecs  = RECS[STATE.occasion] || RECS['party'];
+  const toneRecs = occRecs[toneId] || occRecs['medium'];
+  const toneVariant = TONE_VARIANTS[toneId] || TONE_VARIANTS.medium;
   const sponsored = getSponsoredProducts(STATE.occasion);
 
-  document.getElementById('rh-title').textContent = `${occ.name} — 3 Curated Looks`;
-  document.getElementById('rh-sub').textContent = `Intelligence-matched for ${skin.label} Dermal Base · ${occ.desc}`;
+  document.getElementById('rh-title').textContent = `${occ.name} — Curated Looks`;
+  document.getElementById('rh-sub').textContent = `${toneVariant.label} · ${occ.desc}`;
   document.getElementById('rh-meta').innerHTML=`
     <div class="rh-chip">${occ.emoji} ${occ.name}</div>
     <div class="rh-chip">Tone: ${skin.label}</div>
-    <div class="rh-chip">3 Looks Generated</div>
+    <div class="rh-chip">✓ Personalised</div>
     <div class="rh-chip">✓ Affiliate Matched</div>
   `;
 
@@ -1773,20 +1829,16 @@ function buildResults(){
     { key:'natural', badge:'NATURAL / SOFT',     badgeClass:'badge-natural', num:'Look 01' },
     { key:'glam',    badge:'GLAM / BOLD',         badgeClass:'badge-glam',    num:'Look 02' },
     { key:'trendy',  badge:'TRENDY / EDITORIAL',  badgeClass:'badge-trendy',  num:'Look 03' },
-  ].filter(l => lookData[l.key]);
+  ].filter(l => toneRecs[l.key]);
 
   const container = document.getElementById('results-container');
   container.innerHTML = looks.map(l=>{
-    const d = lookData[l.key];
-    const toneColors = skinMod[l.key] || skinMod['natural'];
-    const skinLip   = toneColors ? [toneColors.lip,   ...d.lip.slice(0,2)]  : d.lip;
-    const skinEye   = toneColors ? [toneColors.eye,   ...d.eye.slice(0,2)]  : d.eye;
-    const skinBlush = toneColors ? [toneColors.blush, ...d.blush.slice(0,1)] : d.blush;
+    const d = toneRecs[l.key];   // already tone-adapted: colours shifted, technique rewritten
     const prods = getProductsForLook(l.key, sponsored, occ.id);
 
     return `
     <div class="look-card" style="border-top:4px solid ${skin.color}">
-      <div style="background:linear-gradient(90deg,${skin.color}33,transparent);padding:6px 18px;font-size:.6rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--text)">${skin.label} Skin · Personalised Palette</div>
+      <div style="background:linear-gradient(90deg,${skin.color}33,transparent);padding:6px 18px;font-size:.6rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--text)">${toneVariant.label} · Personalised Palette</div>
       <div class="lc-header">
         <div>
           <div class="lc-look-num">${l.num} — ${occ.name.toUpperCase()}</div>
@@ -1797,27 +1849,27 @@ function buildResults(){
       </div>
 
       <div class="lc-palette">
-        ${buildPaletteRow('LIPS', skinLip, 0)}
-        ${buildPaletteRow('EYES', skinEye, 0)}
-        ${buildPaletteRow('BLUSH', skinBlush, 0)}
+        ${buildPaletteRow('LIPS',  d.lip,   d.preferred.lip)}
+        ${buildPaletteRow('EYES',  d.eye,   d.preferred.eye)}
+        ${buildPaletteRow('BLUSH', d.blush, d.preferred.blush)}
       </div>
 
       <div class="lc-technique">
         <div class="tech-label">Application Sequence</div>
         <div class="tech-steps">
-          ${d.technique.map((t,i)=>`<div class="tech-step"><span class="tech-step-num">${i+1}</span>${adaptTone(t, STATE.skinTone)}</div>`).join('')}
+          ${d.technique.map((t,i)=>`<div class="tech-step"><span class="tech-step-num">${i+1}</span>${t}</div>`).join('')}
         </div>
       </div>
 
       <div style="padding:0 18px 10px;display:flex;flex-direction:column;gap:8px">
         <div style="background:${skin.color}22;border:2px solid ${skin.color}66;border-radius:12px;padding:12px">
-          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">FOR ${skin.label.toUpperCase()} SKIN</div>
-          <div style="font-size:.78rem;color:var(--text);line-height:1.6;font-weight:600">${skinMod.note}</div>
-          <div style="margin-top:8px;font-size:.7rem;font-weight:700;color:var(--accent)">✦ Your colours: <span style="font-weight:500;color:var(--text)">${(skinMod[l.key]||skinMod.natural).lip.n} lip · ${(skinMod[l.key]||skinMod.natural).eye.n} eye · ${(skinMod[l.key]||skinMod.natural).blush.n}</span></div>
+          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">FOR ${toneVariant.label}</div>
+          <div style="font-size:.78rem;color:var(--text);line-height:1.6;font-weight:600">${d.toneNote}</div>
+          <div style="margin-top:8px;font-size:.7rem;font-weight:700;color:var(--accent)">✦ Top picks: <span style="font-weight:500;color:var(--text)">${d.lip[d.preferred.lip].n} lip · ${d.eye[d.preferred.eye].n} eye · ${d.blush[d.preferred.blush].n}</span></div>
         </div>
         <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:12px">
           <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Application Tip</div>
-          <div style="font-size:.73rem;color:var(--text);line-height:1.6">${adaptTone(d.tip, STATE.skinTone)}</div>
+          <div style="font-size:.73rem;color:var(--text);line-height:1.6">${d.tip}</div>
         </div>
       </div>
 
@@ -2327,8 +2379,9 @@ function trackSponsorClick(cat, brand){
 // ══════════════════════════════════════════════════════
 function revealResults(){
   const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
-  const lookData = BASE_LOOKS[STATE.occasion] || BASE_LOOKS['party'];
-  const firstLookName = lookData?.natural?.name || 'Your Look';
+  const toneId = STATE.skinTone || 'medium';
+  const toneRecs = (RECS[STATE.occasion] || RECS['party'])[toneId] || (RECS[STATE.occasion] || RECS['party'])['medium'];
+  const firstLookName = toneRecs?.natural?.name || 'Your Look';
 
   // 1. Flash look name on screen
   flashLookName(occ?.name || 'Your Occasion', firstLookName, ()=>{
