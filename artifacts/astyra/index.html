@@ -1456,12 +1456,42 @@ const BASE_LOOKS = {
 
 // Skin tone modifier — adjusts look names and tips for skin tone context
 const SKIN_MODS = {
-  fair:   { lipMod:0, eyeMod:0, suffix:'— Soft Pink Edit',       note:'Fair skin: soft pinks and warm nudes work beautifully. Avoid very pale colours that can wash you out.' },
-  light:  { lipMod:1, eyeMod:0, suffix:'— Warm Peachy Edit',     note:'Light skin: warm peach and champagne tones add a sun-kissed glow. Cooler nudes can look flat.' },
-  medium: { lipMod:1, eyeMod:1, suffix:'— Terracotta Edit',      note:'Medium skin: earthy terracottas and rich berries are your secret weapon. Almost every shade works.' },
-  tan:    { lipMod:2, eyeMod:1, suffix:'— Deep Warm Edit',       note:'Tan skin: saturated, rich colours are made for your tone. Avoid very pale or chalky shades.' },
-  deep:   { lipMod:2, eyeMod:2, suffix:'— Jewel Tone Edit',      note:'Deep skin: bold jewel tones and vibrant colours truly shine. Dark berries and plums are stunning on you.' },
-  rich:   { lipMod:2, eyeMod:2, suffix:'— Bold Gold Edit',       note:'Rich skin: golds, bronzes and deep plums are your signature. Go bold — your skin tone can carry it all.' },
+  fair: {
+    suffix:'— Fair Skin Edit', note:'Fair skin: soft pinks and warm nudes are your go-to. Avoid very pale shades that wash you out.',
+    natural: { lip:{n:'Petal Pink',h:'#F0B8C8'}, eye:{n:'Champagne',h:'#F5DEB3'}, blush:{n:'Baby Pink Flush',h:'#F5C0D0'} },
+    glam:    { lip:{n:'Soft Berry',h:'#C47490'}, eye:{n:'Rose Gold',h:'#C8A0A8'}, blush:{n:'Pink Sculpt',h:'#D4909A'} },
+    trendy:  { lip:{n:'Sheer Pink Gloss',h:'#F0C8D0'}, eye:{n:'Vanilla Shimmer',h:'#F3E5C8'}, blush:{n:'Peachy Glow',h:'#F8B8A0'} },
+  },
+  light: {
+    suffix:'— Light Skin Edit', note:'Light skin: warm peach and champagne tones create a sun-kissed glow. Warm nudes always win.',
+    natural: { lip:{n:'Warm Nude Rose',h:'#D4988A'}, eye:{n:'Warm Champagne',h:'#E8D0A0'}, blush:{n:'Peach Flush',h:'#F5A882'} },
+    glam:    { lip:{n:'Deep Rose',h:'#B86878'}, eye:{n:'Warm Bronze',h:'#C89060'}, blush:{n:'Coral Sculpt',h:'#D4807A'} },
+    trendy:  { lip:{n:'MLBB Peach',h:'#D49880'}, eye:{n:'Terracotta',h:'#C87848'}, blush:{n:'Warm Apricot',h:'#F0A87A'} },
+  },
+  medium: {
+    suffix:'— Medium Skin Edit', note:'Medium skin: earthy terracottas, warm berries and bronzes are your secret weapon.',
+    natural: { lip:{n:'Terracotta Nude',h:'#C07860'}, eye:{n:'Warm Taupe',h:'#9A7858'}, blush:{n:'Sun-Kissed Bronze',h:'#C89068'} },
+    glam:    { lip:{n:'Brick Red',h:'#A03828'}, eye:{n:'Bronze Smoke',h:'#8B5E3C'}, blush:{n:'Warm Berry Sculpt',h:'#C07060'} },
+    trendy:  { lip:{n:'Burnt Orange',h:'#C87040'}, eye:{n:'Copper Shimmer',h:'#B87838'}, blush:{n:'Golden Amber',h:'#D49058'} },
+  },
+  tan: {
+    suffix:'— Tan Skin Edit', note:'Tan skin: saturated, rich colours were made for your tone. Bold always lands.',
+    natural: { lip:{n:'Warm Mauve',h:'#A85860'}, eye:{n:'Warm Brown',h:'#7A4830'}, blush:{n:'Deep Peach Sculpt',h:'#C07858'} },
+    glam:    { lip:{n:'Deep Berry Red',h:'#880028'}, eye:{n:'Deep Bronze',h:'#6B3A20'}, blush:{n:'Rich Coral',h:'#B86848'} },
+    trendy:  { lip:{n:'Burnt Sienna',h:'#A84830'}, eye:{n:'Rust Copper',h:'#A05828'}, blush:{n:'Terracotta Flush',h:'#C07050'} },
+  },
+  deep: {
+    suffix:'— Deep Skin Edit', note:'Deep skin: bold jewel tones and vibrant colours truly shine on you. Own every shade.',
+    natural: { lip:{n:'Warm Plum Nude',h:'#805060'}, eye:{n:'Espresso',h:'#4A2818'}, blush:{n:'Deep Rose',h:'#A06070'} },
+    glam:    { lip:{n:'Deep Plum',h:'#601840'}, eye:{n:'Midnight Brown',h:'#301808'}, blush:{n:'Berry Sculpt',h:'#884060'} },
+    trendy:  { lip:{n:'Jewel Berry',h:'#702050'}, eye:{n:'Deep Copper',h:'#6B3818'}, blush:{n:'Mulberry',h:'#904868'} },
+  },
+  rich: {
+    suffix:'— Rich Skin Edit', note:'Rich skin: gold, bronze and deep plums are your signature. Go bold — you carry every colour.',
+    natural: { lip:{n:'Mahogany Rose',h:'#704050'}, eye:{n:'Dark Espresso',h:'#3A1808'}, blush:{n:'Deep Bronze',h:'#8A5840'} },
+    glam:    { lip:{n:'Blackberry',h:'#481030'}, eye:{n:'Onyx Smoke',h:'#201010'}, blush:{n:'Deep Plum Sculpt',h:'#703050'} },
+    trendy:  { lip:{n:'Metallic Bronze',h:'#805028'}, eye:{n:'Gold Bronze',h:'#9A6818'}, blush:{n:'Amber Glow',h:'#A07038'} },
+  },
 };
 
 // ── PRODUCT DATABASE ────────────────────────────────────────────
@@ -1699,13 +1729,15 @@ function buildResults(){
     { key:'natural', badge:'NATURAL / SOFT',     badgeClass:'badge-natural', num:'Look 01' },
     { key:'glam',    badge:'GLAM / BOLD',         badgeClass:'badge-glam',    num:'Look 02' },
     { key:'trendy',  badge:'TRENDY / EDITORIAL',  badgeClass:'badge-trendy',  num:'Look 03' },
-  ];
+  ].filter(l => lookData[l.key]);
 
   const container = document.getElementById('results-container');
   container.innerHTML = looks.map(l=>{
     const d = lookData[l.key];
-    const lipIdx = skinMod.lipMod;
-    const eyeIdx = skinMod.eyeMod;
+    const toneColors = skinMod[l.key] || skinMod['natural'];
+    const skinLip   = toneColors ? [toneColors.lip,   ...d.lip.slice(0,2)]  : d.lip;
+    const skinEye   = toneColors ? [toneColors.eye,   ...d.eye.slice(0,2)]  : d.eye;
+    const skinBlush = toneColors ? [toneColors.blush, ...d.blush.slice(0,1)] : d.blush;
     const prods = getProductsForLook(l.key, sponsored, occ.id);
 
     return `
@@ -1720,9 +1752,9 @@ function buildResults(){
       </div>
 
       <div class="lc-palette">
-        ${buildPaletteRow('LIPS', d.lip, lipIdx)}
-        ${buildPaletteRow('EYES', d.eye, eyeIdx)}
-        ${buildPaletteRow('BLUSH', d.blush, 0)}
+        ${buildPaletteRow('LIPS', skinLip, 0)}
+        ${buildPaletteRow('EYES', skinEye, 0)}
+        ${buildPaletteRow('BLUSH', skinBlush, 0)}
       </div>
 
       <div class="lc-technique">
