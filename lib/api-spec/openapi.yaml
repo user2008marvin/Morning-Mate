@@ -1,15 +1,18 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Astyra Makeup Try-On API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: submissions
+    description: Makeup try-on submission operations
+  - name: admin
+    description: Admin reporting operations
 paths:
   /healthz:
     get:
@@ -24,6 +27,69 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /submissions:
+    post:
+      operationId: createSubmission
+      tags: [submissions]
+      summary: Save a makeup try-on submission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubmissionRequest"
+      responses:
+        "201":
+          description: Submission saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/submissions:
+    get:
+      operationId: listSubmissions
+      tags: [admin]
+      summary: List all submissions for admin
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of submissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionListResponse"
+
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get aggregated admin statistics
+      responses:
+        "200":
+          description: Admin stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +100,125 @@ components:
       required:
         - status
 
+    CreateSubmissionRequest:
+      type: object
+      properties:
+        occasion:
+          type: string
+        look:
+          type: string
+        firstName:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        imageDataUrl:
+          type: string
+          nullable: true
+      required:
+        - occasion
+        - look
+
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+        occasion:
+          type: string
+        look:
+          type: string
+        firstName:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        imageDataUrl:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - occasion
+        - look
+        - createdAt
+
+    SubmissionListResponse:
+      type: object
+      properties:
+        submissions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Submission"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required:
+        - submissions
+        - total
+        - page
+        - pageSize
+
+    AdminStats:
+      type: object
+      properties:
+        totalSubmissions:
+          type: integer
+        submissionsToday:
+          type: integer
+        submissionsThisWeek:
+          type: integer
+        byOccasion:
+          type: array
+          items:
+            $ref: "#/components/schemas/OccasionCount"
+        byLook:
+          type: array
+          items:
+            $ref: "#/components/schemas/LookCount"
+        emailCaptureRate:
+          type: number
+      required:
+        - totalSubmissions
+        - submissionsToday
+        - submissionsThisWeek
+        - byOccasion
+        - byLook
+        - emailCaptureRate
+
+    OccasionCount:
+      type: object
+      properties:
+        occasion:
+          type: string
+        count:
+          type: integer
+      required:
+        - occasion
+        - count
+
+    LookCount:
+      type: object
+      properties:
+        look:
+          type: string
+        count:
+          type: integer
+      required:
+        - look
+        - count
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

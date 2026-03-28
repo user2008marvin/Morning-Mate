@@ -1,0 +1,17 @@
+packages:
+  "framer-motion": "Smooth step transitions and beautiful layout animations"
+  "recharts": "Admin dashboard analytics visualization"
+  "lucide-react": "Beautiful consistent icons for occasions and UI elements"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility function to efficiently merge Tailwind CSS classes"
+
+images:
+  - path: "artifacts/astyra/public/images/logo.png"
+    description: "Elegant, minimalist feminine beauty brand logo for 'Astyra'. Dark charcoal text with a subtle warm blush or rose gold accent, transparent background."
+    aspect_ratio: "16:9"
+  - path: "artifacts/astyra/public/images/hero-bg.png"
+    description: "Soft, luxurious blurred abstract background in warm blush, soft pink, and subtle peach tones. Very smooth and elegant, like a high-end beauty campaign backdrop."
+    aspect_ratio: "16:9"
+
+notes:
+  - Hooks from `@workspace/api-client-react` will be used for API requests.

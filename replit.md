@@ -21,7 +21,8 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 ```text
 artifacts-monorepo/
 ├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
+│   ├── api-server/         # Express API server
+│   └── astyra/             # Astyra makeup try-on React app (preview path: /)
 ├── lib/                    # Shared libraries
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
@@ -34,6 +35,31 @@ artifacts-monorepo/
 ├── tsconfig.json           # Root TS project references
 └── package.json            # Root package with hoisted devDeps
 ```
+
+## Astyra Makeup Try-On App
+
+**Artifact**: `artifacts/astyra` (preview path: `/`)
+
+### Features
+- **Occasion-first 4-step flow**: Occasion → Look → Upload → Result
+- **6 Occasions**: Wedding Guest, Date Night, Night Out, Work/Professional, Everyday Natural, Photoshoot/Event
+- **2 looks per occasion** with AI prompt descriptions
+- **Canvas-based makeup simulation** using blend modes (soft-light, multiply)
+- **Split-screen before/after** with draggable slider
+- **Optional name + email capture** on photo upload step
+- **Submission storage** in PostgreSQL (occasion, look, name, email, image)
+- **Hidden admin dashboard** accessed by tapping the logo 5 times
+- **Admin metrics**: total submissions, today, this week, by occasion/look, email capture rate
+- **Recharts** bar charts in admin dashboard
+
+### Key Files
+- `artifacts/astyra/src/pages/Home.tsx` — Main 4-step app flow
+- `artifacts/astyra/src/pages/Admin.tsx` — Admin dashboard
+- `artifacts/astyra/src/components/layout/Header.tsx` — Header with 5-tap admin unlock
+- `artifacts/astyra/src/components/SplitImage.tsx` — Before/after slider
+- `artifacts/astyra/src/lib/makeup-simulator.ts` — Canvas makeup overlay simulation
+- `lib/db/src/schema/submissions.ts` — Submissions DB table
+- `artifacts/api-server/src/routes/submissions.ts` — API routes for submissions & admin
 
 ## TypeScript & Composite Projects
 
@@ -56,41 +82,21 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 
 - Entry: `src/index.ts` — reads `PORT`, starts Express
 - App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
+- Routes: `src/routes/index.ts` mounts sub-routers; `health.ts`, `submissions.ts`
 - Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
 
 ### `lib/db` (`@workspace/db`)
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
+Database layer using Drizzle ORM with PostgreSQL.
 
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
-
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
+- `src/schema/submissions.ts` — Submissions table (id, occasion, look, firstName, email, imageDataUrl, createdAt)
 
 ### `lib/api-spec` (`@workspace/api-spec`)
 
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
-
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
+OpenAPI 3.1 spec. Endpoints:
+- `GET /healthz` — health check
+- `POST /submissions` — save try-on submission
+- `GET /admin/submissions` — list submissions (paginated)
+- `GET /admin/stats` — aggregated admin statistics
 
 Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
