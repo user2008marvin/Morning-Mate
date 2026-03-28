@@ -1741,11 +1741,12 @@ function buildResults(){
     const prods = getProductsForLook(l.key, sponsored, occ.id);
 
     return `
-    <div class="look-card">
+    <div class="look-card" style="border-top:4px solid ${skin.color}">
+      <div style="background:linear-gradient(90deg,${skin.color}33,transparent);padding:6px 18px;font-size:.6rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--text)">${skin.label} Skin · Personalised Palette</div>
       <div class="lc-header">
         <div>
           <div class="lc-look-num">${l.num} — ${occ.name.toUpperCase()}</div>
-          <div class="lc-look-name">${d.name} <span style="font-size:.65em;opacity:.7;font-weight:600">${skinMod.suffix||''}</span></div>
+          <div class="lc-look-name">${d.name}</div>
           <div class="lc-look-desc">${d.desc}</div>
         </div>
         <div class="lc-badge ${l.badgeClass}">${l.badge}</div>
@@ -1764,11 +1765,15 @@ function buildResults(){
         </div>
       </div>
 
-      <div style="padding:0 18px 10px">
+      <div style="padding:0 18px 10px;display:flex;flex-direction:column;gap:8px">
+        <div style="background:${skin.color}22;border:2px solid ${skin.color}66;border-radius:12px;padding:12px">
+          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">FOR ${skin.label.toUpperCase()} SKIN</div>
+          <div style="font-size:.78rem;color:var(--text);line-height:1.6;font-weight:600">${skinMod.note}</div>
+          <div style="margin-top:8px;font-size:.7rem;font-weight:700;color:var(--accent)">✦ Your colours: <span style="font-weight:500;color:var(--text)">${(skinMod[l.key]||skinMod.natural).lip.n} lip · ${(skinMod[l.key]||skinMod.natural).eye.n} eye · ${(skinMod[l.key]||skinMod.natural).blush.n}</span></div>
+        </div>
         <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:12px">
-          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Astyra TIP</div>
+          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Application Tip</div>
           <div style="font-size:.73rem;color:var(--text);line-height:1.6">${d.tip}</div>
-          <div style="font-size:.65rem;color:var(--text-soft);margin-top:4px">${skinMod.note}</div>
         </div>
       </div>
 
