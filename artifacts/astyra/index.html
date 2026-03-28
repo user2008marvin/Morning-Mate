@@ -1541,11 +1541,14 @@ function rewriteTechniqueStep(step,toneId){
 
 function buildToneSwatches(swatches,toneId,category){
   const tone=TONE_VARIANTS[toneId]||TONE_VARIANTS.medium;
+  const prefIdx=category==='lip'?tone.lipIdx:category==='eye'?tone.eyeIdx:tone.blushIdx;
+  const preferred=Math.min(prefIdx,swatches.length-1);
+  const renamedPrefix=category==='lip'?tone.lipPrefix:category==='eye'?tone.eyePrefix:tone.blushPrefix;
   return swatches.map((s,idx)=>{
     const brighten=tone.brighten+(category==='eye'?-2:0);
     const warm=tone.warm+(category==='blush'?4:0);
-    const renamedPrefix=category==='lip'?tone.lipPrefix:category==='eye'?tone.eyePrefix:tone.blushPrefix;
-    return{n:idx===0?`${renamedPrefix} ${s.n}`:s.n, h:shiftColour(s.h,brighten,warm)};
+    // rename the preferred swatch with this tone's prefix so the displayed name is tone-specific
+    return{n:idx===preferred?`${renamedPrefix} ${s.n}`:s.n, h:shiftColour(s.h,brighten,warm)};
   });
 }
 
