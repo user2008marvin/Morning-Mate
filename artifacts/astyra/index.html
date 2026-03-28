@@ -1708,6 +1708,50 @@ function animateLoading(){
   }, 700);
 }
 
+// ── SKIN TONE LANGUAGE ADAPTATION ─────────────────────────────────
+// Substitutes colour language in technique steps / tips per tone group
+const TONE_SUBS = {
+  'fair-light': [
+    [/\bbronze\b/gi,'rose gold'],[/\bBronze\b/g,'Rose Gold'],
+    [/\bterracotta\b/gi,'soft peach'],[/\bTerracotta\b/g,'Soft Peach'],
+    [/\btawny\b/gi,'warm peach'],[/\bTawny\b/g,'Warm Peach'],
+    [/\bcopper\b/gi,'champagne'],[/\bCopper\b/g,'Champagne'],
+    [/\bbold\b/g,'soft'],[/\bBold\b/g,'Soft'],
+    [/\brich\b/g,'delicate'],[/\bRich\b/g,'Delicate'],
+    [/\bdeep\b/g,'sheer'],[/\bDeep\b/g,'Sheer'],
+    [/\bfull smoky/gi,'soft sheer smoky'],
+    [/\bsmoky\b/gi,'softly blended'],
+    [/\bjewel\b/gi,'pastel'],[/\bJewel\b/g,'Pastel'],
+    [/\bplum\b/gi,'soft berry'],[/\bPlum\b/g,'Soft Berry'],
+    [/\bdark\b/g,'light'],[/\bDark\b/g,'Light'],
+  ],
+  'medium-tan': [],  // baseline — no substitutions
+  'deep-rich': [
+    [/\bchampagne\b/gi,'warm gold'],[/\bChampagne\b/g,'Warm Gold'],
+    [/\bivory\b/gi,'rich bronze'],[/\bIvory\b/g,'Rich Bronze'],
+    [/\bvanilla\b/gi,'deep gold'],[/\bVanilla\b/g,'Deep Gold'],
+    [/\bpeach\b/gi,'copper'],[/\bPeach\b/g,'Copper'],
+    [/\bnude\b/gi,'mahogany nude'],[/\bNude\b/g,'Mahogany Nude'],
+    [/\bpink\b/gi,'berry'],[/\bPink\b/g,'Berry'],
+    [/\brose\b/gi,'deep berry'],[/\bRose\b/g,'Deep Berry'],
+    [/\btaupe\b/gi,'espresso'],[/\bTaupe\b/g,'Espresso'],
+    [/\bsoft\b/g,'rich'],[/\bSoft\b/g,'Rich'],
+    [/\bsheer\b/gi,'full-pigment'],[/\bSheer\b/g,'Full-Pigment'],
+    [/\blight-handed\b/gi,'layered for impact'],
+    [/\bdelicate\b/gi,'bold'],[/\bDelicate\b/g,'Bold'],
+    [/\bdusty\b/gi,'deep'],[/\bDusty\b/g,'Deep'],
+  ],
+};
+function getToneGroup(id){
+  if(id==='fair'||id==='light') return 'fair-light';
+  if(id==='medium'||id==='tan') return 'medium-tan';
+  return 'deep-rich';
+}
+function adaptTone(text, skinId){
+  const subs = TONE_SUBS[getToneGroup(skinId)] || [];
+  return subs.reduce((t,[from,to])=>t.replace(from,to), text);
+}
+
 // ── BUILD RESULTS ──────────────────────────────────────────────────
 function buildResults(){
   const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
@@ -1761,7 +1805,7 @@ function buildResults(){
       <div class="lc-technique">
         <div class="tech-label">Application Sequence</div>
         <div class="tech-steps">
-          ${d.technique.map((t,i)=>`<div class="tech-step"><span class="tech-step-num">${i+1}</span>${t}</div>`).join('')}
+          ${d.technique.map((t,i)=>`<div class="tech-step"><span class="tech-step-num">${i+1}</span>${adaptTone(t, STATE.skinTone)}</div>`).join('')}
         </div>
       </div>
 
@@ -1773,7 +1817,7 @@ function buildResults(){
         </div>
         <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:12px">
           <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Application Tip</div>
-          <div style="font-size:.73rem;color:var(--text);line-height:1.6">${d.tip}</div>
+          <div style="font-size:.73rem;color:var(--text);line-height:1.6">${adaptTone(d.tip, STATE.skinTone)}</div>
         </div>
       </div>
 
