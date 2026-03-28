@@ -1456,12 +1456,12 @@ const BASE_LOOKS = {
 
 // Skin tone modifier — adjusts look names and tips for skin tone context
 const SKIN_MODS = {
-  fair:   { lipMod:0, eyeMod:0,  note:'Fair skin: avoid very pale nudes — they can wash out. Go for pinks and warm nudes.' },
-  light:  { lipMod:0, eyeMod:0,  note:'Light skin: warm tones like peach and champagne create natural-looking warmth.' },
-  medium: { lipMod:1, eyeMod:0,  note:'Medium skin: you can wear almost any colour. Deep berries and terracotta are particularly beautiful.' },
-  tan:    { lipMod:1, eyeMod:1,  note:'Tan skin: rich, saturated colours look incredible. Avoid very light nudes.' },
-  deep:   { lipMod:2, eyeMod:1,  note:'Deep skin: bold colours shine. Dark berries, plums, and rich bronzes work perfectly.' },
-  rich:   { lipMod:2, eyeMod:2,  note:'Rich skin: vibrant and deep colours are your strength. Golds, bronzes, and deep plums are stunning.' },
+  fair:   { lipMod:0, eyeMod:0, suffix:'— Soft Pink Edit',       note:'Fair skin: soft pinks and warm nudes work beautifully. Avoid very pale colours that can wash you out.' },
+  light:  { lipMod:1, eyeMod:0, suffix:'— Warm Peachy Edit',     note:'Light skin: warm peach and champagne tones add a sun-kissed glow. Cooler nudes can look flat.' },
+  medium: { lipMod:1, eyeMod:1, suffix:'— Terracotta Edit',      note:'Medium skin: earthy terracottas and rich berries are your secret weapon. Almost every shade works.' },
+  tan:    { lipMod:2, eyeMod:1, suffix:'— Deep Warm Edit',       note:'Tan skin: saturated, rich colours are made for your tone. Avoid very pale or chalky shades.' },
+  deep:   { lipMod:2, eyeMod:2, suffix:'— Jewel Tone Edit',      note:'Deep skin: bold jewel tones and vibrant colours truly shine. Dark berries and plums are stunning on you.' },
+  rich:   { lipMod:2, eyeMod:2, suffix:'— Bold Gold Edit',       note:'Rich skin: golds, bronzes and deep plums are your signature. Go bold — your skin tone can carry it all.' },
 };
 
 // ── PRODUCT DATABASE ────────────────────────────────────────────
@@ -1713,7 +1713,7 @@ function buildResults(){
       <div class="lc-header">
         <div>
           <div class="lc-look-num">${l.num} — ${occ.name.toUpperCase()}</div>
-          <div class="lc-look-name">${d.name}</div>
+          <div class="lc-look-name">${d.name} <span style="font-size:.65em;opacity:.7;font-weight:600">${skinMod.suffix||''}</span></div>
           <div class="lc-look-desc">${d.desc}</div>
         </div>
         <div class="lc-badge ${l.badgeClass}">${l.badge}</div>
