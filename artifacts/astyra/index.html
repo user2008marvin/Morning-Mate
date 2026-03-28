@@ -1934,7 +1934,6 @@ window.addEventListener('load',()=>{
     document.getElementById('gen-btn').disabled = true;
     document.getElementById('gen-btn').textContent = '0 SCANS — UPGRADE TO PRO →';
   }
-  buildSponsorStrip();
 });
   function showFacePreview(src){
   const img = new Image();
@@ -2200,6 +2199,7 @@ function revealResults(){
   flashLookName(occ?.name || 'Your Occasion', firstLookName, ()=>{
     // 2. Show results screen
     buildResults();
+    buildSponsorStrip();
     showScreen('s-results');
     setStep(4);
     // 3. Launch occasion-aware confetti
