@@ -265,9 +265,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 <body>
 
 <!-- ══════════════════════════════════════════════════
-     SCREEN 1: UPLOAD (UPFRONT)
+     SCREEN 1: OCCASION (FIRST)
 ══════════════════════════════════════════════════ -->
-<div id="s-upload" class="screen active">
+<div id="s-occasion" class="screen active">
   <div class="nav">
     <div onclick="adminTap()" style="cursor:default">
       <div class="nav-logo">Astyra</div>
@@ -280,6 +280,77 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
       <div class="hero-headline">Your face. Your occasion.<br/><em>Your perfect look.</em></div>
       <div class="hero-sub">Find makeup chosen for your occasion, then try it on your own face in seconds.</div>
     </div>
+  </div>
+
+  <div class="steps-bar">
+    <div class="step-node active"><div class="sn-num">1</div><div class="sn-label">Occasion</div></div>
+    <div class="step-line"></div>
+    <div class="step-node"><div class="sn-num">2</div><div class="sn-label">Look</div></div>
+    <div class="step-line"></div>
+    <div class="step-node"><div class="sn-num">3</div><div class="sn-label">Photo</div></div>
+    <div class="step-line"></div>
+    <div class="step-node"><div class="sn-num">4</div><div class="sn-label">Result</div></div>
+  </div>
+
+  <div class="occ-label">✦ What's the occasion?</div>
+  <div class="occasion-grid" id="occasion-grid"></div>
+  <div class="bottom-pad"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 2: LOOK SELECTION
+══════════════════════════════════════════════════ -->
+<div id="s-look" class="screen">
+  <div class="nav">
+    <div onclick="adminTap()" style="cursor:default">
+      <div class="nav-logo">Astyra</div>
+      <div class="nav-sub">Choose Your Look</div>
+    </div>
+    <button class="nav-back" onclick="showScreen('s-occasion')">← Back</button>
+  </div>
+
+  <div class="steps-bar">
+    <div class="step-node done"><div class="sn-num">1</div><div class="sn-label">Occasion</div></div>
+    <div class="step-line done"></div>
+    <div class="step-node active"><div class="sn-num">2</div><div class="sn-label">Look</div></div>
+    <div class="step-line"></div>
+    <div class="step-node"><div class="sn-num">3</div><div class="sn-label">Photo</div></div>
+    <div class="step-line"></div>
+    <div class="step-node"><div class="sn-num">4</div><div class="sn-label">Result</div></div>
+  </div>
+
+  <div class="look-choice-wrap">
+    <div class="occasion-chip" id="selected-occ-chip">💍 Wedding Guest</div>
+    <div id="look-cards-container"></div>
+    <button class="cta-btn" id="look-next-btn" onclick="showScreen('s-upload')" disabled>
+      Next — Add Your Photo →
+    </button>
+    <div class="bottom-pad"></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 3: UPLOAD PHOTO
+══════════════════════════════════════════════════ -->
+<div id="s-upload" class="screen">
+  <div class="nav">
+    <div onclick="adminTap()" style="cursor:default">
+      <div class="nav-logo">Astyra</div>
+      <div class="nav-sub">Upload Your Photo</div>
+    </div>
+    <button class="nav-back" onclick="showScreen('s-look')">← Back</button>
+  </div>
+
+  <div class="steps-bar">
+    <div class="step-node done"><div class="sn-num">1</div><div class="sn-label">Occasion</div></div>
+    <div class="step-line done"></div>
+    <div class="step-node done"><div class="sn-num">2</div><div class="sn-label">Look</div></div>
+    <div class="step-line done"></div>
+    <div class="step-node active"><div class="sn-num">3</div><div class="sn-label">Photo</div></div>
+    <div class="step-line"></div>
+    <div class="step-node"><div class="sn-num">4</div><div class="sn-label">Result</div></div>
   </div>
 
   <div class="upload-section">
@@ -296,77 +367,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     </div>
   </div>
 
-  <div style="padding:14px 14px 0" id="upload-next-1" style="display:none">
-    <button class="cta-btn" id="upload-cta-1" onclick="showScreen('s-occasion')" disabled>
-      Continue — Choose Your Occasion →
+  <div style="padding:14px 14px 0">
+    <button class="cta-btn" id="upload-cta-1" onclick="startGeneration()" disabled>
+      Generate My Look Report →
     </button>
   </div>
 
   <div style="padding:12px 14px 0;text-align:center">
-    <span style="font-size:.62rem;color:var(--text-soft)">or <span style="color:var(--accent);cursor:pointer;text-decoration:underline" onclick="skipUpload()">skip photo and browse looks →</span></span>
+    <span style="font-size:.62rem;color:var(--text-soft)">or <span style="color:var(--accent);cursor:pointer;text-decoration:underline" onclick="skipUpload()">skip photo and go straight to result →</span></span>
   </div>
   <div class="bottom-pad"></div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════════
-     SCREEN 2: OCCASION
-══════════════════════════════════════════════════ -->
-<div id="s-occasion" class="screen">
-  <div class="nav">
-    <div onclick="adminTap()" style="cursor:default">
-      <div class="nav-logo">Astyra</div>
-      <div class="nav-sub">Choose Occasion</div>
-    </div>
-    <button class="nav-back" onclick="showScreen('s-upload')">← Back</button>
-  </div>
-
-  <div class="steps-bar">
-    <div class="step-node done"><div class="sn-num">1</div><div class="sn-label">Photo</div></div>
-    <div class="step-line done"></div>
-    <div class="step-node active"><div class="sn-num">2</div><div class="sn-label">Occasion</div></div>
-    <div class="step-line"></div>
-    <div class="step-node"><div class="sn-num">3</div><div class="sn-label">Look</div></div>
-    <div class="step-line"></div>
-    <div class="step-node"><div class="sn-num">4</div><div class="sn-label">Result</div></div>
-  </div>
-
-  <div class="occ-label">✦ What's the occasion?</div>
-  <div class="occasion-grid" id="occasion-grid"></div>
-  <div class="bottom-pad"></div>
-</div>
-
-
-<!-- ══════════════════════════════════════════════════
-     SCREEN 3: LOOK SELECTION
-══════════════════════════════════════════════════ -->
-<div id="s-look" class="screen">
-  <div class="nav">
-    <div onclick="adminTap()" style="cursor:default">
-      <div class="nav-logo">Astyra</div>
-      <div class="nav-sub">Choose Your Look</div>
-    </div>
-    <button class="nav-back" onclick="showScreen('s-occasion')">← Back</button>
-  </div>
-
-  <div class="steps-bar">
-    <div class="step-node done"><div class="sn-num">1</div><div class="sn-label">Photo</div></div>
-    <div class="step-line done"></div>
-    <div class="step-node done"><div class="sn-num">2</div><div class="sn-label">Occasion</div></div>
-    <div class="step-line done"></div>
-    <div class="step-node active"><div class="sn-num">3</div><div class="sn-label">Look</div></div>
-    <div class="step-line"></div>
-    <div class="step-node"><div class="sn-num">4</div><div class="sn-label">Result</div></div>
-  </div>
-
-  <div class="look-choice-wrap">
-    <div class="occasion-chip" id="selected-occ-chip">💍 Wedding Guest</div>
-    <div id="look-cards-container"></div>
-    <button class="cta-btn" id="look-next-btn" onclick="startGeneration()" disabled>
-      Generate My Look Report →
-    </button>
-    <div class="bottom-pad"></div>
-  </div>
 </div>
 
 
@@ -821,7 +831,7 @@ function cropAndStore(src, suffix){
 }
 function skipUpload(){
   STATE.faceDataUrl = null;
-  showScreen('s-occasion');
+  startGeneration();
 }
 
 // ── OCCASION SELECT → LOOK SCREEN ────────────────────────────
@@ -1138,7 +1148,7 @@ function resetApp(){
   const cta=document.getElementById('upload-cta-1');if(cta)cta.disabled=true;
   document.getElementById('face-input-1').value='';
   document.querySelectorAll('.occ-card').forEach(c=>c.classList.remove('selected'));
-  showScreen('s-upload');
+  showScreen('s-occasion');
 }
 
 // ── CONFETTI ───────────────────────────────────────────────────
@@ -1185,8 +1195,6 @@ function flashLookName(occasionName,lookName,callback){
 // ── BOOT ────────────────────────────────────────────────────────
 window.addEventListener('load',()=>{
   buildOccasionGrid();
-  // Make upload CTA visible container always rendered
-  document.getElementById('upload-next-1').style.display='block';
 });
 </script>
 </body>
