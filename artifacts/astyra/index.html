@@ -4,111 +4,242 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
 <title>Astyra — AI Occasion Look Engine</title>
-<!-- Skimlinks affiliate conversion -->
-<script type="text/javascript">var skimlinks_pub_id = "1159330X1756455";</script>
-<script src="https://s.skimresources.com/js/1159330X1756455.skimlinks.js"></script>
+<script id="skimlinks-script"></script>
 <style>
-/* ─── VARIABLES & RESET ─── */
+/* ─── CSS VARIABLES & RESET ─── */
 :root{
-  --surface:#f8f7ff;--surface2:#f0eeff;--border:#e2dff5;
-  --accent:#7c3aed;--accent2:#a855f7;--accent3:#ec4899;
-  --gold:#d4af37;--green:#059669;
-  --text:#1a1a2e;--text-soft:#6b6b8a;
-  --ink:#0a0a0f;--ink2:#1a1a2e;
+  --ink:#0a0a0f;
+  --ink2:#1a1a2e;
+  --surface:#f8f7ff;
+  --surface2:#f0eeff;
+  --border:#e2dff5;
+  --accent:#7c3aed;
+  --accent2:#a855f7;
+  --accent3:#ec4899;
+  --gold:#d4af37;
+  --gold2:#f5d55a;
+  --green:#059669;
+  --text:#1a1a2e;
+  --text-soft:#6b6b8a;
+  --white:#ffffff;
   --radius:16px;
   --shadow:0 4px 24px rgba(124,58,237,.12);
+  --shadow-lg:0 12px 48px rgba(124,58,237,.18);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:var(--surface);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  background:var(--surface);color:var(--text);
+  min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
 
 /* ─── SCREENS ─── */
 .screen{display:none;min-height:100vh;flex-direction:column}
 .screen.active{display:flex}
 
-/* ─── NAV ─── */
-.nav{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 1px 12px rgba(124,58,237,.07)}
-.nav-logo{font-size:1.35rem;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.nav-sub{font-size:.52rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text-soft);margin-top:-2px}
-.nav-back{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:.65rem;font-weight:800;cursor:pointer;color:var(--text)}
+/* ─── TOP NAV ─── */
+.nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 18px;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 12px rgba(124,58,237,.07);
+}
+.nav-logo{
+  font-size:1.35rem;font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.nav-sub{font-size:.55rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text-soft);margin-top:-2px}
 
-/* ─── STEP BAR ─── */
-.steps-bar{display:flex;align-items:center;justify-content:center;padding:9px 18px 8px;gap:0;background:#fff;border-bottom:1px solid var(--border)}
+/* ─── STEPS BAR ─── */
+.steps-bar{
+  display:flex;align-items:center;justify-content:center;
+  padding:9px 18px 8px;gap:0;
+  background:#fff;border-bottom:1px solid var(--border);
+}
 .step-node{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:52px}
-.sn-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:900;background:var(--surface2);color:var(--text-soft);border:2px solid var(--border);transition:all .3s}
+.sn-num{
+  width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.62rem;font-weight:900;
+  background:var(--surface2);color:var(--text-soft);
+  border:2px solid var(--border);transition:all .3s;
+}
 .sn-label{font-size:.5rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);transition:color .3s}
 .step-node.active .sn-num{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,58,237,.2)}
 .step-node.active .sn-label{color:var(--accent)}
 .step-node.done .sn-num{background:var(--green);color:#fff;border-color:var(--green)}
 .step-node.done .sn-label{color:var(--green)}
-.step-line{flex:1;height:2px;background:var(--border);max-width:40px}
+.step-line{flex:1;height:2px;background:var(--border);max-width:40px;transition:background .3s}
 .step-line.done{background:var(--green)}
 
-/* ─── HERO / UPLOAD SCREEN ─── */
-.hero-dark{background:linear-gradient(180deg,#0f0720 0%,#1a0a2e 100%);padding:20px 20px 18px;text-align:center;position:relative;overflow:hidden}
-.hero-dark::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 140% at 50% 100%,rgba(124,58,237,.25),transparent);pointer-events:none}
-.hero-inner{position:relative;z-index:1}
-.hero-headline{font-size:clamp(1.1rem,5vw,1.75rem);font-weight:900;color:#fff;line-height:1.2;margin-bottom:6px}
-.hero-headline em{font-style:normal;background:linear-gradient(135deg,#a855f7,#ec4899,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{font-size:clamp(.72rem,2.8vw,.88rem);color:rgba(255,255,255,.6);line-height:1.5;max-width:340px;margin:0 auto}
-
-/* ─── UPLOAD ─── */
-.upload-section{padding:16px 14px 0}
-.upload-zone{border:2px dashed var(--border);border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:#fff}
-.upload-zone.dragover{border-color:var(--accent);background:rgba(124,58,237,.04)}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.uz-icon{font-size:2rem;margin-bottom:8px}
-.uz-title{font-size:.9rem;font-weight:800;color:var(--text);margin-bottom:4px}
-.uz-sub{font-size:.66rem;color:var(--text-soft);line-height:1.5;margin-bottom:8px}
-.uz-badge{display:inline-block;background:rgba(5,150,105,.08);border:1px solid rgba(5,150,105,.2);color:var(--green);font-size:.54rem;font-weight:800;letter-spacing:1.5px;padding:3px 10px;border-radius:20px}
-.face-preview-wrap{position:relative;border-radius:14px;overflow:hidden;margin-bottom:14px}
-.face-preview-wrap img{width:100%;height:220px;object-fit:cover;display:block}
-.face-badge{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(5,150,105,.9);color:#fff;font-size:.6rem;font-weight:800;padding:4px 12px;border-radius:20px;white-space:nowrap}
-.face-change{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border:none;font-size:.6rem;font-weight:700;padding:5px 10px;border-radius:20px;cursor:pointer}
-
-/* ─── CTA BTN ─── */
-.cta-btn{width:100%;padding:16px;border:none;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;font-size:.88rem;font-weight:900;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 4px 18px rgba(124,58,237,.3);transition:all .15s}
-.cta-btn:active{transform:scale(.98)}
-.cta-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+/* ─── TAGLINE HEADER ─── */
+.tagline-strip{
+  background:linear-gradient(180deg,#0f0720 0%,#1a0a2e 100%);
+  padding:13px 20px 12px;text-align:center;
+  position:relative;overflow:hidden;
+  border-bottom:1px solid rgba(168,85,247,.15);
+}
+.tagline-strip::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 120% at 50% 100%,rgba(124,58,237,.2),transparent);
+  pointer-events:none;
+}
+.ts-inner{position:relative;z-index:1}
+.ts-headline{
+  font-size:clamp(1.05rem,4.8vw,1.6rem);font-weight:900;letter-spacing:-0.5px;
+  color:#fff;line-height:1.2;margin-bottom:5px;
+}
+.ts-headline em{
+  font-style:normal;
+  background:linear-gradient(135deg,#a855f7 0%,#ec4899 55%,#f59e0b 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.ts-sub{
+  font-size:clamp(.7rem,2.8vw,.88rem);color:rgba(255,255,255,.6);
+  line-height:1.5;max-width:320px;margin:0 auto;
+}
 
 /* ─── OCCASION GRID ─── */
-.occ-label{font-size:.58rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:rgba(168,85,247,.8);text-align:center;padding:8px 0 4px}
-.occasion-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 14px 0}
-.occ-card{background:#fff;border:2px solid var(--border);border-radius:14px;padding:11px 6px;text-align:center;cursor:pointer;transition:all .2s}
+.occasion-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  padding:8px 14px 0;
+}
+.occ-card{
+  background:#fff;border:2px solid var(--border);
+  border-radius:14px;padding:11px 8px;
+  text-align:center;cursor:pointer;
+  transition:all .2s;position:relative;overflow:hidden;
+}
 .occ-card:active{transform:scale(.96)}
-.occ-card.selected{border-color:var(--accent);background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(236,72,153,.04));box-shadow:0 0 0 3px rgba(124,58,237,.15)}
-.occ-emoji{font-size:1.5rem;margin-bottom:5px;display:block}
-.occ-name{font-size:.63rem;font-weight:900;color:var(--text);line-height:1.2;margin-bottom:1px}
-.occ-desc{font-size:.52rem;color:var(--text-soft);line-height:1.3}
+.occ-card.selected{
+  border-color:var(--accent);
+  background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(236,72,153,.04));
+  box-shadow:0 0 0 3px rgba(124,58,237,.15);
+}
+.occ-emoji{font-size:1.6rem;margin-bottom:6px;display:block}
+.occ-name{font-size:.65rem;font-weight:900;color:var(--text);line-height:1.2;margin-bottom:2px}
+.occ-desc{font-size:.53rem;color:var(--text-soft);line-height:1.3}
 
-/* ─── LOOK CARDS ─── */
-.look-choice-wrap{padding:10px 14px 0}
-.occasion-chip{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(236,72,153,.08));border:1px solid rgba(124,58,237,.2);border-radius:30px;padding:6px 14px;font-size:.65rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
-.look-choice-card{background:#fff;border:2px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;cursor:pointer;transition:all .2s}
+/* ─── LOOK SELECTION ─── */
+.look-choice-wrap{padding:14px 14px 0;flex:1}
+.occasion-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(236,72,153,.08));
+  border:1px solid rgba(124,58,237,.2);
+  border-radius:30px;padding:6px 14px;
+  font-size:.65rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:14px;
+}
+.look-choice-card{
+  background:#fff;border:2px solid var(--border);
+  border-radius:var(--radius);margin-bottom:12px;
+  overflow:hidden;cursor:pointer;transition:all .2s;
+}
 .look-choice-card:active{transform:scale(.98)}
-.look-choice-card.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
-.lcc-header{padding:14px 16px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.lcc-num{font-size:.54rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--text-soft);margin-bottom:2px}
-.lcc-name{font-size:.95rem;font-weight:900;color:var(--text);letter-spacing:-0.3px;margin-bottom:2px}
-.lcc-desc{font-size:.7rem;color:var(--text-soft);line-height:1.4}
-.lcc-badge{font-size:.52rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;padding:4px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.look-choice-card.selected{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(124,58,237,.15);
+}
+.lcc-header{
+  padding:16px 18px 12px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+}
+.lcc-num{font-size:.55rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--text-soft);margin-bottom:3px}
+.lcc-name{font-size:1rem;font-weight:900;color:var(--text);letter-spacing:-0.3px;margin-bottom:2px}
+.lcc-desc{font-size:.72rem;color:var(--text-soft);line-height:1.4}
+.lcc-badge{
+  font-size:.52rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+  padding:4px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:2px;
+}
 .badge-natural{background:rgba(5,150,105,.1);color:var(--green)}
 .badge-glam{background:rgba(124,58,237,.1);color:var(--accent)}
 .badge-trendy{background:rgba(236,72,153,.1);color:var(--accent3)}
-.lcc-palette{display:flex;align-items:center;gap:4px;padding:0 16px 12px}
-.lcc-swatch{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 4px rgba(0,0,0,.12);flex-shrink:0}
-.lcc-divider{width:1px;height:20px;background:var(--border);margin:0 2px;flex-shrink:0}
-.lcc-swatch-label{font-size:.55rem;color:var(--text-soft);margin-left:4px;white-space:nowrap}
-.lcc-prompt{background:var(--surface2);border-top:1px solid var(--border);padding:9px 16px;font-size:.63rem;color:var(--text-soft);line-height:1.5;font-style:italic}
+.lcc-palette{display:flex;align-items:center;gap:4px;padding:0 18px 14px}
+.lcc-swatch{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 4px rgba(0,0,0,.12);flex-shrink:0}
+.lcc-swatch-label{font-size:.56rem;color:var(--text-soft);margin-left:4px;white-space:nowrap}
+.lcc-divider{width:1px;height:22px;background:var(--border);margin:0 2px;flex-shrink:0}
+.lcc-prompt{
+  background:var(--surface2);border-top:1px solid var(--border);
+  padding:10px 18px;
+  font-size:.65rem;color:var(--text-soft);line-height:1.5;font-style:italic;
+}
 
-/* ─── LOADING ─── */
-.loading-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;background:var(--surface)}
+/* ─── UPLOAD ZONE ─── */
+.content-area{padding:0 14px 24px}
+.card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px 18px;
+  margin-bottom:14px;box-shadow:var(--shadow);
+}
+.section-title{
+  font-size:.58rem;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:14px;
+}
+.upload-zone{
+  border:2px dashed var(--border);border-radius:14px;
+  padding:32px 20px;text-align:center;cursor:pointer;
+  transition:all .2s;position:relative;background:var(--surface);
+}
+.upload-zone.dragover{border-color:var(--accent);background:rgba(124,58,237,.04)}
+.upload-zone input[type=file]{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.uz-icon{font-size:2.2rem;margin-bottom:10px}
+.uz-title{font-size:.9rem;font-weight:800;color:var(--text);margin-bottom:5px}
+.uz-sub{font-size:.68rem;color:var(--text-soft);line-height:1.5;margin-bottom:10px}
+.uz-badge{
+  display:inline-block;background:rgba(5,150,105,.08);
+  border:1px solid rgba(5,150,105,.2);
+  color:var(--green);font-size:.55rem;font-weight:800;
+  letter-spacing:1.5px;padding:4px 10px;border-radius:20px;
+}
+.face-preview{position:relative;border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+.face-preview-badge{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  background:rgba(5,150,105,.9);color:#fff;
+  font-size:.6rem;font-weight:800;letter-spacing:1px;
+  padding:4px 12px;border-radius:20px;white-space:nowrap;
+}
+.face-preview-change{
+  position:absolute;top:8px;right:8px;
+  background:rgba(0,0,0,.6);color:#fff;border:none;
+  font-size:.6rem;font-weight:700;padding:5px 10px;
+  border-radius:20px;cursor:pointer;
+}
+
+/* ─── CTA BUTTONS ─── */
+.cta-btn{
+  width:100%;padding:16px;border:none;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  color:#fff;font-size:.88rem;font-weight:900;cursor:pointer;
+  letter-spacing:1px;text-transform:uppercase;
+  box-shadow:0 4px 18px rgba(124,58,237,.3);
+  transition:all .15s;
+}
+.cta-btn:active{transform:scale(.98)}
+.cta-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* ─── LOADING SCREEN ─── */
+.loading-wrap{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px 24px;background:var(--surface);
+}
 .loading-orb{font-size:2.5rem;margin-bottom:20px;animation:spin 2s linear infinite}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 .loading-title{font-size:1.1rem;font-weight:900;color:var(--text);margin-bottom:6px;text-align:center}
-.loading-bar-wrap{width:240px;height:6px;background:var(--border);border-radius:3px;margin-bottom:12px;overflow:hidden}
+.loading-sub{font-size:.75rem;color:var(--text-soft);margin-bottom:20px;text-align:center}
+.loading-bar-wrap{width:240px;height:6px;background:var(--border);border-radius:3px;margin-bottom:16px;overflow:hidden}
 .loading-bar{height:100%;width:5%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:3px;transition:width .6s}
-.loading-status{font-size:.54rem;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-soft);margin-bottom:20px}
-.loading-steps-list{display:flex;flex-direction:column;gap:8px;width:260px}
+.loading-status{font-size:.55rem;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-soft);margin-bottom:20px}
+.loading-steps-list{display:flex;flex-direction:column;gap:10px;width:260px}
 .ls-step{display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:10px;background:#fff;border:1px solid var(--border);opacity:.5;transition:all .3s}
 .ls-step.active{opacity:1;border-color:var(--accent);background:rgba(124,58,237,.04)}
 .ls-step.done{opacity:1;border-color:var(--green);background:rgba(5,150,105,.04)}
@@ -116,301 +247,454 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 .ls-step.done .ls-icon{color:var(--green)}
 .ls-step span{font-size:.72rem;font-weight:700;color:var(--text)}
 
-/* ─── RESULT HEADER ─── */
-.result-header{background:linear-gradient(135deg,#0a0a0f,#1a0a2e);padding:14px 18px 12px;border-bottom:1px solid rgba(168,85,247,.15)}
-.rh-tag{font-size:.52rem;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:rgba(168,85,247,.8);margin-bottom:3px}
-.rh-title{font-size:1rem;font-weight:900;color:#fff;letter-spacing:-0.3px;margin-bottom:2px}
-.rh-sub{font-size:.66rem;color:rgba(255,255,255,.55);line-height:1.4}
-.rh-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.rh-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-size:.57rem;font-weight:800;padding:3px 9px;border-radius:20px}
+/* ─── RESULT SCREEN ─── */
+.result-header{
+  background:linear-gradient(135deg,#0a0a0f,#1a0a2e);
+  padding:16px 18px 14px;
+  border-bottom:1px solid rgba(168,85,247,.15);
+}
+.rh-tag{font-size:.52rem;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:rgba(168,85,247,.8);margin-bottom:4px}
+.rh-title{font-size:1.05rem;font-weight:900;color:#fff;letter-spacing:-0.3px;margin-bottom:2px}
+.rh-sub{font-size:.68rem;color:rgba(255,255,255,.55);line-height:1.4}
+.rh-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.rh-chip{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.7);font-size:.57rem;font-weight:800;
+  padding:3px 9px;border-radius:20px;
+}
 
-/* ─── SPLIT BEFORE/AFTER ─── */
-.split-wrap{padding:14px 14px 0}
-.split-label-row{display:flex;margin-bottom:6px}
-.split-label-txt{flex:1;text-align:center;font-size:.55rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--text-soft)}
-.split-container{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* ─── SPLIT SCREEN ─── */
+.split-screen{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8px;padding:14px 14px 8px;
+}
 .split-side{position:relative;border-radius:12px;overflow:hidden;background:#1a1a2e}
-.split-badge{position:absolute;top:6px;left:6px;z-index:3;background:rgba(0,0,0,.75);color:#fff;font-size:.52rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:10px}
-.split-photo{width:100%;height:210px;object-fit:cover;display:block}
-.split-overlay{position:absolute;inset:0;pointer-events:none;z-index:1}
-.split-dots{position:absolute;bottom:0;left:0;right:0;z-index:3;display:flex;gap:3px;padding:7px;background:linear-gradient(transparent,rgba(0,0,0,.4))}
-.split-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.8);flex-shrink:0}
-.split-caption{font-size:.6rem;color:var(--text-soft);text-align:center;padding:6px 14px 0;line-height:1.4}
+.split-label-tag{
+  position:absolute;top:6px;left:6px;z-index:3;
+  background:rgba(0,0,0,.72);color:#fff;
+  font-size:.52rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 8px;border-radius:10px;
+}
+.split-photo{width:100%;height:190px;object-fit:cover;display:block}
+.split-after-overlay{
+  position:absolute;inset:0;pointer-events:none;z-index:1;
+}
+.split-colors{
+  position:absolute;bottom:0;left:0;right:0;z-index:3;
+  display:flex;gap:3px;padding:6px;
+}
+.split-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.7);flex-shrink:0}
 
-/* ─── RESULT CARD ─── */
-.result-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin:12px 14px 0;box-shadow:var(--shadow);overflow:hidden}
-.rc-header{padding:14px 16px 10px;background:linear-gradient(135deg,rgba(124,58,237,.04),rgba(236,72,153,.03));border-bottom:1px solid var(--border)}
+/* ─── RESULT LOOK CARD ─── */
+.result-card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius);margin:0 14px 14px;
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.rc-header{
+  padding:16px 18px 12px;
+  background:linear-gradient(135deg,rgba(124,58,237,.04),rgba(236,72,153,.03));
+  border-bottom:1px solid var(--border);
+}
 .rc-look-num{font-size:.52rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--text-soft);margin-bottom:2px}
-.rc-look-name{font-size:.95rem;font-weight:900;color:var(--text);letter-spacing:-0.3px;margin-bottom:2px}
+.rc-look-name{font-size:1rem;font-weight:900;color:var(--text);letter-spacing:-0.3px;margin-bottom:2px}
 .rc-look-desc{font-size:.7rem;color:var(--text-soft)}
 .rc-badge-row{display:flex;align-items:center;gap:8px;margin-top:8px}
 
 /* ─── PALETTE ─── */
-.palette-section{padding:12px 16px}
-.palette-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.palette-section{padding:14px 18px}
+.palette-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .palette-label{font-size:.54rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);width:38px;flex-shrink:0}
-.palette-swatches{display:flex;align-items:center;gap:5px;flex:1}
-.swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;transition:transform .15s;border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 4px rgba(0,0,0,.12)}
-.swatch.primary{width:26px;height:26px}
-.palette-name{font-size:.63rem;font-weight:800;color:var(--text);margin-left:4px}
-.palette-code{font-size:.55rem;font-family:monospace;color:var(--text-soft);margin-left:2px}
+.palette-swatches{display:flex;align-items:center;gap:5px;flex:1;flex-wrap:wrap}
+.swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;transition:transform .15s;border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.swatch.primary{width:28px;height:28px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.swatch:active{transform:scale(1.1)}
+.palette-name{font-size:.65rem;font-weight:800;color:var(--text);margin-left:4px}
+.palette-code{font-size:.57rem;font-family:monospace;color:var(--text-soft);margin-left:2px}
 
 /* ─── TECHNIQUE ─── */
-.technique-section{padding:0 16px 12px}
+.lc-technique{padding:0 18px 14px}
 .tech-label{font-size:.54rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--text-soft);margin-bottom:8px}
-.tech-steps{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
-.tech-step{display:flex;align-items:center;gap:8px;font-size:.7rem;color:var(--text);line-height:1.4}
-.tech-step-num{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;font-size:.55rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.tip-box{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:11px}
-.tip-label{font-size:.52rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:3px}
-.tip-text{font-size:.7rem;color:var(--text);line-height:1.6}
+.tech-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.tech-step{display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--text);line-height:1.4}
+.tech-step-num{
+  width:18px;height:18px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  color:#fff;font-size:.55rem;font-weight:900;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.tip-box{
+  background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);
+  border-radius:12px;padding:12px;
+}
+.tip-label{font-size:.52rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.tip-text{font-size:.72rem;color:var(--text);line-height:1.6}
 
-/* ─── AI PROMPT ─── */
-.ai-prompt-box{margin:0 14px 12px;background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(236,72,153,.04));border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:11px}
-.ai-prompt-label{font-size:.52rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
-.ai-prompt-text{font-size:.66rem;color:var(--text);line-height:1.6;font-style:italic}
-
-/* ─── AFFILIATE SHOP STRIP ─── */
-.shop-section{margin:0 14px 12px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-.shop-header{background:linear-gradient(135deg,var(--ink),var(--ink2));padding:11px 16px;display:flex;align-items:center;gap:8px}
-.shop-header-title{font-size:.7rem;font-weight:900;color:#fff;letter-spacing:.5px}
-.shop-header-sub{font-size:.57rem;color:rgba(255,255,255,.55);margin-top:1px}
-.shop-badge{font-size:.5rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;background:var(--gold);color:#000;padding:2px 7px;border-radius:10px;flex-shrink:0}
-.product-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);text-decoration:none;cursor:pointer;transition:background .15s}
-.product-item:last-child{border-bottom:none}
-.product-item:active{background:var(--surface2)}
-.product-dot{width:32px;height:32px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,.8);box-shadow:0 1px 6px rgba(0,0,0,.12)}
-.product-info{flex:1;min-width:0}
-.product-brand{font-size:.54rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--text-soft);margin-bottom:1px}
-.product-name{font-size:.72rem;font-weight:700;color:var(--text);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.product-cat{font-size:.55rem;color:var(--text-soft);margin-top:1px}
-.product-price{font-size:.75rem;font-weight:900;color:var(--accent);flex-shrink:0;text-align:right}
-.product-arrow{font-size:.7rem;color:var(--text-soft);flex-shrink:0;margin-left:4px}
-.shop-disclaimer{font-size:.54rem;color:var(--text-soft);padding:7px 16px;text-align:center;background:var(--surface2);border-top:1px solid var(--border)}
+/* ─── AI PROMPT BOX ─── */
+.ai-prompt-box{
+  margin:0 18px 14px;
+  background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(236,72,153,.04));
+  border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:12px;
+}
+.ai-prompt-label{font-size:.52rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:5px}
+.ai-prompt-text{font-size:.68rem;color:var(--text);line-height:1.6;font-style:italic}
 
 /* ─── CAPTURE FORM ─── */
-.capture-card{margin:0 14px 12px;background:linear-gradient(135deg,#1a0a2e,#2d1b69);border:1px solid rgba(168,85,247,.2);border-radius:var(--radius);padding:18px 16px}
-.capture-title{font-size:.88rem;font-weight:900;color:#fff;margin-bottom:3px}
-.capture-sub{font-size:.68rem;color:rgba(255,255,255,.6);margin-bottom:14px;line-height:1.5}
-.capture-input{width:100%;padding:11px 14px;border:1px solid rgba(168,85,247,.25);border-radius:10px;background:rgba(255,255,255,.08);color:#fff;font-size:.78rem;outline:none;margin-bottom:8px;font-family:inherit}
+.capture-card{
+  margin:0 14px 14px;
+  background:linear-gradient(135deg,#1a0a2e,#2d1b69);
+  border:1px solid rgba(168,85,247,.2);
+  border-radius:var(--radius);padding:20px 18px;
+}
+.capture-title{font-size:.9rem;font-weight:900;color:#fff;margin-bottom:4px}
+.capture-sub{font-size:.7rem;color:rgba(255,255,255,.6);margin-bottom:16px;line-height:1.5}
+.capture-input{
+  width:100%;padding:12px 14px;border:1px solid rgba(168,85,247,.25);
+  border-radius:10px;background:rgba(255,255,255,.08);color:#fff;
+  font-size:.78rem;outline:none;margin-bottom:8px;font-family:inherit;
+}
 .capture-input::placeholder{color:rgba(255,255,255,.4)}
 .capture-input:focus{border-color:rgba(168,85,247,.5);background:rgba(255,255,255,.1)}
-.capture-submit{width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;font-size:.82rem;font-weight:900;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 4px 18px rgba(124,58,237,.35);margin-top:2px}
+.capture-submit{
+  width:100%;padding:14px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  color:#fff;font-size:.82rem;font-weight:900;cursor:pointer;
+  letter-spacing:1px;text-transform:uppercase;
+  box-shadow:0 4px 18px rgba(124,58,237,.35);margin-top:4px;
+}
 .capture-submit:active{transform:scale(.98)}
-.capture-skip{font-size:.62rem;color:rgba(255,255,255,.4);text-align:center;cursor:pointer;padding:8px;text-decoration:underline;display:block;margin-top:2px}
+.capture-skip{
+  font-size:.62rem;color:rgba(255,255,255,.4);text-align:center;
+  cursor:pointer;padding:8px;text-decoration:underline;
+  display:block;margin-top:2px;
+}
 
 /* ─── SHARE STRIP ─── */
-.share-strip{margin:0 14px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
-.ss-title{font-size:.78rem;font-weight:900;color:var(--text);margin-bottom:2px}
-.ss-sub{font-size:.66rem;color:var(--text-soft)}
-.ss-btns{display:flex;gap:8px;margin-top:10px}
-.ss-btn{flex:1;padding:11px 8px;border:none;border-radius:10px;font-size:.7rem;font-weight:800;cursor:pointer;letter-spacing:.5px;transition:all .15s}
+.share-strip{
+  margin:0 14px 14px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 18px;
+}
+.ss-title{font-size:.78rem;font-weight:900;color:var(--text);margin-bottom:4px}
+.ss-sub{font-size:.68rem;color:var(--text-soft);margin-bottom:0}
+.ss-btns{display:flex;gap:8px;margin-top:12px}
+.ss-btn{
+  flex:1;padding:11px 8px;border:none;border-radius:10px;
+  font-size:.7rem;font-weight:800;cursor:pointer;letter-spacing:.5px;
+  transition:all .15s;
+}
 .ss-wa{background:#25D366;color:#fff}
 .ss-copy{background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);color:var(--accent)}
 .ss-btn:active{transform:scale(.97)}
 
-/* ─── ADMIN ─── */
-.admin-nav{background:linear-gradient(135deg,#0a0a0f,#1a0a2e);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(168,85,247,.2);position:sticky;top:0;z-index:100}
+/* ─── ADMIN SCREEN ─── */
+.admin-nav{
+  background:linear-gradient(135deg,#0a0a0f,#1a0a2e);
+  padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(168,85,247,.2);position:sticky;top:0;z-index:100;
+}
 .admin-title{font-size:1rem;font-weight:900;color:#fff}
-.admin-sub{font-size:.52rem;font-weight:800;letter-spacing:3px;color:rgba(168,85,247,.8);text-transform:uppercase}
-.admin-back{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:.65rem;font-weight:700;padding:7px 14px;border-radius:20px;cursor:pointer}
+.admin-sub{font-size:.55rem;font-weight:800;letter-spacing:3px;color:rgba(168,85,247,.8);text-transform:uppercase}
+.admin-back{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  color:#fff;font-size:.65rem;font-weight:700;padding:7px 14px;
+  border-radius:20px;cursor:pointer;
+}
 .admin-body{padding:14px}
-.admin-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
-.admin-stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 12px;text-align:center;box-shadow:var(--shadow)}
+.admin-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.admin-stat{
+  background:#fff;border:1px solid var(--border);border-radius:14px;
+  padding:16px 14px;text-align:center;box-shadow:var(--shadow);
+}
 .as-num{font-size:1.8rem;font-weight:900;color:var(--accent);line-height:1}
-.as-label{font-size:.57rem;font-weight:700;color:var(--text-soft);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
-.admin-section{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
-.admin-section-title{font-size:.57rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-.occ-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
-.occ-bar-label{font-size:.62rem;font-weight:700;color:var(--text);width:110px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.as-label{font-size:.58rem;font-weight:700;color:var(--text-soft);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+.admin-section{
+  background:#fff;border:1px solid var(--border);border-radius:14px;
+  padding:16px 14px;margin-bottom:14px;box-shadow:var(--shadow);
+}
+.admin-section-title{font-size:.58rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.occ-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.occ-bar-label{font-size:.63rem;font-weight:700;color:var(--text);width:110px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .occ-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
 .occ-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent3));transition:width .5s}
-.occ-bar-count{font-size:.62rem;font-weight:800;color:var(--text-soft);width:24px;text-align:right}
-.sub-table{width:100%;border-collapse:collapse;font-size:.62rem}
-.sub-table th{text-align:left;font-size:.5rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);padding:0 5px 7px;border-bottom:1px solid var(--border)}
-.sub-table td{padding:6px 5px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top}
+.occ-bar-count{font-size:.62rem;font-weight:800;color:var(--text-soft);width:24px;text-align:right;flex-shrink:0}
+.sub-table{width:100%;border-collapse:collapse;font-size:.63rem}
+.sub-table th{text-align:left;font-size:.5rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-soft);padding:0 5px 8px;border-bottom:1px solid var(--border)}
+.sub-table td{padding:7px 5px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top}
 .sub-table tr:last-child td{border-bottom:none}
-.sub-look-badge{display:inline-block;font-size:.5rem;font-weight:800;padding:2px 6px;border-radius:8px;background:rgba(124,58,237,.1);color:var(--accent)}
+.sub-look-badge{
+  display:inline-block;font-size:.5rem;font-weight:800;
+  padding:2px 6px;border-radius:8px;
+  background:rgba(124,58,237,.1);color:var(--accent);
+}
 .admin-empty{text-align:center;color:var(--text-soft);font-size:.75rem;padding:20px}
-.admin-refresh{width:100%;padding:12px;border:2px solid var(--border);border-radius:12px;background:#fff;color:var(--accent);font-size:.72rem;font-weight:800;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px}
+.admin-refresh{
+  width:100%;padding:12px;border:2px solid var(--border);border-radius:12px;
+  background:#fff;color:var(--accent);font-size:.72rem;font-weight:800;
+  cursor:pointer;letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px;
+}
 .admin-refresh:active{transform:scale(.98)}
 
 /* ─── MODAL ─── */
-.modal-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(10,10,15,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:999;
+  background:rgba(10,10,15,.7);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;
+}
 .modal-overlay.show{display:flex}
-.modal-box{background:#fff;border-radius:20px;padding:22px 20px 26px;width:min(340px,90vw);animation:zoomIn .25s ease;max-height:90vh;overflow-y:auto}
+.modal-box{
+  background:#fff;border-radius:20px;
+  padding:24px 20px 28px;
+  width:min(340px,90vw);
+  animation:zoomIn .25s ease;
+  max-height:90vh;overflow-y:auto;
+}
 @keyframes zoomIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-handle{width:36px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 18px}
-.btn-primary{width:100%;padding:14px;border:none;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:.88rem;font-weight:900;cursor:pointer;letter-spacing:1px;text-transform:uppercase;box-shadow:0 4px 18px rgba(124,58,237,.3);transition:all .15s}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 20px}
+.btn-primary{
+  width:100%;padding:15px;border:none;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-size:.88rem;font-weight:900;cursor:pointer;
+  letter-spacing:1px;text-transform:uppercase;
+  box-shadow:0 4px 18px rgba(124,58,237,.3);transition:all .15s;
+}
 .btn-primary:active{transform:scale(.98)}
-.swatch-large{width:76px;height:76px;border-radius:50%;margin:0 auto 12px;border:3px solid rgba(0,0,0,.1)}
+
+/* ─── SWATCH MODAL ─── */
+.swatch-large{width:80px;height:80px;border-radius:50%;margin:0 auto 14px;border:3px solid rgba(0,0,0,.1)}
 
 /* ─── TOAST ─── */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink2);color:#fff;border:1px solid rgba(255,255,255,.1);padding:12px 20px;border-radius:30px;font-size:.78rem;font-weight:700;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:90vw;box-shadow:0 8px 28px rgba(0,0,0,.3)}
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ink2);color:#fff;border:1px solid rgba(255,255,255,.1);
+  padding:12px 20px;border-radius:30px;font-size:.78rem;font-weight:700;
+  z-index:9999;opacity:0;transition:all .3s;pointer-events:none;
+  white-space:nowrap;max-width:90vw;
+  box-shadow:0 8px 28px rgba(0,0,0,.3);
+}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ─── CONFETTI ─── */
 #confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:9999;display:none}
 
 /* ─── LOOK FLASH ─── */
-#look-flash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:rgba(10,10,15,.92);backdrop-filter:blur(8px);z-index:9998;opacity:0;pointer-events:none;transition:opacity .3s}
+#look-flash{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;
+  background:rgba(10,10,15,.92);
+  backdrop-filter:blur(8px);
+  z-index:9998;opacity:0;pointer-events:none;transition:opacity .3s;
+}
 #look-flash.show{opacity:1;pointer-events:auto}
 .lf-occasion{font-size:.65rem;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:rgba(168,85,247,.7)}
-.lf-name{font-size:2rem;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,#a855f7,#ec4899,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;line-height:1.1;padding:0 20px}
-.lf-sub{font-size:.7rem;color:rgba(255,255,255,.4)}
+.lf-name{
+  font-size:2.1rem;font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(135deg,#a855f7,#ec4899,#f59e0b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;text-align:center;line-height:1.1;padding:0 20px;
+}
+.lf-sub{font-size:.72rem;color:rgba(255,255,255,.4)}
 
+/* ─── MISC ─── */
 .bottom-pad{height:40px}
+.hero-eyebrow{
+  font-size:.58rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(168,85,247,.7);text-align:center;padding-top:6px;padding-bottom:2px;
+}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════
-     SCREEN 1: OCCASION (FIRST)
-══════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 1: OCCASION SELECTION
+═══════════════════════════════════════════════════════ -->
 <div id="s-occasion" class="screen active">
+
   <div class="nav">
-    <div onclick="adminTap()" style="cursor:default">
+    <div onclick="adminTap()" style="cursor:default;-webkit-tap-highlight-color:transparent">
       <div class="nav-logo">Astyra</div>
       <div class="nav-sub">Occasion Intelligence</div>
     </div>
   </div>
 
-  <div class="hero-dark">
-    <div class="hero-inner">
-      <div class="hero-headline">Your face. Your occasion.<br/><em>Your perfect look.</em></div>
-      <div class="hero-sub">Find makeup chosen for your occasion, then try it on your own face in seconds.</div>
+  <div class="steps-bar">
+    <div class="step-node active">
+      <div class="sn-num">1</div>
+      <div class="sn-label">Occasion</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-node">
+      <div class="sn-num">2</div>
+      <div class="sn-label">Look</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-node">
+      <div class="sn-num">3</div>
+      <div class="sn-label">Photo</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-node">
+      <div class="sn-num">4</div>
+      <div class="sn-label">Result</div>
     </div>
   </div>
 
-  <div class="steps-bar">
-    <div class="step-node active"><div class="sn-num">1</div><div class="sn-label">Occasion</div></div>
-    <div class="step-line"></div>
-    <div class="step-node"><div class="sn-num">2</div><div class="sn-label">Look</div></div>
-    <div class="step-line"></div>
-    <div class="step-node"><div class="sn-num">3</div><div class="sn-label">Photo</div></div>
-    <div class="step-line"></div>
-    <div class="step-node"><div class="sn-num">4</div><div class="sn-label">Result</div></div>
+  <div class="tagline-strip">
+    <div class="ts-inner">
+      <div class="ts-headline">Your face. Your occasion.<br/><em>Your perfect look.</em></div>
+      <div class="ts-sub">Find makeup chosen for your occasion, then try it on your own face in seconds.</div>
+    </div>
   </div>
 
-  <div class="occ-label">✦ What's the occasion?</div>
+  <p class="hero-eyebrow">✦ Choose your occasion to begin</p>
   <div class="occasion-grid" id="occasion-grid"></div>
   <div class="bottom-pad"></div>
 </div>
 
 
-<!-- ══════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════
      SCREEN 2: LOOK SELECTION
-══════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════ -->
 <div id="s-look" class="screen">
+
   <div class="nav">
-    <div onclick="adminTap()" style="cursor:default">
+    <div onclick="adminTap()" style="cursor:default;-webkit-tap-highlight-color:transparent">
       <div class="nav-logo">Astyra</div>
       <div class="nav-sub">Choose Your Look</div>
     </div>
-    <button class="nav-back" onclick="showScreen('s-occasion')">← Back</button>
+    <button onclick="showScreen('s-occasion')" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:.65rem;font-weight:800;cursor:pointer;color:var(--text)">← Back</button>
   </div>
 
   <div class="steps-bar">
-    <div class="step-node done"><div class="sn-num">1</div><div class="sn-label">Occasion</div></div>
+    <div class="step-node done">
+      <div class="sn-num">1</div>
+      <div class="sn-label">Occasion</div>
+    </div>
     <div class="step-line done"></div>
-    <div class="step-node active"><div class="sn-num">2</div><div class="sn-label">Look</div></div>
+    <div class="step-node active">
+      <div class="sn-num">2</div>
+      <div class="sn-label">Look</div>
+    </div>
     <div class="step-line"></div>
-    <div class="step-node"><div class="sn-num">3</div><div class="sn-label">Photo</div></div>
+    <div class="step-node">
+      <div class="sn-num">3</div>
+      <div class="sn-label">Photo</div>
+    </div>
     <div class="step-line"></div>
-    <div class="step-node"><div class="sn-num">4</div><div class="sn-label">Result</div></div>
+    <div class="step-node">
+      <div class="sn-num">4</div>
+      <div class="sn-label">Result</div>
+    </div>
   </div>
 
   <div class="look-choice-wrap">
     <div class="occasion-chip" id="selected-occ-chip">💍 Wedding Guest</div>
     <div id="look-cards-container"></div>
-    <button class="cta-btn" id="look-next-btn" onclick="showScreen('s-upload')" disabled>
-      Next — Add Your Photo →
+    <button class="cta-btn" id="look-next-btn" onclick="goToUpload()" disabled>
+      Continue with Selected Look →
     </button>
     <div class="bottom-pad"></div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════
      SCREEN 3: UPLOAD PHOTO
-══════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════ -->
 <div id="s-upload" class="screen">
+
   <div class="nav">
-    <div onclick="adminTap()" style="cursor:default">
+    <div onclick="adminTap()" style="cursor:default;-webkit-tap-highlight-color:transparent">
       <div class="nav-logo">Astyra</div>
       <div class="nav-sub">Upload Your Photo</div>
     </div>
-    <button class="nav-back" onclick="showScreen('s-look')">← Back</button>
+    <button onclick="showScreen('s-look')" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:.65rem;font-weight:800;cursor:pointer;color:var(--text)">← Back</button>
   </div>
 
   <div class="steps-bar">
-    <div class="step-node done"><div class="sn-num">1</div><div class="sn-label">Occasion</div></div>
+    <div class="step-node done">
+      <div class="sn-num">1</div>
+      <div class="sn-label">Occasion</div>
+    </div>
     <div class="step-line done"></div>
-    <div class="step-node done"><div class="sn-num">2</div><div class="sn-label">Look</div></div>
+    <div class="step-node done">
+      <div class="sn-num">2</div>
+      <div class="sn-label">Look</div>
+    </div>
     <div class="step-line done"></div>
-    <div class="step-node active"><div class="sn-num">3</div><div class="sn-label">Photo</div></div>
+    <div class="step-node active">
+      <div class="sn-num">3</div>
+      <div class="sn-label">Photo</div>
+    </div>
     <div class="step-line"></div>
-    <div class="step-node"><div class="sn-num">4</div><div class="sn-label">Result</div></div>
-  </div>
-
-  <div class="upload-section">
-    <div id="face-preview-wrap-1"></div>
-    <div class="upload-zone" id="upload-zone-1"
-      ondragover="this.classList.add('dragover')"
-      ondragleave="this.classList.remove('dragover')"
-      ondrop="handleDrop(event,'1')">
-      <input type="file" id="face-input-1" accept="image/*" onchange="handleUpload(event,'1')"/>
-      <div class="uz-icon">📷</div>
-      <div class="uz-title">Upload Your Bare Face Photo</div>
-      <div class="uz-sub">No makeup. Good lighting. Face forward.<br/>Processed in your browser — never uploaded.</div>
-      <div class="uz-badge">🔒 PRIVATE · LOCAL PROCESSING</div>
+    <div class="step-node">
+      <div class="sn-num">4</div>
+      <div class="sn-label">Result</div>
     </div>
   </div>
 
-  <div style="padding:14px 14px 0">
-    <button class="cta-btn" id="upload-cta-1" onclick="startGeneration()" disabled>
-      Generate My Look Report →
-    </button>
-  </div>
-
-  <div style="padding:12px 14px 0;text-align:center">
-    <span style="font-size:.62rem;color:var(--text-soft)">or <span style="color:var(--accent);cursor:pointer;text-decoration:underline" onclick="skipUpload()">skip photo and go straight to result →</span></span>
+  <div class="content-area" style="padding-top:16px">
+    <div id="face-preview-wrap"></div>
+    <div class="card">
+      <div class="section-title">Upload Your Bare Face Photo</div>
+      <div class="upload-zone" id="upload-zone"
+        ondragover="this.classList.add('dragover')"
+        ondragleave="this.classList.remove('dragover')"
+        ondrop="handleDrop(event)">
+        <input type="file" id="face-input" accept="image/*" onchange="handleUpload(event)"/>
+        <div class="uz-icon">📷</div>
+        <div class="uz-title">Upload Bare Face Photo</div>
+        <div class="uz-sub">No makeup. Good lighting. Facing forward.<br/>Your photo is processed in your browser only.</div>
+        <div class="uz-badge">🔒 PRIVATE · LOCAL PROCESSING</div>
+      </div>
+    </div>
+    <div id="upload-next-wrap" style="display:none">
+      <button class="cta-btn" onclick="startGeneration()">
+        ✦ Generate My Look Report →
+      </button>
+    </div>
   </div>
   <div class="bottom-pad"></div>
 </div>
 
 
-<!-- ══════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════
      SCREEN 4: LOADING
-══════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════ -->
 <div id="s-loading" class="screen">
-  <div class="nav"><div><div class="nav-logo">Astyra</div><div class="nav-sub">Processing</div></div></div>
+  <div class="nav">
+    <div><div class="nav-logo">Astyra</div><div class="nav-sub">Processing</div></div>
+  </div>
   <div class="loading-wrap">
     <div class="loading-orb">✦</div>
     <div class="loading-title">Occasion Intelligence Engine</div>
-    <div style="font-size:.75rem;color:var(--text-soft);margin-bottom:20px;text-align:center">Building your personalised look report...</div>
-    <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
+    <div class="loading-sub">Analysing your occasion profile...</div>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar" id="loading-bar"></div>
+    </div>
     <div class="loading-status" id="loading-status">INITIALISING</div>
     <div class="loading-steps-list">
       <div class="ls-step active" id="ls1"><div class="ls-icon">↻</div><span>Scanning occasion profile</span></div>
       <div class="ls-step" id="ls2"><div class="ls-icon">○</div><span>Matching look library</span></div>
       <div class="ls-step" id="ls3"><div class="ls-icon">○</div><span>Calibrating colour harmonics</span></div>
-      <div class="ls-step" id="ls4"><div class="ls-icon">○</div><span>Building look report + shop list</span></div>
+      <div class="ls-step" id="ls4"><div class="ls-icon">○</div><span>Building your look report</span></div>
     </div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════
      SCREEN 5: RESULT
-══════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════ -->
 <div id="s-result" class="screen">
+
   <div class="nav">
-    <div onclick="adminTap()" style="cursor:default">
+    <div onclick="adminTap()" style="cursor:default;-webkit-tap-highlight-color:transparent">
       <div class="nav-logo">Astyra</div>
       <div class="nav-sub">Your Look Report</div>
     </div>
-    <button class="nav-back" onclick="resetApp()">↩ New Scan</button>
+    <button onclick="resetApp()" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:.65rem;font-weight:800;cursor:pointer;color:var(--text)">↩ New Scan</button>
   </div>
 
   <div class="result-header">
@@ -420,67 +704,49 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
     <div class="rh-chips" id="rh-chips"></div>
   </div>
 
-  <!-- ── BEFORE / AFTER ── -->
-  <div class="split-wrap">
-    <div class="split-label-row">
-      <div class="split-label-txt">◀ BEFORE</div>
-      <div class="split-label-txt">AFTER ▶</div>
+  <!-- SPLIT SCREEN: BEFORE / AFTER -->
+  <div class="split-screen">
+    <div class="split-side">
+      <div class="split-label-tag">BEFORE</div>
+      <img id="split-before-img" src="" class="split-photo" alt="Your bare face"/>
     </div>
-    <div class="split-container">
-      <div class="split-side">
-        <div class="split-badge">BEFORE</div>
-        <img id="split-before-img" src="" class="split-photo" alt="Bare face"/>
-      </div>
-      <div class="split-side">
-        <div class="split-badge">AFTER</div>
-        <img id="split-after-img" src="" class="split-photo" alt="With look"/>
-        <div class="split-overlay" id="split-overlay"></div>
-        <div class="split-dots" id="split-dots"></div>
-      </div>
+    <div class="split-side">
+      <div class="split-label-tag">AFTER</div>
+      <img id="split-after-img" src="" class="split-photo" alt="With look colours"/>
+      <div class="split-after-overlay" id="split-after-overlay"></div>
+      <div class="split-colors" id="split-colors"></div>
     </div>
-    <div class="split-caption" id="split-caption">← Your bare face &nbsp;|&nbsp; Your look colours →</div>
   </div>
 
-  <!-- ── LOOK CARD ── -->
+  <!-- LOOK RESULT CARD -->
   <div class="result-card">
     <div class="rc-header">
       <div class="rc-look-num" id="rc-look-num">YOUR SELECTED LOOK</div>
       <div class="rc-look-name" id="rc-look-name">Soft Bridal Glow</div>
       <div class="rc-look-desc" id="rc-look-desc">Luminous, camera-ready, effortless</div>
-      <div class="rc-badge-row"><span class="lcc-badge badge-natural" id="rc-badge">NATURAL / SOFT</span></div>
+      <div class="rc-badge-row">
+        <span class="lcc-badge badge-natural" id="rc-badge">NATURAL / SOFT</span>
+      </div>
     </div>
     <div class="palette-section" id="rc-palette"></div>
-    <div class="technique-section" id="rc-technique"></div>
+    <div class="lc-technique" id="rc-technique"></div>
     <div class="ai-prompt-box">
       <div class="ai-prompt-label">✦ AI Prompt for this Look</div>
       <div class="ai-prompt-text" id="rc-prompt-text"></div>
     </div>
   </div>
 
-  <!-- ── SHOP THIS LOOK (AFFILIATE) ── -->
-  <div class="shop-section" id="shop-section">
-    <div class="shop-header">
-      <div style="flex:1">
-        <div class="shop-header-title">🛍 Shop This Look</div>
-        <div class="shop-header-sub">Exact products matched to your look</div>
-      </div>
-      <div class="shop-badge">AFFILIATE</div>
-    </div>
-    <div id="product-list"></div>
-    <div class="shop-disclaimer">We may earn a small commission from purchases at no extra cost to you.</div>
-  </div>
-
-  <!-- ── CAPTURE FORM ── -->
+  <!-- OPTIONAL CAPTURE FORM -->
   <div class="capture-card" id="capture-card">
     <div class="capture-title">✨ Save your look report</div>
-    <div class="capture-sub">Optional — enter your name and email to save your results. No account needed, no spam.</div>
+    <div class="capture-sub">Optional: enter your name and email to receive your look details. No account, no spam.</div>
     <input class="capture-input" id="capture-name" type="text" placeholder="First name (optional)" autocomplete="given-name"/>
     <input class="capture-input" id="capture-email" type="email" placeholder="Email address (optional)" autocomplete="email"/>
     <button class="capture-submit" onclick="submitCapture()">Save My Look Report →</button>
     <span class="capture-skip" onclick="skipCapture()">Skip — just show me the colours</span>
   </div>
 
-  <!-- ── SHARE ── -->
+  <!-- SHARE STRIP (shown after capture) -->
   <div class="share-strip" id="result-share-strip" style="display:none">
     <div class="ss-title">💄 Love your look? Share it!</div>
     <div class="ss-sub">Ask friends which look suits you best.</div>
@@ -494,30 +760,50 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 </div>
 
 
-<!-- ══════════════════════════════════════════════════
-     SCREEN 6: ADMIN (hidden — 5 logo taps)
-══════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 6: ADMIN DASHBOARD (hidden, 5 logo taps)
+═══════════════════════════════════════════════════════ -->
 <div id="s-admin" class="screen">
   <div class="admin-nav">
-    <div><div class="admin-title">Admin Dashboard</div><div class="admin-sub">Astyra Intelligence</div></div>
-    <button class="admin-back" onclick="showScreen('s-upload')">← Exit</button>
+    <div>
+      <div class="admin-title">Admin Dashboard</div>
+      <div class="admin-sub">Astyra Intelligence</div>
+    </div>
+    <button class="admin-back" onclick="showScreen('s-occasion')">← Exit</button>
   </div>
+
   <div class="admin-body">
     <button class="admin-refresh" onclick="loadAdminData()">↻ Refresh Data</button>
+
     <div class="admin-stat-grid">
-      <div class="admin-stat"><div class="as-num" id="admin-total">—</div><div class="as-label">Total Submissions</div></div>
-      <div class="admin-stat"><div class="as-num" id="admin-today">—</div><div class="as-label">Today</div></div>
-      <div class="admin-stat"><div class="as-num" id="admin-week">—</div><div class="as-label">This Week</div></div>
-      <div class="admin-stat"><div class="as-num" id="admin-email-rate">—</div><div class="as-label">Email Capture</div></div>
+      <div class="admin-stat">
+        <div class="as-num" id="admin-total">—</div>
+        <div class="as-label">Total Submissions</div>
+      </div>
+      <div class="admin-stat">
+        <div class="as-num" id="admin-today">—</div>
+        <div class="as-label">Today</div>
+      </div>
+      <div class="admin-stat">
+        <div class="as-num" id="admin-week">—</div>
+        <div class="as-label">This Week</div>
+      </div>
+      <div class="admin-stat">
+        <div class="as-num" id="admin-email-rate">—</div>
+        <div class="as-label">Email Capture</div>
+      </div>
     </div>
+
     <div class="admin-section">
       <div class="admin-section-title">By Occasion</div>
       <div id="admin-by-occasion"><div class="admin-empty">Loading...</div></div>
     </div>
+
     <div class="admin-section">
       <div class="admin-section-title">By Look</div>
       <div id="admin-by-look"><div class="admin-empty">Loading...</div></div>
     </div>
+
     <div class="admin-section">
       <div class="admin-section-title">Recent Submissions</div>
       <div id="admin-submissions"><div class="admin-empty">Loading...</div></div>
@@ -526,25 +812,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 </div>
 
 
-<!-- ══ TOAST ══ -->
+<!-- ═══════════ TOAST ═══════════ -->
 <div id="toast"></div>
 
-<!-- ══ SWATCH MODAL ══ -->
+<!-- ═══════════ SWATCH MODAL ═══════════ -->
 <div class="modal-overlay" id="swatch-modal" onclick="closeModal('swatch-modal')">
   <div class="modal-box" style="text-align:center" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="swatch-large" id="swatch-modal-color"></div>
     <div style="font-size:1rem;font-weight:900;color:var(--text);margin-bottom:4px" id="swatch-modal-name"></div>
-    <div style="font-family:monospace;font-size:.82rem;font-weight:700;color:var(--text-soft);margin-bottom:14px;cursor:pointer" id="swatch-modal-hex"></div>
-    <p style="font-size:.72rem;color:var(--text-soft);line-height:1.5;margin-bottom:14px" id="swatch-modal-tip"></p>
+    <div style="font-family:monospace;font-size:.82rem;font-weight:700;color:var(--text-soft);margin-bottom:16px;cursor:pointer" id="swatch-modal-hex"></div>
+    <p style="font-size:.72rem;color:var(--text-soft);line-height:1.5;margin-bottom:16px" id="swatch-modal-tip"></p>
     <button class="btn-primary" onclick="closeModal('swatch-modal')">Got it ✓</button>
   </div>
 </div>
 
-<!-- ══ CONFETTI ══ -->
+<!-- ═══════════ CONFETTI ═══════════ -->
 <canvas id="confetti-canvas"></canvas>
 
-<!-- ══ LOOK FLASH ══ -->
+<!-- ═══════════ LOOK FLASH ═══════════ -->
 <div id="look-flash">
   <div class="lf-occasion" id="lf-occasion"></div>
   <div class="lf-name" id="lf-name"></div>
@@ -552,16 +838,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-s
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-//  Astyra — OCCASION INTELLIGENCE ENGINE v4
-//  Flow: Upload → Occasion → Look → Result
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+//  Astyra — OCCASION INTELLIGENCE ENGINE v3
+//  New flow: Occasion → Look → Photo → Result
+// ════════════════════════════════════════════════════════════════
 
 const API_BASE = '/api-server/api';
 
-let STATE = { occasion:null, look:null, faceDataUrl:null, firstName:null, email:null };
+// ── STATE ─────────────────────────────────────────────────────────
+let STATE = {
+  occasion: null,
+  look: null,
+  faceDataUrl: null,
+  firstName: null,
+  email: null,
+};
 
-// ── OCCASIONS ────────────────────────────────────────────────
+// ── OCCASIONS (6) ─────────────────────────────────────────────────
 const OCCASIONS = [
   { id:'wedding-guest', emoji:'💍', name:'Wedding Guest',       desc:'Ceremony & reception' },
   { id:'date-night',    emoji:'💕', name:'Date Night',          desc:'Dinner & romance' },
@@ -571,7 +864,7 @@ const OCCASIONS = [
   { id:'photoshoot',    emoji:'📸', name:'Photoshoot / Event',  desc:'Camera-ready looks' },
 ];
 
-// ── LOOKS + AFFILIATE PRODUCTS ────────────────────────────────
+// ── LOOKS (2 per occasion) ─────────────────────────────────────────
 const LOOKS = {
   'wedding-guest': [
     {
@@ -583,12 +876,6 @@ const LOOKS = {
       blush:[{n:'Peach Flush',h:'#FFB347'},{n:'Rose Petal',h:'#E8A0A0'}],
       technique:['Luminous primer base','Champagne shadow on lid','Taupe crease blend','Peach blush swept high','Dusty rose lip + clear gloss'],
       tip:'Apply champagne shadow to lid, blend taupe into crease. Blush high on cheekbones for a lifted, luminous effect.',
-      products:[
-        { brand:'Charlotte Tilbury', name:'Pillow Talk Lipstick', cat:'Lip Colour', price:'$36', color:'#C17B7B', url:'https://www.sephora.com/product/matte-revolution-lipstick-P394562' },
-        { brand:'NARS', name:'Sheer Glow Foundation', cat:'Foundation', price:'$49', color:'#D4B896', url:'https://www.sephora.com/product/sheer-glow-foundation-P377515' },
-        { brand:'Laura Mercier', name:'Translucent Setting Powder', cat:'Setting', price:'$48', color:'#F5F0E8', url:'https://www.sephora.com/product/translucent-loose-setting-powder-P122406' },
-        { brand:'Fenty Beauty', name:'Killawatt Highlighter', cat:'Highlighter', price:'$38', color:'#F5DEB3', url:'https://www.sephora.com/product/killawatt-freestyle-highlighter-P432459' },
-      ],
     },
     {
       name:'Luminous Drama', badge:'GLAM / BOLD', badgeClass:'badge-glam',
@@ -599,12 +886,6 @@ const LOOKS = {
       blush:[{n:'Sculpted Rose',h:'#C27A7A'},{n:'Bronze Contour',h:'#A0785A'}],
       technique:['Full coverage foundation','Rose gold on eyelid','Bronze outer-V blend','Smoky lower lash line','Bold berry lip with liner'],
       tip:'Full coverage base. Rose gold on lid, bronze outer-V, smoky lower lash line. Bold lip with clear liner.',
-      products:[
-        { brand:'Urban Decay', name:'Naked Reloaded Palette', cat:'Eyeshadow', price:'$54', color:'#B76E79', url:'https://www.sephora.com/product/naked-reloaded-eyeshadow-palette-P445683' },
-        { brand:'NARS', name:'Dragon Girl Lipstick', cat:'Lip Colour', price:'$28', color:'#8B2252', url:'https://www.sephora.com/product/velvet-lip-glide-P388791' },
-        { brand:'Too Faced', name:'Better Than Sex Mascara', cat:'Mascara', price:'$27', color:'#1A1A1A', url:'https://www.sephora.com/product/better-than-sex-mascara-P380949' },
-        { brand:'NARS', name:'Laguna Bronzer', cat:'Contour', price:'$40', color:'#A0785A', url:'https://www.sephora.com/product/laguna-bronzer-P5454' },
-      ],
     },
   ],
   'date-night': [
@@ -617,12 +898,6 @@ const LOOKS = {
       blush:[{n:'Pinched Cheeks',h:'#E88A8A'},{n:'Warm Apricot',h:'#F5A882'}],
       technique:['Glowy skin base','Vanilla wash of colour','Amber warmth in crease','Mascara focus','MLBB lip colour'],
       tip:'Enhanced natural look. Focus on skin, lashes, and a lip that says "this is my actual lip colour but better".',
-      products:[
-        { brand:'Fenty Beauty', name:'Gloss Bomb Universal Lip Luminizer', cat:'Lip Gloss', price:'$22', color:'#C8897A', url:'https://www.sephora.com/product/gloss-bomb-universal-lip-luminizer-P446379' },
-        { brand:'Charlotte Tilbury', name:'Flawless Filter', cat:'Base', price:'$49', color:'#D4B896', url:'https://www.sephora.com/product/hollywood-flawless-filter-P447437' },
-        { brand:'Benefit', name:'BADgal BANG! Mascara', cat:'Mascara', price:'$28', color:'#1A1A1A', url:'https://www.sephora.com/product/badgal-bang-volumizing-mascara-P432360' },
-        { brand:'NARS', name:'Orgasm Blush', cat:'Blush', price:'$32', color:'#E88A8A', url:'https://www.sephora.com/product/blush-P35' },
-      ],
     },
     {
       name:'Siren Mode', badge:'GLAM / BOLD', badgeClass:'badge-glam',
@@ -633,12 +908,6 @@ const LOOKS = {
       blush:[{n:'Rosy Glow',h:'#D4788A'},{n:'Bronze Warmth',h:'#C09070'}],
       technique:['Luminous skin base','Bronzed eye build','Gold inner corner','Flushed warm cheeks','Warm red lip'],
       tip:'Classic date look: sultry bronze eyes, defined lashes, warm red lip. A forever combination.',
-      products:[
-        { brand:'MAC Cosmetics', name:'Ruby Woo Lipstick', cat:'Lip Colour', price:'$21', color:'#C0392B', url:'https://www.maccosmetics.com/product/13854/310/products/makeup/lips/lipstick/retro-matte-lipstick' },
-        { brand:'Charlotte Tilbury', name:'The Dolce Vita Palette', cat:'Eyeshadow', price:'$75', color:'#8B5E3C', url:'https://www.sephora.com/product/luxury-palette-P446413' },
-        { brand:'NARS', name:'Laguna Bronzer', cat:'Bronzer', price:'$40', color:'#C09070', url:'https://www.sephora.com/product/laguna-bronzer-P5454' },
-        { brand:'Hourglass', name:'Scattered Light Glitter', cat:'Eye Glitter', price:'$34', color:'#D4A017', url:'https://www.sephora.com/product/scattered-light-glitter-eyeshadow-P429133' },
-      ],
     },
   ],
   'night-out': [
@@ -651,12 +920,6 @@ const LOOKS = {
       blush:[{n:'Coral Glow',h:'#FF7F5C'},{n:'Peach',h:'#FFBE9A'}],
       technique:['Dewy skin prep','Gold shimmer lid','Tawny crease blend','Coral cheek pop','MLBB nude lip'],
       tip:'Warm gold on lids with tawny crease. Dewy skin, coral cheeks, MLBB lip.',
-      products:[
-        { brand:'Pat McGrath Labs', name:'Mothership II Palette', cat:'Eyeshadow', price:'$125', color:'#D4A843', url:'https://www.sephora.com/product/mothership-ii-eyeshadow-palette-sublime-P447437' },
-        { brand:'Fenty Beauty', name:'Gloss Bomb in Fenty Glow', cat:'Lip Gloss', price:'$22', color:'#C8897A', url:'https://www.sephora.com/product/gloss-bomb-universal-lip-luminizer-P446379' },
-        { brand:'e.l.f. Cosmetics', name:'Putty Blush in Turks & Caicos', cat:'Blush', price:'$10', color:'#FF7F5C', url:'https://www.elfcosmetics.com/putty-blush/83328.html' },
-        { brand:'Maybelline', name:'Sky High Mascara', cat:'Mascara', price:'$11', color:'#2D2D2D', url:'https://www.sephora.com/product/lash-sensational-sky-high-mascara-P466804' },
-      ],
     },
     {
       name:'Night Out Power', badge:'GLAM / BOLD', badgeClass:'badge-glam',
@@ -667,12 +930,6 @@ const LOOKS = {
       blush:[{n:'Rosy Sculpt',h:'#D4849A'},{n:'Champagne Contour',h:'#D4B896'}],
       technique:['Full coverage base','Full smoky eye','Silver inner corner glitter','Sculpted contour','Precise red lip with liner'],
       tip:'Full smoky eye with silver glitter in inner corner. Precise red lip with liner. Sculpted cheeks.',
-      products:[
-        { brand:'Urban Decay', name:'Perversion Mascara', cat:'Mascara', price:'$27', color:'#1A1A1A', url:'https://www.sephora.com/product/perversion-mascara-P378018' },
-        { brand:'Charlotte Tilbury', name:'Walk of No Shame Lipstick', cat:'Lip Colour', price:'$36', color:'#C0392B', url:'https://www.sephora.com/product/matte-revolution-lipstick-P394562' },
-        { brand:'Huda Beauty', name:'Obsessions Smoky Palette', cat:'Eyeshadow', price:'$27', color:'#2C2C3E', url:'https://www.sephora.com/product/obsessions-eyeshadow-palette-P429087' },
-        { brand:'NYX Professional', name:'Jumbo Eye Pencil in Milk', cat:'Inner Corner', price:'$9', color:'#F5F5F5', url:'https://www.ulta.com/p/jumbo-eye-pencil-pimprod2027272' },
-      ],
     },
   ],
   'work': [
@@ -685,12 +942,6 @@ const LOOKS = {
       blush:[{n:'Natural Flush',h:'#E8A08A'},{n:'Soft Peach',h:'#F5C5A0'}],
       technique:['Natural finish foundation','Light ivory lid','Bronze into crease','Subtle peach blush','Nude-pink lip'],
       tip:'Light hand. Natural finish skin. Subtle bronze eye, neutral lip. Never distracting.',
-      products:[
-        { brand:'Glossier', name:'Boy Brow in Brown', cat:'Brow', price:'$17', color:'#4A3728', url:'https://www.glossier.com/products/boy-brow' },
-        { brand:'NARS', name:'Tinted Moisturizer', cat:'Base', price:'$46', color:'#D4B896', url:'https://www.sephora.com/product/pure-radiant-tinted-moisturizer-spf-30-pa-P377511' },
-        { brand:'MAC Cosmetics', name:'Twig Lipstick', cat:'Lip Colour', price:'$21', color:'#D4A0A0', url:'https://www.maccosmetics.com/product/13854/310/products/makeup/lips/lipstick' },
-        { brand:'Benefit', name:'Roller Lash Mascara', cat:'Mascara', price:'$27', color:'#1A1A1A', url:'https://www.sephora.com/product/roller-lash-curling-lifting-mascara-P381742' },
-      ],
     },
     {
       name:'Quiet Luxury', badge:'TRENDY / EDITORIAL', badgeClass:'badge-trendy',
@@ -701,12 +952,6 @@ const LOOKS = {
       blush:[{n:'Barely-There',h:'#F0C8B8'},{n:'Warm Glow',h:'#F5D0B8'}],
       technique:['Skincare-first prep','Sandy beige lids','Feathered brow focus','Whisper-light blush','Greige nude lip'],
       tip:'The "I woke up like this but expensive" look. Dewy skin, barely-there colour, perfect brows.',
-      products:[
-        { brand:'Charlotte Tilbury', name:'Magic Cream Moisturiser', cat:'Skincare Base', price:'$100', color:'#F5F0EC', url:'https://www.sephora.com/product/magic-cream-moisturizer-P447311' },
-        { brand:'Glossier', name:'Stretch Concealer', cat:'Concealer', price:'$22', color:'#E8D5B0', url:'https://www.glossier.com/products/stretch-concealer' },
-        { brand:'Westman Atelier', name:'Squeaky Clean Scalp Serum', cat:'Lip Butter', price:'$48', color:'#C5B0A0', url:'https://www.sephora.com/brand/westman-atelier' },
-        { brand:'ILIA Beauty', name:'Limitless Lash Mascara', cat:'Mascara', price:'$28', color:'#1A1A1A', url:'https://www.sephora.com/product/limitless-lash-mascara-P447437' },
-      ],
     },
   ],
   'everyday': [
@@ -719,12 +964,6 @@ const LOOKS = {
       blush:[{n:'Pinched Pink',h:'#F09090'},{n:'Strawberry',h:'#F48080'}],
       technique:['Tinted moisturiser','Peachy rose wash','Pinched pink blush','Glossy strawberry lip','Mascara only'],
       tip:'Best with a barely-there eye and emphasis on healthy-looking skin. Simple and gorgeous.',
-      products:[
-        { brand:'Glossier', name:'Cloud Paint in Puff', cat:'Blush', price:'$22', color:'#F09090', url:'https://www.glossier.com/products/cloud-paint' },
-        { brand:'Rare Beauty', name:'Soft Pinch Liquid Blush', cat:'Blush', price:'$23', color:'#F48080', url:'https://www.sephora.com/product/soft-pinch-liquid-blush-P482355' },
-        { brand:'Fenty Beauty', name:'Gloss Bomb in Fenty Glow', cat:'Lip Gloss', price:'$22', color:'#F4909A', url:'https://www.sephora.com/product/gloss-bomb-universal-lip-luminizer-P446379' },
-        { brand:'Maybelline', name:'Sky High Mascara', cat:'Mascara', price:'$11', color:'#1A1A1A', url:'https://www.sephora.com/product/lash-sensational-sky-high-mascara-P466804' },
-      ],
     },
     {
       name:'Rosé All Day', badge:'TRENDY / EDITORIAL', badgeClass:'badge-trendy',
@@ -734,13 +973,7 @@ const LOOKS = {
       eye:  [{n:'Rose Quartz',h:'#E8B4C8'},{n:'Mauve',h:'#B07890'},{n:'Soft Plum',h:'#8A5A6A'}],
       blush:[{n:'Rose Flush',h:'#F0A0B0'},{n:'Rosy Glow',h:'#F5B0C0'}],
       technique:['Dewy rose base','Rose quartz eye wash','Mauve crease blend','Rosy flush blush','Rosé stained lip'],
-      tip:'All-over rosy monochromatic. Rose quartz on eyes, mauve lip, soft rose blush.',
-      products:[
-        { brand:'Charlotte Tilbury', name:'Hollywood Beauty Light Wand', cat:'Highlighter', price:'$40', color:'#E8B4C8', url:'https://www.sephora.com/product/beauty-light-wand-P447313' },
-        { brand:'Rare Beauty', name:'Soft Pinch Tinted Lip Oil', cat:'Lip', price:'$20', color:'#D4818A', url:'https://www.sephora.com/product/rare-beauty-soft-pinch-tinted-lip-oil-P499898' },
-        { brand:'NARS', name:'Liquid Blush in Orgasm', cat:'Blush', price:'$34', color:'#F0A0B0', url:'https://www.sephora.com/product/liquid-blush-P467803' },
-        { brand:'Too Faced', name:'Natural Eyes Palette', cat:'Eyeshadow', price:'$39', color:'#B07890', url:'https://www.sephora.com/product/natural-eyes-neutral-eye-shadow-collection-P378027' },
-      ],
+      tip:'All-over rosy monochromatic. Rose quartz on eyes, mauve lip, soft rose blush. Very Pinterest.',
     },
   ],
   'photoshoot': [
@@ -753,12 +986,6 @@ const LOOKS = {
       blush:[{n:'Healthy Flush',h:'#F5A890'},{n:'Warm Peach',h:'#F5C8A8'}],
       technique:['Foundation + concealer','Matte T-zone set','Ivory lids','Warm healthy blush','Satin nude lip'],
       tip:'Cameras love even skin tone and subtle highlights. Avoid shimmer on forehead — it photographs white.',
-      products:[
-        { brand:'NARS', name:'Natural Radiant Longwear Foundation', cat:'Foundation', price:'$49', color:'#D4B896', url:'https://www.sephora.com/product/natural-radiant-longwear-foundation-P377515' },
-        { brand:'Laura Mercier', name:'Translucent Setting Powder', cat:'Setting', price:'$48', color:'#F5F0E8', url:'https://www.sephora.com/product/translucent-loose-setting-powder-P122406' },
-        { brand:'Charlotte Tilbury', name:'Pillow Talk Lipstick', cat:'Lip Colour', price:'$36', color:'#C07060', url:'https://www.sephora.com/product/matte-revolution-lipstick-P394562' },
-        { brand:'Rare Beauty', name:'Soft Pinch Liquid Blush', cat:'Blush', price:'$23', color:'#F5A890', url:'https://www.sephora.com/product/soft-pinch-liquid-blush-P482355' },
-      ],
     },
     {
       name:'Editorial Glamour', badge:'GLAM / BOLD', badgeClass:'badge-glam',
@@ -769,19 +996,14 @@ const LOOKS = {
       blush:[{n:'Sculpted Brick',h:'#C06848'},{n:'Bronze Contour',h:'#A07040'}],
       technique:['Full studio base','Graphic black liner','White waterline','Bold sculpted cheeks','Strong lip colour'],
       tip:'Go bolder than you think — cameras pull 20% of the look. Graphic liner and bold lip photograph brilliantly.',
-      products:[
-        { brand:'Charlotte Tilbury', name:'Walk of No Shame Lipstick', cat:'Lip Colour', price:'$36', color:'#C0392B', url:'https://www.sephora.com/product/matte-revolution-lipstick-P394562' },
-        { brand:'Urban Decay', name:'24/7 Glide-On Eye Pencil in Zero', cat:'Liner', price:'$24', color:'#1A1A1A', url:'https://www.sephora.com/product/24-7-glide-on-eye-pencil-P238128' },
-        { brand:'Huda Beauty', name:'Easy Bake Powder', cat:'Setting', price:'$35', color:'#F5F0E8', url:'https://www.sephora.com/product/easy-bake-loose-baking-setting-powder-P458977' },
-        { brand:'NARS', name:'Laguna Bronzer', cat:'Bronzer/Contour', price:'$40', color:'#A07040', url:'https://www.sephora.com/product/laguna-bronzer-P5454' },
-      ],
     },
   ],
 };
 
-// ── BUILD OCCASION GRID ──────────────────────────────────────
+// ── BUILD OCCASION GRID ────────────────────────────────────────────
 function buildOccasionGrid(){
-  document.getElementById('occasion-grid').innerHTML = OCCASIONS.map(o => `
+  const g = document.getElementById('occasion-grid');
+  g.innerHTML = OCCASIONS.map(o => `
     <div class="occ-card" id="occ-${o.id}" onclick="selectOccasion('${o.id}')">
       <span class="occ-emoji">${o.emoji}</span>
       <div class="occ-name">${o.name}</div>
@@ -790,65 +1012,24 @@ function buildOccasionGrid(){
   `).join('');
 }
 
-// ── UPLOAD ───────────────────────────────────────────────────
-function handleDrop(e, suffix){
-  e.preventDefault();
-  document.getElementById('upload-zone-'+suffix)?.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if(file && file.type.startsWith('image/')) processFile(file, suffix);
-}
-function handleUpload(e, suffix){
-  const file = e.target.files[0];
-  if(file) processFile(file, suffix);
-}
-function processFile(file, suffix){
-  const reader = new FileReader();
-  reader.onload = ev => cropAndStore(ev.target.result, suffix);
-  reader.readAsDataURL(file);
-}
-function cropAndStore(src, suffix){
-  const img = new Image();
-  img.onload = () => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 400; canvas.height = 500;
-    let ox=0,oy=0;
-    if(img.width/img.height > 400/500){ ox=(img.width-img.height*(400/500))/2; }
-    else { oy=(img.height-img.width*(500/400))/2; }
-    ctx.drawImage(img, ox, oy, img.width-ox*2, img.height-oy*2, 0,0,400,500);
-    const cropped = canvas.toDataURL('image/jpeg',.88);
-    STATE.faceDataUrl = cropped;
-    const pw = document.getElementById('face-preview-wrap-'+suffix);
-    const uz = document.getElementById('upload-zone-'+suffix);
-    if(pw){ pw.innerHTML=`<div class="face-preview-wrap"><img src="${cropped}" alt="Your face"/><div class="face-badge">✓ Photo ready</div><button class="face-change" onclick="document.getElementById('face-input-${suffix}').click()">Change</button></div>`; }
-    if(uz){ uz.style.display='none'; }
-    const cta = document.getElementById('upload-cta-'+suffix);
-    if(cta){ cta.disabled=false; }
-    const nw = document.getElementById('upload-next-1');
-    if(nw){ nw.style.display='block'; }
-  };
-  img.src=src;
-}
-function skipUpload(){
-  STATE.faceDataUrl = null;
-  startGeneration();
-}
-
-// ── OCCASION SELECT → LOOK SCREEN ────────────────────────────
+// ── SELECT OCCASION → go to look screen ───────────────────────────
 function selectOccasion(id){
-  document.querySelectorAll('.occ-card').forEach(c=>c.classList.remove('selected'));
-  document.getElementById('occ-'+id)?.classList.add('selected');
-  STATE.occasion=id; STATE.look=null;
-  const occ = OCCASIONS.find(o=>o.id===id);
-  buildLookCards(id, occ);
-  setTimeout(()=>showScreen('s-look'),120);
+  document.querySelectorAll('.occ-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('occ-' + id)?.classList.add('selected');
+  STATE.occasion = id;
+  STATE.look = null;
+  const occ = OCCASIONS.find(o => o.id === id);
+  setTimeout(() => {
+    buildLookCards(id, occ);
+    showScreen('s-look');
+  }, 120);
 }
 
-// ── BUILD LOOK CARDS ─────────────────────────────────────────
+// ── BUILD LOOK CARDS ───────────────────────────────────────────────
 function buildLookCards(id, occ){
-  document.getElementById('selected-occ-chip').textContent = occ.emoji+' '+occ.name;
-  const looks = LOOKS[id]||[];
-  document.getElementById('look-cards-container').innerHTML = looks.map((l,i)=>`
+  document.getElementById('selected-occ-chip').textContent = occ.emoji + ' ' + occ.name;
+  const looks = LOOKS[id] || [];
+  document.getElementById('look-cards-container').innerHTML = looks.map((l, i) => `
     <div class="look-choice-card" id="look-card-${i}" onclick="selectLook(${i})">
       <div class="lcc-header">
         <div style="flex:1;min-width:0">
@@ -866,71 +1047,126 @@ function buildLookCards(id, occ){
         ${l.blush.slice(0,1).map(s=>`<div class="lcc-swatch" style="background:${s.h}" title="${s.n}"></div>`).join('')}
         <div class="lcc-swatch-label">LIP · EYE · BLUSH</div>
       </div>
-      <div class="lcc-prompt">"${l.aiPrompt.substring(0,90)}..."</div>
+      <div class="lcc-prompt">"${l.aiPrompt}"</div>
     </div>
   `).join('');
-  document.getElementById('look-next-btn').disabled=true;
+  document.getElementById('look-next-btn').disabled = true;
 }
 
+// ── SELECT LOOK ────────────────────────────────────────────────────
 function selectLook(i){
-  document.querySelectorAll('.look-choice-card').forEach(c=>c.classList.remove('selected'));
-  document.getElementById('look-card-'+i)?.classList.add('selected');
-  STATE.look=(LOOKS[STATE.occasion]||[])[i];
-  document.getElementById('look-next-btn').disabled=false;
+  document.querySelectorAll('.look-choice-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('look-card-' + i)?.classList.add('selected');
+  STATE.look = (LOOKS[STATE.occasion] || [])[i];
+  document.getElementById('look-next-btn').disabled = false;
 }
 
-// ── START GENERATION ─────────────────────────────────────────
+// ── GO TO UPLOAD ───────────────────────────────────────────────────
+function goToUpload(){
+  if(!STATE.look) return;
+  STATE.faceDataUrl = null;
+  document.getElementById('face-preview-wrap').innerHTML = '';
+  document.getElementById('face-input').value = '';
+  document.getElementById('upload-next-wrap').style.display = 'none';
+  showScreen('s-upload');
+}
+
+// ── UPLOAD HANDLING ────────────────────────────────────────────────
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith('image/')) processFile(file);
+}
+function handleUpload(e){
+  const file = e.target.files[0];
+  if(file) processFile(file);
+}
+function processFile(file){
+  const reader = new FileReader();
+  reader.onload = ev => cropAndStoreFace(ev.target.result);
+  reader.readAsDataURL(file);
+}
+function cropAndStoreFace(src){
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 400; canvas.height = 500;
+    let ox = 0, oy = 0;
+    if(img.width / img.height > 400/500){
+      ox = (img.width - img.height*(400/500)) / 2;
+    } else {
+      oy = (img.height - img.width*(500/400)) / 2;
+    }
+    ctx.drawImage(img, ox, oy, img.width-ox*2, img.height-oy*2, 0, 0, 400, 500);
+    const cropped = canvas.toDataURL('image/jpeg', 0.88);
+    STATE.faceDataUrl = cropped;
+    document.getElementById('face-preview-wrap').innerHTML = `
+      <div class="face-preview">
+        <img src="${cropped}" alt="Your face" style="width:100%;height:220px;object-fit:cover;display:block;border-radius:var(--radius)"/>
+        <div class="face-preview-badge">✓ Photo loaded</div>
+        <button class="face-preview-change" onclick="document.getElementById('face-input').click()">Change Photo</button>
+      </div>
+    `;
+    document.getElementById('upload-next-wrap').style.display = 'block';
+  };
+  img.src = src;
+}
+
+// ── START GENERATION ───────────────────────────────────────────────
 function startGeneration(){
-  if(!STATE.look){ return; }
+  if(!STATE.faceDataUrl){ showToast('Please upload a photo first'); return; }
   showScreen('s-loading');
-  runLoadingAnim();
+  runLoadingAnimation();
 }
 
-function runLoadingAnim(){
-  const steps=['ls1','ls2','ls3','ls4'];
-  const prog=[20,48,74,95];
-  const labels=['SCANNING OCCASION PROFILE','MATCHING LOOK LIBRARY','CALIBRATING HARMONICS','BUILDING REPORT + SHOP LIST'];
-  const bar=document.getElementById('loading-bar');
-  const statusEl=document.getElementById('loading-status');
-  bar.style.width='5%';
-  steps.forEach(s=>{
-    const el=document.getElementById(s);
+function runLoadingAnimation(){
+  const steps = ['ls1','ls2','ls3','ls4'];
+  const prog = [20, 48, 74, 95];
+  const statuses = ['SCANNING OCCASION PROFILE','MATCHING LOOK LIBRARY','CALIBRATING HARMONICS','BUILDING LOOK REPORT'];
+  const bar = document.getElementById('loading-bar');
+  const statusEl = document.getElementById('loading-status');
+  bar.style.width = '5%';
+  steps.forEach(s => {
+    const el = document.getElementById(s);
     el.classList.remove('active','done');
-    el.querySelector('.ls-icon').textContent='○';
+    el.querySelector('.ls-icon').textContent = '○';
   });
   document.getElementById(steps[0]).classList.add('active');
-  document.getElementById(steps[0]).querySelector('.ls-icon').textContent='↻';
-  let i=0;
-  const iv=setInterval(()=>{
-    if(i<steps.length){
-      if(i>0){
+  document.getElementById(steps[0]).querySelector('.ls-icon').textContent = '↻';
+
+  let i = 0;
+  const iv = setInterval(() => {
+    if(i < steps.length){
+      if(i > 0){
         document.getElementById(steps[i-1]).classList.remove('active');
         document.getElementById(steps[i-1]).classList.add('done');
-        document.getElementById(steps[i-1]).querySelector('.ls-icon').textContent='✓';
+        document.getElementById(steps[i-1]).querySelector('.ls-icon').textContent = '✓';
       }
       document.getElementById(steps[i]).classList.add('active');
-      document.getElementById(steps[i]).querySelector('.ls-icon').textContent='↻';
-      bar.style.width=prog[i]+'%';
-      statusEl.textContent=labels[i];
+      document.getElementById(steps[i]).querySelector('.ls-icon').textContent = '↻';
+      bar.style.width = prog[i] + '%';
+      statusEl.textContent = statuses[i];
       i++;
     } else {
       clearInterval(iv);
-      steps.forEach(s=>{
+      steps.forEach(s => {
         document.getElementById(s).classList.remove('active');
         document.getElementById(s).classList.add('done');
-        document.getElementById(s).querySelector('.ls-icon').textContent='✓';
+        document.getElementById(s).querySelector('.ls-icon').textContent = '✓';
       });
-      bar.style.width='100%';
-      statusEl.textContent='LOOK REPORT READY';
-      setTimeout(revealResult,500);
+      bar.style.width = '100%';
+      statusEl.textContent = 'LOOK REPORT READY';
+      setTimeout(revealResult, 500);
     }
-  },700);
+  }, 700);
 }
 
-// ── REVEAL RESULT ─────────────────────────────────────────────
+// ── REVEAL RESULT ──────────────────────────────────────────────────
 function revealResult(){
-  const occ=OCCASIONS.find(o=>o.id===STATE.occasion);
-  flashLookName(occ?.name||'Your Occasion', STATE.look.name, ()=>{
+  const occ = OCCASIONS.find(o => o.id === STATE.occasion);
+  flashLookName(occ?.name || 'Your Occasion', STATE.look.name, () => {
     buildResult();
     showScreen('s-result');
     launchConfetti(STATE.occasion);
@@ -938,262 +1174,305 @@ function revealResult(){
 }
 
 function buildResult(){
-  const occ=OCCASIONS.find(o=>o.id===STATE.occasion);
-  const look=STATE.look;
-  const src=STATE.faceDataUrl;
+  const occ = OCCASIONS.find(o => o.id === STATE.occasion);
+  const look = STATE.look;
 
-  // Header
-  document.getElementById('rh-title').textContent = occ.name+' — '+look.name;
+  document.getElementById('rh-title').textContent = occ.name + ' — ' + look.name;
   document.getElementById('rh-sub').textContent = look.desc;
-  document.getElementById('rh-chips').innerHTML=`
+  document.getElementById('rh-chips').innerHTML = `
     <div class="rh-chip">${occ.emoji} ${occ.name}</div>
     <div class="rh-chip">${look.badge}</div>
     <div class="rh-chip">✓ AI Matched</div>
   `;
 
-  // Before / After
-  if(src){
-    document.getElementById('split-before-img').src=src;
-    document.getElementById('split-after-img').src=src;
-    document.getElementById('split-before-img').style.display='block';
-    document.getElementById('split-after-img').style.display='block';
-    document.querySelector('.split-wrap').style.display='block';
-  } else {
-    document.querySelector('.split-wrap').style.display='none';
-  }
-  const c1=look.lip[0].h, c2=look.eye[0].h, c3=look.blush[0].h;
-  document.getElementById('split-overlay').style.background=
-    `linear-gradient(180deg,transparent 20%,${c2}28 55%,${c1}35 80%,${c3}28 100%)`;
-  const allSw=[...look.lip.slice(0,2),...look.eye.slice(0,1),...look.blush.slice(0,1)];
-  document.getElementById('split-dots').innerHTML=
-    allSw.map(s=>`<div class="split-dot" style="background:${s.h}" title="${s.n}"></div>`).join('');
-  document.getElementById('split-caption').textContent=
-    src ? '← Your bare face  |  With your look colours →'
-        : 'Upload a photo on the next visit to see before & after.';
+  // Split screen
+  const src = STATE.faceDataUrl;
+  document.getElementById('split-before-img').src = src;
+  document.getElementById('split-after-img').src = src;
+  const c1 = look.lip[0].h, c2 = look.eye[0].h, c3 = look.blush[0].h;
+  document.getElementById('split-after-overlay').style.background =
+    `linear-gradient(180deg, transparent 25%, ${c2}20 55%, ${c1}28 80%, ${c3}22 100%)`;
+  const swatches = [...look.lip.slice(0,2), ...look.eye.slice(0,1), ...look.blush.slice(0,1)];
+  document.getElementById('split-colors').innerHTML =
+    swatches.map(s => `<div class="split-dot" style="background:${s.h}" title="${s.n}"></div>`).join('');
 
   // Look card
-  document.getElementById('rc-look-num').textContent=occ.name.toUpperCase()+' · YOUR LOOK';
-  document.getElementById('rc-look-name').textContent=look.name;
-  document.getElementById('rc-look-desc').textContent=look.desc;
-  const badge=document.getElementById('rc-badge');
-  badge.textContent=look.badge; badge.className='lcc-badge '+look.badgeClass;
+  document.getElementById('rc-look-num').textContent = occ.name.toUpperCase() + ' · YOUR SELECTED LOOK';
+  document.getElementById('rc-look-name').textContent = look.name;
+  document.getElementById('rc-look-desc').textContent = look.desc;
+  const badge = document.getElementById('rc-badge');
+  badge.textContent = look.badge;
+  badge.className = 'lcc-badge ' + look.badgeClass;
 
-  // Palette
-  document.getElementById('rc-palette').innerHTML=
-    buildPaletteRow('LIPS',look.lip,0)+
-    buildPaletteRow('EYES',look.eye,0)+
-    buildPaletteRow('BLUSH',look.blush,0);
+  document.getElementById('rc-palette').innerHTML =
+    buildPaletteRow('LIPS', look.lip, 0) +
+    buildPaletteRow('EYES', look.eye, 0) +
+    buildPaletteRow('BLUSH', look.blush, 0);
 
-  // Technique
-  document.getElementById('rc-technique').innerHTML=`
+  document.getElementById('rc-technique').innerHTML = `
     <div class="tech-label">Application Sequence</div>
     <div class="tech-steps">
-      ${look.technique.map((t,i)=>`<div class="tech-step"><span class="tech-step-num">${i+1}</span>${t}</div>`).join('')}
+      ${look.technique.map((t,i) => `<div class="tech-step"><span class="tech-step-num">${i+1}</span>${t}</div>`).join('')}
     </div>
-    <div class="tip-box" style="margin-top:10px">
+    <div class="tip-box" style="margin-top:12px">
       <div class="tip-label">Astyra Tip</div>
       <div class="tip-text">${look.tip}</div>
     </div>
   `;
 
-  // AI Prompt
-  document.getElementById('rc-prompt-text').textContent=look.aiPrompt;
+  document.getElementById('rc-prompt-text').textContent = look.aiPrompt;
 
-  // Affiliate Products
-  document.getElementById('product-list').innerHTML=(look.products||[]).map(p=>`
-    <a class="product-item" href="${p.url}" target="_blank" rel="noopener">
-      <div class="product-dot" style="background:${p.color}"></div>
-      <div class="product-info">
-        <div class="product-brand">${p.brand}</div>
-        <div class="product-name">${p.name}</div>
-        <div class="product-cat">${p.cat}</div>
-      </div>
-      <div class="product-price">${p.price}</div>
-      <div class="product-arrow">→</div>
-    </a>
-  `).join('');
-
-  // Reset capture
-  STATE.firstName=null; STATE.email=null;
-  document.getElementById('capture-card').style.display='block';
-  document.getElementById('result-share-strip').style.display='none';
-  document.getElementById('capture-name').value='';
-  document.getElementById('capture-email').value='';
+  // Reset capture form
+  STATE.firstName = null; STATE.email = null;
+  document.getElementById('capture-card').style.display = 'block';
+  document.getElementById('result-share-strip').style.display = 'none';
+  document.getElementById('capture-name').value = '';
+  document.getElementById('capture-email').value = '';
 }
 
-function buildPaletteRow(label, swatches, pi){
-  const primary=swatches[pi]||swatches[0];
+function buildPaletteRow(label, swatches, preferredIdx){
+  const primary = swatches[preferredIdx] || swatches[0];
   return `<div class="palette-row">
     <div class="palette-label">${label}</div>
     <div class="palette-swatches">
-      ${swatches.map((s,i)=>`<div class="swatch${i===pi?' primary':''}" style="background:${s.h}" title="${s.n}" onclick="showSwatchInfo('${s.n}','${s.h}','${label}')"></div>`).join('')}
+      ${swatches.map((s,i) => `<div class="swatch${i===preferredIdx?' primary':''}" style="background:${s.h}" title="${s.n}" onclick="showSwatchInfo('${s.n}','${s.h}','${label}')"></div>`).join('')}
       <div class="palette-name">${primary.n}</div>
       <div class="palette-code">${primary.h}</div>
     </div>
   </div>`;
 }
 
-// ── CAPTURE ───────────────────────────────────────────────────
+// ── CAPTURE FORM ───────────────────────────────────────────────────
 function submitCapture(){
-  STATE.firstName=document.getElementById('capture-name').value.trim()||null;
-  STATE.email=document.getElementById('capture-email').value.trim()||null;
+  STATE.firstName = document.getElementById('capture-name').value.trim() || null;
+  STATE.email = document.getElementById('capture-email').value.trim() || null;
   saveSubmission();
-  document.getElementById('capture-card').style.display='none';
-  document.getElementById('result-share-strip').style.display='block';
+  showCaptureResult();
   showToast('✨ Look report saved!');
 }
 function skipCapture(){
   saveSubmission();
-  document.getElementById('capture-card').style.display='none';
-  document.getElementById('result-share-strip').style.display='block';
+  showCaptureResult();
+}
+function showCaptureResult(){
+  document.getElementById('capture-card').style.display = 'none';
+  document.getElementById('result-share-strip').style.display = 'block';
 }
 async function saveSubmission(){
-  try{
-    const body={occasion:STATE.occasion,look:STATE.look?.name||''};
-    if(STATE.firstName) body.firstName=STATE.firstName;
-    if(STATE.email) body.email=STATE.email;
-    if(STATE.faceDataUrl) body.imageDataUrl=STATE.faceDataUrl.substring(0,8000);
-    await fetch(API_BASE+'/submissions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  }catch(e){}
+  try {
+    const body = { occasion: STATE.occasion, look: STATE.look?.name || '' };
+    if(STATE.firstName) body.firstName = STATE.firstName;
+    if(STATE.email) body.email = STATE.email;
+    if(STATE.faceDataUrl) body.imageDataUrl = STATE.faceDataUrl.substring(0, 8000);
+    await fetch(API_BASE + '/submissions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  } catch(e) { /* fail silently */ }
 }
 
-// ── SHARE ──────────────────────────────────────────────────────
+// ── SHARE ───────────────────────────────────────────────────────────
 function shareWA(){
-  const occ=OCCASIONS.find(o=>o.id===STATE.occasion);
-  window.open('https://wa.me/?text='+encodeURIComponent(`✨ AI picked my makeup for ${occ?.name}! Try Astyra: ${window.location.href}`),'_blank');
+  const occ = OCCASIONS.find(o => o.id === STATE.occasion);
+  const txt = encodeURIComponent(`✨ AI picked my makeup for ${occ?.name}! Try Astyra: ${window.location.href}`);
+  window.open('https://wa.me/?text=' + txt, '_blank');
 }
-function copyShareLink(){ navigator.clipboard?.writeText(window.location.href); showToast('🔗 Link copied!'); }
+function copyShareLink(){
+  navigator.clipboard?.writeText(window.location.href);
+  showToast('🔗 Link copied!');
+}
 
-// ── SWATCH INFO ────────────────────────────────────────────────
-const COLOUR_TIPS={LIPS:'Apply with fingertip or brush. Blot once for long wear.',EYES:'Apply to lid with flat brush. Blend edges with fluffy brush.',BLUSH:'Smile and apply to apples of cheeks. Blend upward toward temples.'};
-function showSwatchInfo(name,hex,cat){
-  document.getElementById('swatch-modal-color').style.background=hex;
-  document.getElementById('swatch-modal-name').textContent=name;
-  const hexEl=document.getElementById('swatch-modal-hex');
-  hexEl.textContent=hex+' · tap to copy';
-  document.getElementById('swatch-modal-tip').textContent=COLOUR_TIPS[cat]||'';
-  hexEl.onclick=()=>{navigator.clipboard?.writeText(hex);showToast('📋 Copied: '+hex);};
+// ── SWATCH INFO ─────────────────────────────────────────────────────
+const COLOUR_TIPS = {
+  LIPS:'Apply with fingertip or brush. Blot once for long wear. Layer for intensity.',
+  EYES:'Apply to lid with flat brush. Blend edges with fluffy brush in circular motions.',
+  BLUSH:'Smile and apply to apples of cheeks. Blend upward toward temples.',
+};
+function showSwatchInfo(name, hex, category){
+  document.getElementById('swatch-modal-color').style.background = hex;
+  document.getElementById('swatch-modal-name').textContent = name;
+  const hexEl = document.getElementById('swatch-modal-hex');
+  hexEl.textContent = hex + ' · tap to copy';
+  document.getElementById('swatch-modal-tip').textContent = COLOUR_TIPS[category] || '';
+  hexEl.onclick = () => { navigator.clipboard?.writeText(hex); showToast('📋 Copied: ' + hex); };
   showModal('swatch-modal');
 }
 
-// ── ADMIN: 5 logo taps ─────────────────────────────────────────
-let _adminTaps=0,_adminTimer=null;
+// ── ADMIN — 5 logo taps ────────────────────────────────────────────
+let _adminTaps = 0, _adminTimer = null;
 function adminTap(){
   _adminTaps++;
   clearTimeout(_adminTimer);
-  if(_adminTaps>=5){_adminTaps=0;showScreen('s-admin');loadAdminData();}
-  else{_adminTimer=setTimeout(()=>{_adminTaps=0;},1500);}
-}
-
-async function loadAdminData(){
-  try{
-    const [sRes,dRes]=await Promise.all([fetch(API_BASE+'/admin/stats'),fetch(API_BASE+'/admin/submissions?pageSize=20')]);
-    const stats=await sRes.json();
-    const subData=await dRes.json();
-    renderAdminStats(stats);
-    renderAdminSubmissions(subData.submissions);
-  }catch(e){
-    ['admin-total','admin-today','admin-week','admin-email-rate'].forEach(id=>document.getElementById(id).textContent='ERR');
-    document.getElementById('admin-by-occasion').innerHTML='<div class="admin-empty">API not reachable.</div>';
-    document.getElementById('admin-by-look').innerHTML='<div class="admin-empty">—</div>';
-    document.getElementById('admin-submissions').innerHTML='<div class="admin-empty">—</div>';
+  if(_adminTaps >= 5){
+    _adminTaps = 0;
+    showScreen('s-admin');
+    loadAdminData();
+  } else {
+    _adminTimer = setTimeout(() => { _adminTaps = 0; }, 1500);
   }
 }
-function renderAdminStats(stats){
-  document.getElementById('admin-total').textContent=stats.totalSubmissions??0;
-  document.getElementById('admin-today').textContent=stats.submissionsToday??0;
-  document.getElementById('admin-week').textContent=stats.submissionsThisWeek??0;
-  document.getElementById('admin-email-rate').textContent=Math.round((stats.emailCaptureRate??0)*100)+'%';
-  const byOcc=stats.byOccasion||[];
-  const maxO=Math.max(...byOcc.map(r=>r.count),1);
-  document.getElementById('admin-by-occasion').innerHTML=byOcc.length?byOcc.map(r=>{
-    const o=OCCASIONS.find(x=>x.id===r.occasion);
-    const pct=Math.round((r.count/maxO)*100);
-    return `<div class="occ-bar-row"><div class="occ-bar-label">${o?o.emoji+' '+o.name:r.occasion}</div><div class="occ-bar-wrap"><div class="occ-bar-fill" style="width:${pct}%"></div></div><div class="occ-bar-count">${r.count}</div></div>`;
-  }).join(''):'<div class="admin-empty">No submissions yet.</div>';
-  const byLook=stats.byLook||[];
-  const maxL=Math.max(...byLook.map(r=>r.count),1);
-  document.getElementById('admin-by-look').innerHTML=byLook.length?byLook.map(r=>{
-    const pct=Math.round((r.count/maxL)*100);
-    return `<div class="occ-bar-row"><div class="occ-bar-label">${r.look}</div><div class="occ-bar-wrap"><div class="occ-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,#ec4899,#f59e0b)"></div></div><div class="occ-bar-count">${r.count}</div></div>`;
-  }).join(''):'<div class="admin-empty">No submissions yet.</div>';
-}
-function renderAdminSubmissions(submissions){
-  const el=document.getElementById('admin-submissions');
-  if(!submissions?.length){el.innerHTML='<div class="admin-empty">No submissions yet.</div>';return;}
-  el.innerHTML=`<table class="sub-table"><thead><tr><th>Date</th><th>Name</th><th>Occasion</th><th>Look</th><th>Email</th></tr></thead><tbody>${submissions.map(s=>{
-    const o=OCCASIONS.find(x=>x.id===s.occasion);
-    const d=s.createdAt?new Date(s.createdAt).toLocaleDateString():'—';
-    return `<tr><td>${d}</td><td>${s.firstName||'—'}</td><td>${o?o.emoji+' '+o.name:s.occasion}</td><td><span class="sub-look-badge">${s.look}</span></td><td style="word-break:break-all;max-width:90px">${s.email||'—'}</td></tr>`;
-  }).join('')}</tbody></table>`;
+
+// ── ADMIN DATA ─────────────────────────────────────────────────────
+async function loadAdminData(){
+  try {
+    const [sRes, dRes] = await Promise.all([
+      fetch(API_BASE + '/admin/stats'),
+      fetch(API_BASE + '/admin/submissions?pageSize=20'),
+    ]);
+    const stats = await sRes.json();
+    const subData = await dRes.json();
+    renderAdminStats(stats);
+    renderAdminSubmissions(subData.submissions);
+  } catch(e) {
+    ['admin-total','admin-today','admin-week','admin-email-rate'].forEach(id => {
+      document.getElementById(id).textContent = 'ERR';
+    });
+    document.getElementById('admin-by-occasion').innerHTML = '<div class="admin-empty">Could not load. Is the API server running?</div>';
+    document.getElementById('admin-by-look').innerHTML = '<div class="admin-empty">—</div>';
+    document.getElementById('admin-submissions').innerHTML = '<div class="admin-empty">—</div>';
+  }
 }
 
-// ── UI HELPERS ─────────────────────────────────────────────────
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
+function renderAdminStats(stats){
+  document.getElementById('admin-total').textContent = stats.totalSubmissions ?? 0;
+  document.getElementById('admin-today').textContent = stats.submissionsToday ?? 0;
+  document.getElementById('admin-week').textContent = stats.submissionsThisWeek ?? 0;
+  document.getElementById('admin-email-rate').textContent = Math.round((stats.emailCaptureRate ?? 0) * 100) + '%';
+
+  const byOcc = stats.byOccasion || [];
+  const maxO = Math.max(...byOcc.map(r => r.count), 1);
+  const occEl = document.getElementById('admin-by-occasion');
+  occEl.innerHTML = byOcc.length ? byOcc.map(r => {
+    const o = OCCASIONS.find(x => x.id === r.occasion);
+    const label = o ? o.emoji + ' ' + o.name : r.occasion;
+    const pct = Math.round((r.count / maxO) * 100);
+    return `<div class="occ-bar-row">
+      <div class="occ-bar-label">${label}</div>
+      <div class="occ-bar-wrap"><div class="occ-bar-fill" style="width:${pct}%"></div></div>
+      <div class="occ-bar-count">${r.count}</div>
+    </div>`;
+  }).join('') : '<div class="admin-empty">No submissions yet.</div>';
+
+  const byLook = stats.byLook || [];
+  const maxL = Math.max(...byLook.map(r => r.count), 1);
+  const lookEl = document.getElementById('admin-by-look');
+  lookEl.innerHTML = byLook.length ? byLook.map(r => {
+    const pct = Math.round((r.count / maxL) * 100);
+    return `<div class="occ-bar-row">
+      <div class="occ-bar-label">${r.look}</div>
+      <div class="occ-bar-wrap"><div class="occ-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,#ec4899,#f59e0b)"></div></div>
+      <div class="occ-bar-count">${r.count}</div>
+    </div>`;
+  }).join('') : '<div class="admin-empty">No submissions yet.</div>';
 }
-function showModal(id){document.getElementById(id).classList.add('show');}
-function closeModal(id){document.getElementById(id).classList.remove('show');}
+
+function renderAdminSubmissions(submissions){
+  const el = document.getElementById('admin-submissions');
+  if(!submissions?.length){
+    el.innerHTML = '<div class="admin-empty">No submissions yet.</div>';
+    return;
+  }
+  el.innerHTML = `<table class="sub-table">
+    <thead><tr>
+      <th>Date</th><th>Name</th><th>Occasion</th><th>Look</th><th>Email</th>
+    </tr></thead>
+    <tbody>
+      ${submissions.map(s => {
+        const o = OCCASIONS.find(x => x.id === s.occasion);
+        const d = s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '—';
+        return `<tr>
+          <td style="white-space:nowrap">${d}</td>
+          <td>${s.firstName || '—'}</td>
+          <td>${o ? o.emoji+' '+o.name : s.occasion}</td>
+          <td><span class="sub-look-badge">${s.look}</span></td>
+          <td style="word-break:break-all;max-width:100px">${s.email || '—'}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+// ── UI HELPERS ─────────────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function showModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2800);
 }
 function resetApp(){
-  STATE={occasion:null,look:null,faceDataUrl:null,firstName:null,email:null};
-  document.getElementById('face-preview-wrap-1').innerHTML='';
-  const uz=document.getElementById('upload-zone-1');if(uz)uz.style.display='block';
-  const cta=document.getElementById('upload-cta-1');if(cta)cta.disabled=true;
-  document.getElementById('face-input-1').value='';
-  document.querySelectorAll('.occ-card').forEach(c=>c.classList.remove('selected'));
+  STATE = { occasion:null, look:null, faceDataUrl:null, firstName:null, email:null };
+  document.querySelectorAll('.occ-card').forEach(c => c.classList.remove('selected'));
   showScreen('s-occasion');
 }
 
-// ── CONFETTI ───────────────────────────────────────────────────
-const CONFETTI_THEMES={
-  'wedding-guest':{colors:['#fff8f0','#d4af37','#f9c0cb','#e8c5d0'],shapes:['●','✿','◆']},
-  'date-night':{colors:['#ec4899','#f472b6','#fda4af','#ff6b6b'],shapes:['❤','✿','●','★']},
-  'night-out':{colors:['#a855f7','#c084fc','#f0abfc','#d4af37'],shapes:['★','●','◆','✦']},
-  'work':{colors:['#1e3a5f','#d4af37','#a0aec0','#e2e8f0'],shapes:['◆','●','▪']},
-  'everyday':{colors:['#fde68a','#86efac','#bfdbfe','#fca5a5'],shapes:['✿','●','◆','★']},
-  'photoshoot':{colors:['#a855f7','#ec4899','#f59e0b','#fff'],shapes:['★','◆','✦','●']},
-  'default':{colors:['#a855f7','#ec4899','#d4af37','#fff'],shapes:['★','◆','●','✦']},
+// ── CONFETTI ───────────────────────────────────────────────────────
+const CONFETTI_THEMES = {
+  'wedding-guest':{ colors:['#fff8f0','#d4af37','#f9c0cb','#e8c5d0'], shapes:['●','✿','◆'] },
+  'date-night':   { colors:['#ec4899','#f472b6','#fda4af','#ff6b6b'], shapes:['❤','✿','●','★'] },
+  'night-out':    { colors:['#a855f7','#c084fc','#f0abfc','#d4af37'], shapes:['★','●','◆','✦'] },
+  'work':         { colors:['#1e3a5f','#d4af37','#a0aec0','#e2e8f0'], shapes:['◆','●','▪'] },
+  'everyday':     { colors:['#fde68a','#86efac','#bfdbfe','#fca5a5'], shapes:['✿','●','◆','★'] },
+  'photoshoot':   { colors:['#a855f7','#ec4899','#f59e0b','#fff'],   shapes:['★','◆','✦','●'] },
+  'default':      { colors:['#a855f7','#ec4899','#d4af37','#fff'],   shapes:['★','◆','●','✦'] },
 };
-const confCanvas=document.getElementById('confetti-canvas');
-const confCtx=confCanvas.getContext('2d');
-let confParticles=[],confAnim=null;
+const confCanvas = document.getElementById('confetti-canvas');
+const confCtx = confCanvas.getContext('2d');
+let confParticles = [], confAnim = null;
+
 function launchConfetti(oId){
-  const theme=CONFETTI_THEMES[oId]||CONFETTI_THEMES.default;
-  confCanvas.style.display='block';
-  confCanvas.width=window.innerWidth;confCanvas.height=window.innerHeight;
-  confParticles=[];
-  for(let i=0;i<130;i++){
-    confParticles.push({x:Math.random()*confCanvas.width,y:-20-Math.random()*160,vx:(Math.random()-.5)*4,vy:2+Math.random()*5,rot:Math.random()*360,rotV:(Math.random()-.5)*8,size:8+Math.random()*12,color:theme.colors[Math.floor(Math.random()*theme.colors.length)],shape:theme.shapes[Math.floor(Math.random()*theme.shapes.length)],alpha:1,life:0.008+Math.random()*0.004});
+  const theme = CONFETTI_THEMES[oId] || CONFETTI_THEMES.default;
+  confCanvas.style.display = 'block';
+  confCanvas.width = window.innerWidth; confCanvas.height = window.innerHeight;
+  confParticles = [];
+  for(let i=0;i<140;i++){
+    confParticles.push({
+      x:Math.random()*confCanvas.width, y:-20-Math.random()*180,
+      vx:(Math.random()-.5)*4, vy:2+Math.random()*5,
+      rot:Math.random()*360, rotV:(Math.random()-.5)*8,
+      size:8+Math.random()*12,
+      color:theme.colors[Math.floor(Math.random()*theme.colors.length)],
+      shape:theme.shapes[Math.floor(Math.random()*theme.shapes.length)],
+      alpha:1, life:0.008+Math.random()*0.004,
+    });
   }
-  if(confAnim)cancelAnimationFrame(confAnim);
+  if(confAnim) cancelAnimationFrame(confAnim);
   animConf();
-  setTimeout(()=>{confCanvas.style.display='none';confParticles=[];if(confAnim){cancelAnimationFrame(confAnim);confAnim=null;}},4000);
+  setTimeout(()=>{ confCanvas.style.display='none'; confParticles=[]; if(confAnim){cancelAnimationFrame(confAnim);confAnim=null;} },4000);
 }
 function animConf(){
   confCtx.clearRect(0,0,confCanvas.width,confCanvas.height);
-  confParticles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.08;p.rot+=p.rotV;p.alpha=Math.max(0,p.alpha-p.life);confCtx.save();confCtx.globalAlpha=p.alpha;confCtx.translate(p.x,p.y);confCtx.rotate(p.rot*Math.PI/180);confCtx.fillStyle=p.color;confCtx.font=p.size+'px Arial';confCtx.textAlign='center';confCtx.textBaseline='middle';confCtx.fillText(p.shape,0,0);confCtx.restore();});
+  confParticles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.08;
+    p.rot+=p.rotV; p.alpha=Math.max(0,p.alpha-p.life);
+    confCtx.save(); confCtx.globalAlpha=p.alpha;
+    confCtx.translate(p.x,p.y); confCtx.rotate(p.rot*Math.PI/180);
+    confCtx.fillStyle=p.color; confCtx.font=p.size+'px Arial';
+    confCtx.textAlign='center'; confCtx.textBaseline='middle';
+    confCtx.fillText(p.shape,0,0); confCtx.restore();
+  });
   confParticles=confParticles.filter(p=>p.alpha>0&&p.y<confCanvas.height+60);
-  if(confParticles.length>0){confAnim=requestAnimationFrame(animConf);}else{confCanvas.style.display='none';}
+  if(confParticles.length>0){ confAnim=requestAnimationFrame(animConf); }
+  else { confCanvas.style.display='none'; }
 }
 
-// ── LOOK FLASH ──────────────────────────────────────────────────
-function flashLookName(occasionName,lookName,callback){
-  const flash=document.getElementById('look-flash');
-  document.getElementById('lf-occasion').textContent=occasionName.toUpperCase();
-  document.getElementById('lf-name').textContent=lookName;
+// ── LOOK NAME FLASH ────────────────────────────────────────────────
+function flashLookName(occasionName, lookName, callback){
+  const flash = document.getElementById('look-flash');
+  document.getElementById('lf-occasion').textContent = occasionName.toUpperCase();
+  document.getElementById('lf-name').textContent = lookName;
   flash.classList.add('show');
-  setTimeout(()=>{flash.classList.remove('show');setTimeout(callback,350);},1600);
+  setTimeout(()=>{ flash.classList.remove('show'); setTimeout(callback,350); }, 1600);
 }
 
-// ── BOOT ────────────────────────────────────────────────────────
-window.addEventListener('load',()=>{
+// ── BOOT ───────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
   buildOccasionGrid();
 });
 </script>
