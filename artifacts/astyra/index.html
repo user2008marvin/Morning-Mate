@@ -827,7 +827,7 @@ body{
     <div style="display:flex;align-items:center;gap:8px">
       <div class="nav-scan-count">
         <div class="nav-scan-dot"></div>
-        <span id="scan-display">3</span> scans left
+        <span id="scan-display">50</span> scans left
       </div>
     </div>
   </div>
@@ -869,17 +869,22 @@ body{
     <a href="/privacy">Privacy &amp; Disclosure</a>
   </div>
 
-  <!-- FOUNDING MEMBER BANNER -->
+  <!-- SPECIAL PROMOTION BANNER -->
   <div class="founding-banner" id="founding-banner" style="display:none">
     <div class="fb-left">
-      <div class="fb-badge">🌟 Founding Member</div>
+      <div class="fb-badge">⚡ Special Promotion</div>
       <div>
-        <div class="fb-text">First 1,000 members get Pro <strong style="color:var(--gold)">free forever</strong></div>
+        <div class="fb-text">Next 500 members gets Pro <strong style="color:var(--gold)">free forever</strong></div>
         <div class="fb-count" id="founding-spots-left">Loading...</div>
       </div>
     </div>
     <div class="fb-bar-wrap"><div class="fb-bar-fill" id="founding-bar" style="width:0%"></div></div>
     <button class="fb-cta" onclick="showModal('pro-modal')">Claim Free Spot →</button>
+  </div>
+
+  <!-- OCCASION MARQUEE -->
+  <div class="occ-marquee">
+    <div class="marquee-track" id="marquee-track"></div>
   </div>
 
 
@@ -1941,16 +1946,21 @@ window.addEventListener('load',()=>{
   const resetKey = `${now.getFullYear()}-${now.getMonth()}`;
   const lastReset = localStorage.getItem('astyra_scan_reset_month');
   if(lastReset !== resetKey && !localStorage.getItem('astyra_pro')){
-    // New month — reset scans back to the configured limit (default 3)
-    const limit = parseInt(localStorage.getItem('astyra_scan_limit') || '3');
+    // New month — reset scans back to the configured limit (default 50)
+    const limit = parseInt(localStorage.getItem('astyra_scan_limit') || '50');
     localStorage.setItem('astyra_scans', limit);
     localStorage.setItem('astyra_scan_reset_month', resetKey);
+  }
+  // Reset scans if they've hit zero but have no pro (allows testing without getting stuck)
+  if(!localStorage.getItem('astyra_pro')){
+    const current = parseInt(localStorage.getItem('astyra_scans') ?? '50');
+    if(current <= 0){ localStorage.setItem('astyra_scans', '50'); }
   }
 
   // ── Load latest affiliate ID from admin ────────────────────────────
   AFF_ID = localStorage.getItem('astyra_aff_id') || '';
   STATE.isPro = localStorage.getItem('astyra_pro') === '1';
-  STATE.scansLeft = STATE.isPro ? 999 : parseInt(localStorage.getItem('astyra_scans') ?? '3');
+  STATE.scansLeft = STATE.isPro ? 999 : parseInt(localStorage.getItem('astyra_scans') ?? '50');
 
   // ── Activate Skimlinks if publisher ID is configured ───────────────
   activateSkimlinks();
@@ -1970,6 +1980,7 @@ window.addEventListener('load',()=>{
   buildStars();
   buildOccasionGrid();
   buildSkinRow();
+  buildMarquee();
   const scanEl = document.getElementById('scan-display');
   scanEl.textContent = STATE.isPro ? '∞' : STATE.scansLeft;
   if(!STATE.isPro && STATE.scansLeft <= 0){
@@ -2435,9 +2446,9 @@ window.addEventListener('storage', (e)=>{
 //  FOUNDING MEMBER COUNTER
 // ══════════════════════════════════════════════════════
 function updateFoundingBanner(){
-  // Admin sets total_user_count in dashboard; founding spots = 1000 - count
-  const totalUsers = parseInt(localStorage.getItem('astyra_total_user_count') || '0');
-  const FOUNDING_LIMIT = 1000;
+  // Admin sets total_user_count in dashboard; 500 promo spots total, 300 pre-set as used
+  const totalUsers = parseInt(localStorage.getItem('astyra_total_user_count') || '300');
+  const FOUNDING_LIMIT = 500;
   const remaining = Math.max(0, FOUNDING_LIMIT - totalUsers);
   const pct = Math.min(100, (totalUsers / FOUNDING_LIMIT) * 100);
 
@@ -2449,7 +2460,7 @@ function updateFoundingBanner(){
 
   if(remaining > 0 && !STATE.isPro){
     banner.style.display = 'flex';
-    if(spotsEl) spotsEl.textContent = `${remaining} of ${FOUNDING_LIMIT} founding spots remaining`;
+    if(spotsEl) spotsEl.textContent = `${remaining} of ${FOUNDING_LIMIT} spots remaining`;
     if(barEl) barEl.style.width = pct + '%';
   } else {
     banner.style.display = 'none';
