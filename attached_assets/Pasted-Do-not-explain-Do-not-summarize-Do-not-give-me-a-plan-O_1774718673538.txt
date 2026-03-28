@@ -1,0 +1,60 @@
+Do not explain. Do not summarize. Do not give me a plan.
+
+Open the existing code and directly fix these two bugs in place.
+
+BUG 1: skin tone is not affecting the generated result
+The selected skin tone currently does not change the actual generation output.
+
+You must:
+1. find the skin tone state/variable used in the UI
+2. trace it from the selector all the way to the generate function
+3. make sure it is included in the API request payload as `skinTone`
+4. make sure the final generation prompt is built from:
+   - selected look prompt
+   - plus a skin-tone-specific modifier
+5. remove any hardcoded single-shade prompt logic that causes all tones to look the same
+
+Use these exact skin tone modifiers:
+
+const skinToneModifiers = {
+  light: "Use shades suitable for fair/light skin: soft rosy blush, pink-nude or blue-red lip options, champagne highlight, lighter contour balance.",
+  medium: "Use shades suitable for medium/tan skin: warm rose or peach blush, caramel-nude or warm red lip options, golden highlight, warm sculpting tones.",
+  deep: "Use shades suitable for deep/rich skin: rich berry or terracotta blush, deep nude or rich red lip options, gold or bronze highlight, deeper complementary eye tones."
+};
+
+The final prompt must be:
+baseLookPrompt + ' ' + skinToneModifiers[selectedSkinTone]
+
+If the selected skin tone variable does not exist cleanly yet, create it and wire it properly.
+
+BUG 2: some choices incorrectly send users to paid subscription
+This is wrong. The MVP free flow must not be interrupted.
+
+You must:
+1. find every premium/paywall/subscription route guard
+2. find every conditional check that redirects after occasion selection, look selection, or generate
+3. remove any paywall trigger from:
+   - occasion selection
+   - look selection
+   - upload
+   - first generation
+   - result view
+4. free users must be able to complete:
+   Occasion > Look > Upload > Generate > Result
+
+Only leave paywall logic for intentional premium-only extras, not for core MVP flow.
+
+OUTPUT REQUIREMENTS
+After fixing the code:
+- show me the exact files changed
+- show me the exact functions changed
+- show me the old logic and the new logic
+- show me the final prompt-building code
+- show me the final paywall condition code
+
+IMPORTANT
+- do not rebuild the app
+- do not redesign anything
+- do not add new features
+- only fix the current code in place
+- do not stop until the bugs are actually fixed in the code
