@@ -1154,891 +1154,803 @@ const OCCASIONS = [
 ];
 
 // ── SKIN TONES ────────────────────────────────────────────────────
-const SKIN_TONES = [
-  { id:'fair',   color:'#F5D5C0', label:'Fair' },
-  { id:'light',  color:'#E8B89A', label:'Light' },
-  { id:'medium', color:'#C68642', label:'Medium' },
-  { id:'tan',    color:'#A0522D', label:'Tan' },
-  { id:'deep',   color:'#7B3F00', label:'Deep' },
-  { id:'rich',   color:'#3B1F0E', label:'Rich' },
+// ═══════════════════════════════════════════════════════
+// SKIN TONES (personalisation anchor)
+// ═══════════════════════════════════════════════════════
+const SKIN_TONES=[
+  {id:'fair',label:'Fair',hex:'#F5D5C0',accentHex:'#D4A574'},
+  {id:'light',label:'Light',hex:'#E8B89A',accentHex:'#D9956E'},
+  {id:'medium',label:'Medium',hex:'#C68642',accentHex:'#B8860B'},
+  {id:'tan',label:'Tan',hex:'#A0522D',accentHex:'#CD853F'},
+  {id:'deep',label:'Deep',hex:'#7B3F00',accentHex:'#FF8C00'},
+  {id:'rich',label:'Rich',hex:'#3B1F0E',accentHex:'#FFD700'}
 ];
 
-// ── FULL LOOK ENGINE ─────────────────────────────────────────────
-// 216 combinations (12 occasions × 6 skin tones × 3 looks)
-// Represented as occasion → skin-modifier → look style
-// Skin modifier adjusts colours based on tone
-
-const BASE_LOOKS = {
+// ═══════════════════════════════════════════════════════
+// BASE OCCASIONS & LOOKS (core colour data — NOT tone-modified)
+// ═══════════════════════════════════════════════════════
+const BASE_LOOKS={
   'wedding-guest':{
-    natural:{ name:'Soft Bridal Glow', desc:'Luminous, camera-ready, effortless',
-      lip:[{n:'Dusty Rose',h:'#C17B7B'},{n:'Blush Nude',h:'#D4A0A0'},{n:'Petal Pink',h:'#E8B4B8'}],
-      eye:[{n:'Champagne',h:'#F5DEB3'},{n:'Warm Taupe',h:'#8B7355'},{n:'Soft Brown',h:'#6B4C3B'}],
-      blush:[{n:'Peach Flush',h:'#FFB347'},{n:'Rose Petal',h:'#E8A0A0'}],
-      tip:'Apply champagne shadow to lid, blend taupe into crease. Blush high on cheekbones.',
-      technique:['Luminous primer','Champagne lid shadow','Taupe crease blend','Peach blush high','Dusty rose lip + gloss'],
+    natural:{
+      name:'Subtle Romance',
+      desc:'Soft, elevated. Lets your features shine.',
+      foundation:[
+        {n:'Porcelain Veil',h:'#F5D5C0'},{n:'Warm Ivory',h:'#E8B89A'},{n:'Soft Beige',h:'#D4A574'}
+      ],
+      lip:[
+        {n:'Dusty Rose Silk',h:'#D4949A'},{n:'Mauve Nude',h:'#C9A0A8'},{n:'Warm Blush',h:'#E0B8C8'}
+      ],
+      eye:[
+        {n:'Champagne Shimmer',h:'#F0E68C'},{n:'Warm Bronze',h:'#D2B48C'},{n:'Soft Taupe',h:'#B8A8A0'}
+      ],
+      blush:[
+        {n:'Rose Petal',h:'#F08080'},{n:'Warm Peach',h:'#FFDAB9'},{n:'Soft Coral',h:'#FFB6C1'}
+      ],
+      technique:['Prime lids','Shimmer on centre lid','Bronze outer corner','Blend soft blush'],
+      tip:'A guest look that whispers elegance. The key is restraint — let the venue shine.'
     },
-    glam:{ name:'Luminous Drama', desc:'Bold, elegant, unforgettable',
-      lip:[{n:'Deep Berry',h:'#8B2252'},{n:'Wine Red',h:'#722F37'},{n:'Plum',h:'#8E4585'}],
-      eye:[{n:'Rose Gold',h:'#B76E79'},{n:'Bronze',h:'#CD7F32'},{n:'Deep Espresso',h:'#3B2314'}],
-      blush:[{n:'Sculpted Rose',h:'#C27A7A'},{n:'Bronze Contour',h:'#A0785A'}],
-      tip:'Full coverage base. Rose gold on lid, bronze outer-V, smoky lower lash line. Bold lip with clear liner.',
-      technique:['Full coverage foundation','Rose gold lid','Bronze outer V','Smoky lower lash','Bold berry lip'],
+    glam:{
+      name:'Opulent Bride\'s Guest',
+      desc:'Elevated glamour. Jewel-tone eyes, fuller lip.',
+      foundation:[
+        {n:'Luminous Porcelain',h:'#FFF8DC'},{n:'Golden Ivory',h:'#F0E68C'},{n:'Honeyed Beige',h:'#EDD5B1'}
+      ],
+      lip:[
+        {n:'Wine Velvet',h:'#722F37'},{n:'Deep Mauve',h:'#9932CC'},{n:'Berry Burgundy',h:'#800020'}
+      ],
+      eye:[
+        {n:'Deep Emerald',h:'#228B22'},{n:'Rich Sapphire',h:'#0F52BA'},{n:'Jewel Plum',h:'#663399'}
+      ],
+      blush:[
+        {n:'Rosy Flush',h:'#FFB6D9'},{n:'Warm Coral Blush',h:'#FF7F50'},{n:'Berry Wine',h:'#C41E3A'}
+      ],
+      technique:['Full lid coverage','Define crease','Wing-flick possible','Bold blush placement'],
+      tip:'Go bold. Jewel tones photograph beautifully and feel celebratory. A structured eyeliner lifts the look.'
     },
-    trendy:{ name:'Glass Skin Editorial', desc:'Dewy, modern, unexpected',
-      lip:[{n:'Sheer Gloss',h:'#F5C5C5'},{n:'MLBB',h:'#C8897A'},{n:'Warm Coral',h:'#E8896B'}],
-      eye:[{n:'Vanilla Shimmer',h:'#F3E5AB'},{n:'Terracotta',h:'#CB6843'},{n:'Copper',h:'#B87333'}],
-      blush:[{n:'Golden Flush',h:'#E8B86D'},{n:'Warm Peach',h:'#FFAB76'}],
-      tip:'Dewy glass skin finish. Monochromatic terracotta on eyes and cheeks. Clear lip gloss.',
-      technique:['Glass skin prep & glow','Terracotta monochrome eye','Copper inner corner','Golden flush blush','Sheer MLBB gloss'],
-    },
+    trendy:{
+      name:'Modern Minimalist',
+      desc:'Clean lines. Graphic precision. Editorial feel.',
+      foundation:[
+        {n:'Matte Silk Base',h:'#E5D5C0'},{n:'Skin-Tone Match',h:'#D0A883'},{n:'Warm Undertone',h:'#C9956B'}
+      ],
+      lip:[
+        {n:'Nude Brick',h:'#A0522D'},{n:'Terracotta Rose',h:'#CD5C5C'},{n:'Warm Brown',h:'#8B4513'}
+      ],
+      eye:[
+        {n:'Matte Charcoal',h:'#36454F'},{n:'Soft Black',h:'#1C1C1C'},{n:'Warm Graphite',h:'#473B3B'}
+      ],
+      blush:[
+        {n:'Subtle Tan',h:'#D2B48C'},{n:'Warm Brown-Rose',h:'#A0826D'},{n:'Earth Terracotta',h:'#B8860B'}
+      ],
+      technique:['Matte primer','Graphic lid shape','Smudged lower line','Barely-there blush'],
+      tip:'The power of restraint. Clean, graphic eyes paired with a warm nude lip = instant editorial polish.'
+    }
   },
+  
   'party':{
-    natural:{ name:'Effortless Night Out', desc:'Fresh, polished, social-ready',
-      lip:[{n:'MLBB Nude',h:'#C8897A'},{n:'Warm Mauve',h:'#B07B8A'},{n:'Peach Nude',h:'#D4A090'}],
-      eye:[{n:'Warm Gold',h:'#D4A843'},{n:'Tawny Brown',h:'#9E6B4A'},{n:'Soft Black',h:'#2D2D2D'}],
-      blush:[{n:'Coral Glow',h:'#FF7F5C'},{n:'Peach',h:'#FFBE9A'}],
-      tip:'Warm gold on lids with tawny crease. Dewy skin, coral cheeks, MLBB lip.',
-      technique:['Dewy skin prep','Gold shimmer lid','Tawny crease blend','Coral cheek pop','MLBB nude lip'],
+    natural:{
+      name:'Radiant Minimal',
+      desc:'Glowing skin, soft definition. Fresh and alive.',
+      foundation:[
+        {n:'Dewy Base',h:'#FFE4C4'},{n:'Luminous Beige',h:'#F0E68C'},{n:'Warm Gold',h:'#DAA520'}
+      ],
+      lip:[
+        {n:'Soft Peach',h:'#FFDAB9'},{n:'Warm Pink',h:'#FFB6C1'},{n:'Nude Coral',h:'#FF7F50'}
+      ],
+      eye:[
+        {n:'Champagne Pearl',h:'#F0E68C'},{n:'Golden Champagne',h:'#FFDAB9'},{n:'Warm Cream',h:'#FFFACD'}
+      ],
+      blush:[
+        {n:'Peach Flush',h:'#FFDAB9'},{n:'Warm Rose',h:'#FFB6C1'},{n:'Coral Glow',h:'#FF6347'}
+      ],
+      technique:['Luminous primer','Cream shadow','Finger-applied blush','Glossy lip'],
+      tip:'Glow over makeup. The camera will love the natural radiance. Less is more at a party.'
     },
-    glam:{ name:'Night Out Power', desc:'Statement, bold, commanding attention',
-      lip:[{n:'Classic Red',h:'#C0392B'},{n:'Fire Engine',h:'#CF1020'},{n:'Deep Rouge',h:'#9B1C31'}],
-      eye:[{n:'Midnight Smoke',h:'#2C2C3E'},{n:'Silver Glitter',h:'#C0C0C0'},{n:'Jet Black',h:'#1A1A1A'}],
-      blush:[{n:'Rosy Sculpt',h:'#D4849A'},{n:'Champagne Contour',h:'#D4B896'}],
-      tip:'Full smoky eye with silver glitter in inner corner. Precise red lip with liner. Sculpted cheeks.',
-      technique:['Full coverage base','Full smoky eye','Silver inner corner','Sculpted contour','Precise red lip'],
+    glam:{
+      name:'Disco Ball Drama',
+      desc:'Sparkle everywhere. Bold eye, full lashes, statement lip.',
+      foundation:[
+        {n:'Luminous Glow Base',h:'#FFFACD'},{n:'Radiant Gold',h:'#FFD700'},{n:'Warm Shimmer',h:'#FFA500'}
+      ],
+      lip:[
+        {n:'Electric Red',h:'#FF0000'},{n:'Deep Magenta',h:'#FF1493'},{n:'Bright Pink',h:'#FF69B4'}
+      ],
+      eye:[
+        {n:'Gold Glitter Storm',h:'#FFD700'},{n:'Silver Sparkle',h:'#C0C0C0'},{n:'Bronze Disco',h:'#CD7F32'}
+      ],
+      blush:[
+        {n:'Hot Pink',h:'#FF69B4'},{n:'Electric Coral',h:'#FF7F50'},{n:'Peach Shimmer',h:'#FFDAB9'}
+      ],
+      technique:['Glitter base','Layered shimmer','Dramatic wing','Full coverage blush'],
+      tip:'Own the night. Go big with glitter and shine. The party is your stage.'
     },
-    trendy:{ name:'Disco Flush', desc:'Y2K revival, playful, statement',
-      lip:[{n:'Bubblegum',h:'#FF85A1'},{n:'Hot Pink',h:'#FF69B4'},{n:'Fuchsia',h:'#FF2490'}],
-      eye:[{n:'Holographic',h:'#C8A2C8'},{n:'Electric Blue',h:'#0070DD'},{n:'Neon Liner',h:'#39FF14'}],
-      blush:[{n:'Hot Pink Flush',h:'#FF6B9D'},{n:'Magenta',h:'#D4007A'}],
-      tip:'Bold graphic liner. Overdone disco blush. Glossy pink lips. This look is meant to be fun and extra.',
-      technique:['Smooth skin base','Graphic liner moment','Holographic inner eye','Disco flush blush','Glossy pink lip'],
-    },
+    trendy:{
+      name:'TikTok Moment',
+      desc:'Graphic liner, soft shadow, no-makeup makeup lip.',
+      foundation:[
+        {n:'Satin Finish',h:'#E8D5C4'},{n:'Natural Warm',h:'#D9A996'},{n:'Satin Honey',h:'#C8A886'}
+      ],
+      lip:[
+        {n:'Soft Nude',h:'#C9A8A0'},{n:'Warm Tan',h:'#D2B48C'},{n:'Natural Mauve',h:'#C9A0A8'}
+      ],
+      eye:[
+        {n:'Matte Cream',h:'#FFFACD'},{n:'Soft Bronzy-Taupe',h:'#D2B48C'},{n:'Warm Brown',h:'#8B7355'}
+      ],
+      blush:[
+        {n:'Monochrome Tan',h:'#D2B48C'},{n:'Warm Nude Blush',h:'#F4A460'},{n:'Soft Peach',h:'#FFDAB9'}
+      ],
+      technique:['Graphic lower liner','Soft lid wash','Cream blush','Tinted lip balm'],
+      tip:'The new aesthetic: effort that looks effortless. A crisp graphic liner elevated by soft, warm tones.'
+    }
   },
-  'work':{
-    natural:{ name:'Polished Professional', desc:'Clean, confident, boardroom-ready',
-      lip:[{n:'Nude Pink',h:'#D4A0A0'},{n:'Soft Mauve',h:'#B08090'},{n:'Sheer Beige',h:'#C8A882'}],
-      eye:[{n:'Warm Ivory',h:'#F5F0E8'},{n:'Muted Bronze',h:'#8B6914'},{n:'Dark Brown',h:'#4A3728'}],
-      blush:[{n:'Natural Flush',h:'#E8A08A'},{n:'Soft Peach',h:'#F5C5A0'}],
-      tip:'Light hand. Natural finish skin. Subtle bronze eye, neutral lip. Never distracting.',
-      technique:['Natural finish foundation','Light ivory lid','Bronze into crease','Subtle peach blush','Nude-pink lip'],
-    },
-    glam:{ name:'Power Meeting', desc:'Elevated professional, authoritative',
-      lip:[{n:'Rich Plum',h:'#6B3A5C'},{n:'Deep Mauve',h:'#7B4F6B'},{n:'Burgundy',h:'#722F37'}],
-      eye:[{n:'Taupe Smoke',h:'#8B7D7B'},{n:'Deep Mink',h:'#5C4033'},{n:'Charcoal',h:'#36454F'}],
-      blush:[{n:'Cool Rose',h:'#C0708A'},{n:'Plum Contour',h:'#9B7080'}],
-      tip:'Polished smoky eye using cool tones. Deep lip adds gravitas without losing professionalism.',
-      technique:['Flawless base','Taupe smoke eye','Mink outer wing','Cool rose sculpt','Deep plum lip'],
-    },
-    trendy:{ name:'Quiet Luxury', desc:'Understated, expensive-looking, intentional',
-      lip:[{n:'Greige Nude',h:'#C5B0A0'},{n:'Warm Latte',h:'#C09A80'},{n:'Café au Lait',h:'#A8896A'}],
-      eye:[{n:'Sandy Beige',h:'#E8D5B0'},{n:'Warm Stone',h:'#A0907A'},{n:'Barely-There',h:'#C8B8A8'}],
-      blush:[{n:'Barely-There',h:'#F0C8B8'},{n:'Warm Glow',h:'#F5D0B8'}],
-      tip:'The "I woke up like this but expensive" look. Dewy skin, barely-there colour, perfect brows.',
-      technique:['Skincare-first prep','Sandy beige lids','Feathered brow focus','Whisper-light blush','Greige nude lip'],
-    },
-  },
+
   'first-date':{
-    natural:{ name:'Natural Allure', desc:'Approachable, fresh, confidence-first',
-      lip:[{n:'Your Lips But Better',h:'#D4948A'},{n:'MLBB',h:'#C07A6A'},{n:'Sheer Berry',h:'#C87A8A'}],
-      eye:[{n:'Warm Vanilla',h:'#F5E6D0'},{n:'Soft Amber',h:'#C89060'},{n:'Lash-Line Brown',h:'#5C3A28'}],
-      blush:[{n:'Pinched Cheeks',h:'#E88A8A'},{n:'Warm Apricot',h:'#F5A882'}],
-      tip:'Enhanced natural look. Focus on skin, lashes, and a lip that says "this is my actual lip colour but better".',
-      technique:['Glowy skin base','Vanilla wash of colour','Amber warmth crease','Mascara focus','MLBB lip colour'],
+    natural:{
+      name:'Approachable Glow',
+      desc:'Soft, inviting. You look like yourself — but better.',
+      foundation:[
+        {n:'Second-Skin Base',h:'#F5D5C0'},{n:'Warm Match',h:'#E8B89A'},{n:'Honey Tone',h:'#D4A574'}
+      ],
+      lip:[
+        {n:'Natural Flush',h:'#F08080'},{n:'Warm Mauve',h:'#D8A8A8'},{n:'Soft Nude Pink',h:'#FFB6C1'}
+      ],
+      eye:[
+        {n:'Warm Vanilla',h:'#F5DEB3'},{n:'Soft Taupe',h:'#B8A8A0'},{n:'Warm Bronze',h:'#D2B48C'}
+      ],
+      blush:[
+        {n:'Natural Rose',h:'#F08080'},{n:'Warm Peach',h:'#FFDAB9'},{n:'Coral Flush',h:'#FFB6C1'}
+      ],
+      technique:['Light hand on everything','Cream blush','Tinted brow','Soft focus overall'],
+      tip:'Less makeup, more presence. You want them to notice YOU, not your makeup. Soft, warm, approachable.'
     },
-    glam:{ name:'Siren Mode', desc:'Intentionally magnetic, romantic glamour',
-      lip:[{n:'Warm Red',h:'#C0392B'},{n:'Orange-Red',h:'#CC3300'},{n:'Cherry',h:'#B22222'}],
-      eye:[{n:'Sultry Bronze',h:'#8B5E3C'},{n:'Deep Espresso',h:'#3B2314'},{n:'Gold Fleck',h:'#D4A017'}],
-      blush:[{n:'Rosy Glow',h:'#D4788A'},{n:'Bronze Warmth',h:'#C09070'}],
-      tip:'Classic date look: sultry bronze eyes, defined lashes, warm red lip. A forever combination.',
-      technique:['Luminous skin base','Bronzed eyes','Gold inner corner','Flushed cheeks','Warm red lip'],
+    glam:{
+      name:'Confidence Elevated',
+      desc:'Polished and powerful. Show what you\'ve got.',
+      foundation:[
+        {n:'Flawless Canvas',h:'#FFFACD'},{n:'Radiant Warm',h:'#FFD700'},{n:'Golden Honey',h:'#DAA520'}
+      ],
+      lip:[
+        {n:'Bold Mauve',h:'#9932CC'},{n:'Deep Plum',h:'#8B008B'},{n:'Rich Berry',h:'#800020'}
+      ],
+      eye:[
+        {n:'Shimmery Rose Gold',h:'#B76E79'},{n:'Warm Copper',h:'#B87333'},{n:'Peachy Glow',h:'#FFDAB9'}
+      ],
+      blush:[
+        {n:'Rose Flush',h:'#FFB6D9'},{n:'Coral Pink',h:'#FF7F50'},{n:'Warm Peach',h:'#FFDAB9'}
+      ],
+      technique:['Sculpted crease','Highlight inner corner','Define with liner','Bold blush'],
+      tip:'Confidence is the best accessory. A polished eye + statement lip says: I know what I want.'
     },
-    trendy:{ name:'Effortless Cool', desc:'Like you barely tried but somehow perfect',
-      lip:[{n:'Your-Lips-Tinted',h:'#C8827A'},{n:'Bitten Lip',h:'#B86858'},{n:'Blurred Berry',h:'#C07080'}],
-      eye:[{n:'Barely-There Shimmer',h:'#E8D0B8'},{n:'Peachy Wash',h:'#F5A87A'},{n:'Mascara Only',h:'#1A1A1A'}],
-      blush:[{n:'Just-ran-here Flush',h:'#F08080'},{n:'Peachy Warm',h:'#FFA07A'}],
-      tip:'The "effortless" look that requires some effort. Blurred edges, no harsh lines, dewy skin.',
-      technique:['Dewy skin prep','Peach eye wash','No-liner approach','High flush blush','Blurred stain lip'],
-    },
+    trendy:{
+      name:'Subtle Editorial',
+      desc:'Unexpected touches. Graphic precision. Artistic.',
+      foundation:[
+        {n:'Clean Matte',h:'#E5D5C0'},{n:'Skin-Tone Match',h:'#D0A883'},{n:'Warm Natural',h:'#C9956B'}
+      ],
+      lip:[
+        {n:'Rosy Nude',h:'#D4949A'},{n:'Warm Brown-Red',h:'#A0522D'},{n:'Terracotta Nude',h:'#CD5C5C'}
+      ],
+      eye:[
+        {n:'Matte Greige',h:'#B8A8A0'},{n:'Soft Charcoal',h:'#36454F'},{n:'Warm Brown',h:'#8B7355'}
+      ],
+      blush:[
+        {n:'Warm Blush',h:'#F4A460'},{n:'Earthy Rose',h:'#A0826D'},{n:'Soft Terracotta',h:'#B8860B'}
+      ],
+      technique:['Graphic lower liner','Monochromatic eye','Precise brow','Toned-down blush'],
+      tip:'Stand out by being different. A graphic choice + editorial execution = memorable and artistic.'
+    }
   },
-  'date-night':{
-    natural:{ name:'Romantic Glow', desc:'Warm, luminous, effortlessly alluring',
-      lip:[{n:'Dusty Rose',h:'#C17B7B'},{n:'Berry Nude',h:'#B07080'},{n:'MLBB Satin',h:'#C8897A'}],
-      eye:[{n:'Warm Bronze',h:'#CD7F32'},{n:'Tawny Copper',h:'#9E6B4A'},{n:'Soft Espresso',h:'#4A2E1A'}],
-      blush:[{n:'Rosy Warmth',h:'#D4788A'},{n:'Golden Peach',h:'#E8A870'}],
-      tip:'Romantic warmth: bronze lids, flushed cheeks, a lip that looks kissed. Glowy skin is the foundation.',
-      technique:['Luminous skin prep','Bronze shimmer lid','Copper outer blend','High rosy flush','Berry-nude satin lip'],
+
+  'work':{
+    natural:{
+      name:'Professional Presence',
+      desc:'Polished, trustworthy. You\'re in charge.',
+      foundation:[
+        {n:'Matte Professional',h:'#F5D5C0'},{n:'Warm Neutral',h:'#E8B89A'},{n:'Honey Matte',h:'#D4A574'}
+      ],
+      lip:[
+        {n:'Muted Rose',h:'#D4949A'},{n:'Warm Nude',h:'#D2B48C'},{n:'Soft Mauve',h:'#C9A0A8'}
+      ],
+      eye:[
+        {n:'Warm Cream',h:'#F5DEB3'},{n:'Soft Taupe',h:'#B8A8A0'},{n:'Warm Brown',h:'#8B7355'}
+      ],
+      blush:[
+        {n:'Subtle Flush',h:'#F08080'},{n:'Natural Peach',h:'#FFDAB9'},{n:'Warm Rose',h:'#E0B8C8'}
+      ],
+      technique:['Matte everywhere','Define crease lightly','Precise brow','Minimal blush'],
+      tip:'Neutral and strong. A matte finish reads professional. Keep eyes natural; let your work shine.'
     },
-    glam:{ name:'Evening Siren', desc:'Smouldering, magnetic, unforgettable',
-      lip:[{n:'Deep Rosewood',h:'#8B3A52'},{n:'Wine',h:'#722F37'},{n:'Plum Berry',h:'#7A2060'}],
-      eye:[{n:'Smoked Plum',h:'#5C2A5A'},{n:'Deep Bronze',h:'#6B3A20'},{n:'Midnight Black',h:'#1A1A2E'}],
-      blush:[{n:'Sculpted Rose',h:'#C27A7A'},{n:'Deep Contour',h:'#9E6050'}],
-      tip:'Commit fully — smoky plum eye, sculpted cheek, deep lip. This look rewards confidence.',
-      technique:['Full coverage luminous base','Smoked plum eye','Blended outer drama','Sculpted contour','Deep rosewood lip'],
+    glam:{
+      name:'Power Player',
+      desc:'Bold but controlled. Authority + elegance.',
+      foundation:[
+        {n:'Radiant Base',h:'#FFFACD'},{n:'Golden Warm',h:'#FFD700'},{n:'Honey Glow',h:'#DAA520'}
+      ],
+      lip:[
+        {n:'Structured Red',h:'#DC143C'},{n:'Deep Wine',h:'#722F37'},{n:'Bold Berry',h:'#800020'}
+      ],
+      eye:[
+        {n:'Warm Bronze',h:'#CD7F32'},{n:'Copper Shimmer',h:'#B87333'},{n:'Deep Gold',h:'#DAA520'}
+      ],
+      blush:[
+        {n:'Warm Rose',h:'#FFB6D9'},{n:'Coral Accent',h:'#FF7F50'},{n:'Peach Blend',h:'#FFDAB9'}
+      ],
+      technique:['Sculpted crease','Liner upper lid only','Highlight cheekbones','Structured lip'],
+      tip:'Power and polish. A structured eye paired with a bold lip = commanding presence. Control the narrative.'
     },
+    trendy:{
+      name:'Modern Minimalist Pro',
+      desc:'Clean aesthetic. Effortless polish. Next-level.',
+      foundation:[
+        {n:'Satin Base',h:'#E5D5C0'},{n:'Natural Match',h:'#D0A883'},{n:'Warm Satin',h:'#C9956B'}
+      ],
+      lip:[
+        {n:'Nude Professional',h:'#C9A8A0'},{n:'Warm Taupe',h:'#8B7355'},{n:'Mauve Neutral',h:'#A0826D'}
+      ],
+      eye:[
+        {n:'Barely-There Nude',h:'#FFFACD'},{n:'Soft Greige',h:'#B8A8A0'},{n:'Warm Brown',h:'#8B7355'}
+      ],
+      blush:[
+        {n:'Soft Contour',h:'#D2B48C'},{n:'Warm Mauve',h:'#A0826D'},{n:'Subtle Peach',h:'#F4A460'}
+      ],
+      technique:['Monochromatic palette','Graphic brow','Minimal shadow','Tinted lip only'],
+      tip:'Quiet confidence. The minimalist approach shows you\'re comfortable in your own skin. Precision over decoration.'
+    }
   },
+
   'graduation':{
-    natural:{ name:'Ceremony-Ready', desc:'Fresh, photogenic, milestone-worthy',
-      lip:[{n:'Rose Petal',h:'#E8B4B8'},{n:'Soft Pink',h:'#F4A0A8'},{n:'Sheer Coral',h:'#F08070'}],
-      eye:[{n:'Soft Gold',h:'#D4B870'},{n:'Warm Brown',h:'#8B6014'},{n:'Mocha Liner',h:'#5C3A1E'}],
-      blush:[{n:'Fresh Peach',h:'#FFBE9A'},{n:'Rosy Pink',h:'#F08A9A'}],
-      tip:'Looks incredible in photos. Soft and fresh — you will look back on this in 10 years and smile.',
-      technique:['Photo-ready base','Golden lid','Warm brown crease','Peachy pink blush','Rose pink lip'],
+    natural:{
+      name:'Glowing Scholar',
+      desc:'Fresh, happy, radiant. Celebrate YOU.',
+      foundation:[
+        {n:'Dewy Base',h:'#FFE4C4'},{n:'Luminous Warm',h:'#F0E68C'},{n:'Glowing Honey',h:'#DAA520'}
+      ],
+      lip:[
+        {n:'Happy Coral',h:'#FF7F50'},{n:'Warm Peach',h:'#FFDAB9'},{n:'Bright Pink',h:'#FFB6C1'}
+      ],
+      eye:[
+        {n:'Pearl Shimmer',h:'#FFFACD'},{n:'Warm Gold',h:'#FFD700'},{n:'Soft Cream',h:'#F5DEB3'}
+      ],
+      blush:[
+        {n:'Joyful Peach',h:'#FFDAB9'},{n:'Warm Coral',h:'#FF7F50'},{n:'Happy Pink',h:'#FFB6C1'}
+      ],
+      technique:['Shimmery lid','Warm inner corner highlight','Full blush coverage','Glossy lip'],
+      tip:'You earned this. Celebrate with a glow. Warm, happy colours that say: "My time has come."'
     },
-    glam:{ name:'Milestone Glam', desc:'You earned this. Look the part.',
-      lip:[{n:'Confident Berry',h:'#8B4558'},{n:'Deep Rose',h:'#9B3C5A'},{n:'Raspberry',h:'#9B3A6A'}],
-      eye:[{n:'Champagne Gold',h:'#D4A84B'},{n:'Deep Bronze',h:'#8B5E1C'},{n:'Espresso',h:'#3B2314'}],
-      blush:[{n:'Rosy Drama',h:'#C07A8A'},{n:'Warm Bronze',h:'#B87040'}],
-      tip:'Graduation photos last forever. Go bold. The champagne eye + berry lip is a certified classic.',
-      technique:['Flawless skin','Champagne gold eye','Bronze outer depth','Rosy blush','Berry-rose lip'],
+    glam:{
+      name:'Sophisticated Graduate',
+      desc:'Elegant, accomplished, ready for the world.',
+      foundation:[
+        {n:'Flawless Glow',h:'#FFFACD'},{n:'Radiant Base',h:'#FFD700'},{n:'Warm Radiance',h:'#FFA500'}
+      ],
+      lip:[
+        {n:'Timeless Red',h:'#DC143C'},{n:'Deep Mauve',h:'#9932CC'},{n:'Bold Berry',h:'#C41E3A'}
+      ],
+      eye:[
+        {n:'Rich Gold',h:'#FFD700'},{n:'Deep Plum',h:'#663399'},{n:'Bronze Luxury',h:'#B87333'}
+      ],
+      blush:[
+        {n:'Elegant Rose',h:'#FFB6D9'},{n:'Warm Flush',h:'#F08080'},{n:'Coral Glow',h:'#FF6347'}
+      ],
+      technique:['Structured smoky eye','Defined brow','Precise wing optional','Strong blush'],
+      tip:'You\'ve earned elegance. A rich eye + bold lip = ready to own your future. Timeless and powerful.'
     },
-    trendy:{ name:'New Era', desc:'Stepping into the next chapter',
-      lip:[{n:'Terracotta',h:'#CB6843'},{n:'Clay',h:'#B5614A'},{n:'Cinnamon',h:'#C47A4A'}],
-      eye:[{n:'Warm Ginger',h:'#D4826A'},{n:'Sienna',h:'#A0522D'},{n:'Burnt Orange',h:'#CC5500'}],
-      blush:[{n:'Terracotta Flush',h:'#D4784A'},{n:'Warm Peach',h:'#F5A882'}],
-      tip:'A terracotta monochromatic look — warm, editorial, and incredibly photogenic in natural daylight.',
-      technique:['Matte skin prep','Terracotta lid','Sienna crease','Terracotta blush','Clay-terracotta lip'],
-    },
+    trendy:{
+      name:'Editorial Graduate',
+      desc:'Artistic, unique, forward-thinking. Your story.',
+      foundation:[
+        {n:'Soft Matte',h:'#E5D5C0'},{n:'Natural Match',h:'#D0A883'},{n:'Warm Matte',h:'#C9956B'}
+      ],
+      lip:[
+        {n:'Statement Brick',h:'#A0522D'},{n:'Artistic Nude',h:'#8B7355'},{n:'Warm Red',h:'#8B0000'}
+      ],
+      eye:[
+        {n:'Matte Taupe',h:'#B8A8A0'},{n:'Warm Charcoal',h:'#36454F'},{n:'Artistic Brown',h:'#8B7355'}
+      ],
+      blush:[
+        {n:'Artistic Flush',h:'#D2B48C'},{n:'Warm Brown-Rose',h:'#A0826D'},{n:'Earth Tone',h:'#8B4513'}
+      ],
+      technique:['Monochromatic editorial','Graphic brow','Tonal layering','Precise placement'],
+      tip:'Tell your story. Artistic choices that reflect YOUR aesthetic, not the trend. That\'s true sophistication.'
+    }
   },
+
   'brunch':{
-    natural:{ name:'Sunday Best', desc:'Effortless, fresh, Instagram-worthy',
-      lip:[{n:'Strawberry Tint',h:'#F4909A'},{n:'Pinky Nude',h:'#E8A8A8'},{n:'Sheer Gloss',h:'#F5D5D5'}],
-      eye:[{n:'Peachy Rose',h:'#F5B8B0'},{n:'Warm Brown',h:'#9E7060'},{n:'Mascara',h:'#1A1A1A'}],
-      blush:[{n:'Pinched Pink',h:'#F09090'},{n:'Strawberry',h:'#F48080'}],
-      tip:'Brunch looks best with a barely-there eye and an emphasis on healthy-looking skin.',
-      technique:['Tinted moisturiser','Peachy rose wash','Pinched pink blush','Glossy strawberry lip','Mascara only'],
+    natural:{
+      name:'Weekend Radiance',
+      desc:'Effortless, refreshed, luminous. Just-woke-up glow.',
+      foundation:[
+        {n:'Dewy Base',h:'#FFE4C4'},{n:'Luminous Warm',h:'#F0E68C'},{n:'Soft Honey',h:'#DAA520'}
+      ],
+      lip:[
+        {n:'Soft Pink Nude',h:'#FFB6C1'},{n:'Warm Peach',h:'#FFDAB9'},{n:'Light Coral',h:'#FF7F50'}
+      ],
+      eye:[
+        {n:'Cream Shimmer',h:'#FFFACD'},{n:'Warm Pearl',h:'#F0E68C'},{n:'Soft Champagne',h:'#FFDAB9'}
+      ],
+      blush:[
+        {n:'Natural Blush',h:'#FFB6C1'},{n:'Warm Peach',h:'#FFDAB9'},{n:'Coral Flush',h:'#FF6347'}
+      ],
+      technique:['Cream shadow','Finger-blended','Cream blush','Glossy lip'],
+      tip:'Brunch is about looking like you didn\'t try but somehow glow. Creamy, warm, effortless.'
     },
-    glam:{ name:'Dressed-Up Brunch', desc:'Elevated casual, effortful-looking effortlessness',
-      lip:[{n:'Coral Red',h:'#F4634A'},{n:'Tomato',h:'#D4432A'},{n:'Brick Red',h:'#C0392B'}],
-      eye:[{n:'Peachy Shimmer',h:'#F5C5A0'},{n:'Rose Gold',h:'#B87878'},{n:'Bronze',h:'#CD7F32'}],
-      blush:[{n:'Coral Pop',h:'#FF6B47'},{n:'Warm Orange',h:'#F58040'}],
-      tip:'The "only had coffee but somehow look amazing" energy. Peachy eyes, bold coral lip.',
-      technique:['Glowy skin','Peachy shimmer lid','Rose gold corner','Coral blush','Bold coral-red lip'],
+    glam:{
+      name:'Brunch Statement',
+      desc:'Daytime glam. Sophisticated but fun.',
+      foundation:[
+        {n:'Radiant Base',h:'#FFFACD'},{n:'Golden Warm',h:'#FFD700'},{n:'Honey Glow',h:'#DAA520'}
+      ],
+      lip:[
+        {n:'Berry Elegance',h:'#8B0000'},{n:'Deep Rose',h:'#C71585'},{n:'Rich Mauve',h:'#8B008B'}
+      ],
+      eye:[
+        {n:'Rose Gold Shimmer',h:'#B76E79'},{n:'Warm Copper',h:'#B87333'},{n:'Gold Accent',h:'#FFD700'}
+      ],
+      blush:[
+        {n:'Warm Rose',h:'#FFB6D9'},{n:'Peachy Flush',h:'#FFDAB9'},{n:'Coral Pop',h:'#FF7F50'}
+      ],
+      technique:['Shimmer lid','Soft crease blend','Highlight inner corner','Full blush'],
+      tip:'Daytime glamour is about warmth and shine. A shimmery eye + deeper lip = brunch ready.'
     },
-    trendy:{ name:'Rosé All Day', desc:'Rosy, fresh, social-media-made',
-      lip:[{n:'Rosé',h:'#D4818A'},{n:'Mauve-Pink',h:'#C87A8A'},{n:'Blush Nude',h:'#D4A0A8'}],
-      eye:[{n:'Rose Quartz',h:'#E8B4C8'},{n:'Mauve',h:'#B07890'},{n:'Soft Plum',h:'#8A5A6A'}],
-      blush:[{n:'Rose Flush',h:'#F0A0B0'},{n:'Rosy Glow',h:'#F5B0C0'}],
-      tip:'All-over rosy monochromatic. Rose quartz on eyes, mauve lip, soft rose blush. Very Pinterest.',
-      technique:['Dewy rose base','Rose quartz eye','Mauve crease','Rosy flush blush','Rosé stained lip'],
-    },
+    trendy:{
+      name:'Minimalist Chic Brunch',
+      desc:'No-makeup makeup energy. Soft graphic touches.',
+      foundation:[
+        {n:'Satin Finish',h:'#E8D5C4'},{n:'Natural Warm',h:'#D9A996'},{n:'Satin Honey',h:'#C8A886'}
+      ],
+      lip:[
+        {n:'Soft Nude',h:'#C9A8A0'},{n:'Warm Tan',h:'#D2B48C'},{n:'Natural Mauve',h:'#C9A0A8'}
+      ],
+      eye:[
+        {n:'Cream Wash',h:'#FFFACD'},{n:'Soft Bronzy Taupe',h:'#D2B48C'},{n:'Warm Brown',h:'#8B7355'}
+      ],
+      blush:[
+        {n:'Monochrome Flush',h:'#D2B48C'},{n:'Warm Nude Blush',h:'#F4A460'},{n:'Soft Peach',h:'#FFDAB9'}
+      ],
+      technique:['Monochromatic palette','Soft lower liner','Cream blush','Tinted lip balm'],
+      tip:'The brunch aesthetic: "I woke up like this" precision. Soft, warm, intentionally understated.'
+    }
   },
+
   'photoshoot':{
-    natural:{ name:'Natural Edit', desc:'Skin-forward, camera-optimised',
-      lip:[{n:'MLBB Satin',h:'#C07060'},{n:'Nude Rose',h:'#C8908A'},{n:'Barely-There',h:'#D4A898'}],
-      eye:[{n:'Warm Ivory',h:'#F5EEDE'},{n:'Soft Peach',h:'#F5C5A0'},{n:'Light Brown',h:'#9E7A5A'}],
-      blush:[{n:'Healthy Flush',h:'#F5A890'},{n:'Warm Peach',h:'#F5C8A8'}],
-      tip:'Cameras love even skin tone and subtle highlights. Avoid shimmer on forehead — it photographs white.',
-      technique:['Foundation + concealer','Matte T-zone set','Ivory lids','Warm healthy blush','Satin nude lip'],
+    natural:{
+      name:'Camera-Ready Natural',
+      desc:'Enhanced features, camera-safe colours. Photogenic.',
+      foundation:[
+        {n:'Camera-Ready Base',h:'#F5D5C0'},{n:'Warm Match',h:'#E8B89A'},{n:'Honey Tone',h:'#D4A574'}
+      ],
+      lip:[
+        {n:'Soft Mauve Nude',h:'#D4949A'},{n:'Warm Peachy Nude',h:'#FFDAB9'},{n:'Coral Nude',h:'#FF7F50'}
+      ],
+      eye:[
+        {n:'Warm Champagne',h:'#F0E68C'},{n:'Light Bronze',h:'#D2B48C'},{n:'Soft Taupe',h:'#B8A8A0'}
+      ],
+      blush:[
+        {n:'Warm Flush',h:'#F08080'},{n:'Peach Shimmer',h:'#FFDAB9'},{n:'Coral Glow',h:'#FF6347'}
+      ],
+      technique:['Luminous primer','Enhance contour','Cream shadow','Generous blush for depth'],
+      tip:'Camera needs a bit of extra. SPF flashback avoidance is key. Warm shades photograph beautifully.'
     },
-    glam:{ name:'Editorial Glamour', desc:'High-fashion, shoot-ready impact',
-      lip:[{n:'Hot Coral',h:'#FF4F3B'},{n:'Classic Red',h:'#C0392B'},{n:'Deep Orange-Red',h:'#BB3300'}],
-      eye:[{n:'White Liner',h:'#F5F5F5'},{n:'Graphic Black',h:'#1A1A1A'},{n:'Gold Cap',h:'#D4A843'}],
-      blush:[{n:'Sculpted Brick',h:'#C06848'},{n:'Bronze Contour',h:'#A07040'}],
-      tip:'Go bolder than you think — cameras pull 20% of the look. Graphic liner and a bold lip photograph brilliantly.',
-      technique:['Full studio base','Graphic black liner','White waterline','Bold sculpted cheeks','Strong lip colour'],
+    glam:{
+      name:'Glamour Lens',
+      desc:'Editorial-ready. High-impact, magazine-quality.',
+      foundation:[
+        {n:'Luminous Pro Base',h:'#FFFACD'},{n:'Golden Radiance',h:'#FFD700'},{n:'Honey Glow',h:'#DAA520'}
+      ],
+      lip:[
+        {n:'Camera Red',h:'#DC143C'},{n:'Deep Plum',h:'#9932CC'},{n:'Rich Wine',h:'#722F37'}
+      ],
+      eye:[
+        {n:'Glamour Gold',h:'#FFD700'},{n:'Rich Burgundy',h:'#800020'},{n:'Deep Smoky Plum',h:'#8B008B'}
+      ],
+      blush:[
+        {n:'Photogenic Rose',h:'#FFB6D9'},{n:'Warm Coral Glow',h:'#FF7F50'},{n:'Peach Shimmer',h:'#FFDAB9'}
+      ],
+      technique:['Build in layers','Define every angle','Generous highlight','Structured shadows'],
+      tip:'The camera amplifies everything. Go bigger than you think. High contrast reads beautifully on film.'
     },
-    trendy:{ name:'Colour Story', desc:'Conceptual, fashion-forward, art-directed',
-      lip:[{n:'Electric Pink',h:'#FF2D78'},{n:'Neon Coral',h:'#FF6040'},{n:'Vivid Fuchsia',h:'#CC2088'}],
-      eye:[{n:'Sky Blue',h:'#8BBEDD'},{n:'Cobalt',h:'#0047AB'},{n:'Ice White',h:'#EEF0F2'}],
-      blush:[{n:'Sunset Orange',h:'#FF7040'},{n:'Vivid Pink',h:'#F05080'}],
-      tip:'For conceptual or fashion shoots only. One strong colour story — eyes or lips, never both.',
-      technique:['Clean canvas base','Bold colour block eye','No crease blend','Strong pigment blush','Statement lip'],
-    },
+    trendy:{
+      name:'Modern Editorial',
+      desc:'Artistic direction. Next-level creativity.',
+      foundation:[
+        {n:'Clean Canvas',h:'#E5D5C0'},{n:'Skin Match',h:'#D0A883'},{n:'Warm Canvas',h:'#C9956B'}
+      ],
+      lip:[
+        {n:'Statement Nude',h:'#8B7355'},{n:'Artistic Brick',h:'#A0522D'},{n:'Editorial Brown',h:'#654321'}
+      ],
+      eye:[
+        {n:'Matte Editorial Grey',h:'#A9A9A9'},{n:'Warm Charcoal',h:'#36454F'},{n:'Artistic Black',h:'#1C1C1C'}
+      ],
+      blush:[
+        {n:'Editorial Earth',h:'#D2B48C'},{n:'Artistic Warm',h:'#A0826D'},{n:'Subtle Contour',h:'#8B4513'}
+      ],
+      technique:['Geometric precision','Editorial lower liner','Matte finish','Unexpected accent'],
+      tip:'For the artist. Editorial choices stand out on camera. Bold geometrics + unexpected colour = memorable.'
+    }
   },
+
   'interview':{
-    natural:{ name:'Confident Classic', desc:'Trustworthy, polished, hire-me energy',
-      lip:[{n:'Soft Rosy Nude',h:'#C49090'},{n:'Natural Mauve',h:'#B07880'},{n:'Warm Blush',h:'#C8A0A0'}],
-      eye:[{n:'Cream Ivory',h:'#F5EEE0'},{n:'Warm Brown',h:'#8B6545'},{n:'Dark Liner',h:'#2A1A0A'}],
-      blush:[{n:'Natural Warmth',h:'#E8A880'},{n:'Subtle Peach',h:'#F5C8A0'}],
-      tip:'The rule: your interviewer should remember your words, not your makeup. This look commands attention, not distraction.',
-      technique:['Flawless matte base','Ivory lid highlight','Brown crease warm','Subtle natural blush','Rosy-nude lip'],
+    natural:{
+      name:'Confident Professional',
+      desc:'Polished, trustworthy, capable. In control.',
+      foundation:[
+        {n:'Professional Matte',h:'#F5D5C0'},{n:'Warm Neutral',h:'#E8B89A'},{n:'Honey Matte',h:'#D4A574'}
+      ],
+      lip:[
+        {n:'Professional Nude',h:'#D2B48C'},{n:'Muted Rose',h:'#D4949A'},{n:'Warm Mauve',h:'#C9A0A8'}
+      ],
+      eye:[
+        {n:'Warm Cream',h:'#F5DEB3'},{n:'Soft Taupe',h:'#B8A8A0'},{n:'Warm Brown',h:'#8B7355'}
+      ],
+      blush:[
+        {n:'Subtle Flush',h:'#F08080'},{n:'Natural Peach',h:'#FFDAB9'},{n:'Warm Rose',h:'#E0B8C8'}
+      ],
+      technique:['Matte finish','Define crease lightly','Precise brow','Subtle blush'],
+      tip:'Your skills are the star. Makeup should be invisible polish. Matte, warm, understated authority.'
     },
-    glam:{ name:'Executive Presence', desc:'Authority, polish, next-level credibility',
-      lip:[{n:'Classic Brick Red',h:'#B03020'},{n:'Deep Mahogany',h:'#8B2500'},{n:'Rich Plum',h:'#6B2248'}],
-      eye:[{n:'Smoked Taupe',h:'#9B8070'},{n:'Deep Mink',h:'#5C3C2A'},{n:'Charcoal Wing',h:'#36454F'}],
-      blush:[{n:'Cool Mauve',h:'#C09098'},{n:'Dusty Rose',h:'#C8A0A8'}],
-      tip:'Senior roles: a polished smoky eye and deep lip signals authority. This look says "I belong in the room".',
-      technique:['Perfected skin','Taupe smoked eye','Clean winged liner','Cool mauve sculpt','Deep authoritative lip'],
+    glam:{
+      name:'Power Move',
+      desc:'Commanding presence. You own this room.',
+      foundation:[
+        {n:'Radiant Base',h:'#FFFACD'},{n:'Golden Professional',h:'#FFD700'},{n:'Honey Glow',h:'#DAA520'}
+      ],
+      lip:[
+        {n:'Power Red',h:'#DC143C'},{n:'Deep Burgundy',h:'#722F37'},{n:'Rich Plum',h:'#8B008B'}
+      ],
+      eye:[
+        {n:'Warm Bronze',h:'#CD7F32'},{n:'Copper Authority',h:'#B87333'},{n:'Gold Power',h:'#DAA520'}
+      ],
+      blush:[
+        {n:'Structured Rose',h:'#FFB6D9'},{n:'Warm Coral',h:'#FF7F50'},{n:'Peach Confidence',h:'#FFDAB9'}
+      ],
+      technique:['Sculpted lid','Define crease sharply','Upper lid liner','Strong cheekbones'],
+      tip:'Show them you\'ve got this. A bold eye + structured lip = boardroom ready. Confidence in colour.'
     },
-    trendy:{ name:'Modern Professional', desc:'Industry-aware, contemporary, aspirational',
-      lip:[{n:'Warm Terracotta',h:'#CB6843'},{n:'Brick Nude',h:'#B8604A'},{n:'Earthy Mauve',h:'#B07868'}],
-      eye:[{n:'Sandy Beige',h:'#E8D5B0'},{n:'Warm Khaki',h:'#A09070'},{n:'Muted Moss',h:'#7A8A50'}],
-      blush:[{n:'Warm Terracotta',h:'#D0785A'},{n:'Brick Blush',h:'#C87060'}],
-      tip:'For creative industries, tech, and startup roles — shows personality without saying "look at my makeup".',
-      technique:['Natural skin finish','Earthy eye palette','Terracotta blush','Warm brick contour','Terracotta nude lip'],
-    },
+    trendy:{
+      name:'Next-Gen Professional',
+      desc:'Modern, artistic, forward-thinking. Fresh perspective.',
+      foundation:[
+        {n:'Satin Base',h:'#E5D5C0'},{n:'Natural Match',h:'#D0A883'},{n:'Warm Satin',h:'#C9956B'}
+      ],
+      lip:[
+        {n:'Modern Nude',h:'#C9A8A0'},{n:'Artistic Taupe',h:'#8B7355'},{n:'Warm Mauve',h:'#A0826D'}
+      ],
+      eye:[
+        {n:'Barely-There Nude',h:'#FFFACD'},{n:'Soft Greige',h:'#B8A8A0'},{n:'Warm Brown',h:'#8B7355'}
+      ],
+      blush:[
+        {n:'Subtle Contour',h:'#D2B48C'},{n:'Warm Mauve Blush',h:'#A0826D'},{n:'Soft Peach',h:'#F4A460'}
+      ],
+      technique:['Monochromatic eyes','Graphic brow','Minimal lid colour','Tinted lip'],
+      tip:'The minimalist wins the room. Precision and clarity read as competence. Quiet, confident authority.'
+    }
   },
-  'birthday':{
-    natural:{ name:'Birthday Girl Glow', desc:'Radiant, joyful, celebration-ready',
-      lip:[{n:'Birthday Pink',h:'#F090A8'},{n:'Raspberry Rose',h:'#D4608A'},{n:'Hot Fuchsia',h:'#F06090'}],
-      eye:[{n:'Disco Silver',h:'#C8C8DC'},{n:'Lavender',h:'#C8A8E8'},{n:'Deep Plum',h:'#6A3A7A'}],
-      blush:[{n:'Pink Flush',h:'#F09AB0'},{n:'Berry Glow',h:'#D08098'}],
-      tip:'Your birthday — go pink. Lavender-to-plum eye with birthday-pink lip is universally flattering.',
-      technique:['Luminous glow base','Lavender shimmer lid','Plum crease depth','Pink flush cheeks','Birthday pink lip'],
+
+  'date-night':{
+    natural:{
+      name:'Romantic Allure',
+      desc:'Soft, inviting, magnetic. Draw them in.',
+      foundation:[
+        {n:'Luminous Base',h:'#FFE4C4'},{n:'Warm Glow',h:'#F0E68C'},{n:'Honey Luminous',h:'#DAA520'}
+      ],
+      lip:[
+        {n:'Romantic Mauve',h:'#C9A0A8'},{n:'Soft Berry',h:'#8B0000'},{n:'Warm Burgundy',h:'#722F37'}
+      ],
+      eye:[
+        {n:'Champagne Romance',h:'#F0E68C'},{n:'Warm Taupe',h:'#B8A8A0'},{n:'Bronze Soft',h:'#D2B48C'}
+      ],
+      blush:[
+        {n:'Romantic Flush',h:'#F08080'},{n:'Warm Mauve Blush',h:'#D8A8A8'},{n:'Rose Glow',h:'#FFB6C1'}
+      ],
+      technique:['Shimmer lid','Soft smudged lower liner','Warm highlight','Natural blush'],
+      tip:'Romance is in the details. Soft, warm layers that invite connection. Mysterious but approachable.'
     },
-    glam:{ name:'Main Character Energy', desc:'It is your day. Look like it.',
-      lip:[{n:'Showstopper Red',h:'#CC1E2E'},{n:'Classic Rouge',h:'#B81C2C'},{n:'Cherry Red',h:'#A80C1C'}],
-      eye:[{n:'Champagne Gold',h:'#D4B860'},{n:'Rose Gold',h:'#B86E79'},{n:'Smoked Bronze',h:'#8B5E3C'}],
-      blush:[{n:'Rosy Drama',h:'#C07088'},{n:'Golden Bronze',h:'#C09040'}],
-      tip:'Main character energy on your birthday requires full glam. Champagne eye + red lip = forever iconic.',
-      technique:['Full glam base','Champagne gold lid','Rose gold shimmer','Rosy sculpted blush','Show-stopping red lip'],
-    },
-    trendy:{ name:'Euphoria Birthday', desc:'Bold, playful, completely yourself',
-      lip:[{n:'Neon Pink',h:'#FF1870'},{n:'Electric Fuchsia',h:'#F700FF'},{n:'Hot Magenta',h:'#E0006A'}],
-      eye:[{n:'Glitter',h:'#D4C870'},{n:'Graphic Colour',h:'#6060DC'},{n:'Neon Accent',h:'#39FF14'}],
-      blush:[{n:'Over-blush',h:'#F07090'},{n:'Graphic Blush',h:'#E050A0'}],
-      tip:'Euphoria-inspired. Bold graphic eye, over-done blush, statement lip. It is your birthday — break all the rules.',
-      technique:['Glass skin or glitter base','Bold graphic eye','Glitter corner accent','Over-done blush','Neon or glossy lip'],
-    },
+    glam:{
+      name:'Seduction Elegance',
+      desc:'Smoky, sultry, irresistible. Full drama.',
+      foundation:[
+        {n:'Flawless Glow',h:'#FFFACD'},{n:'Radiant Base',h:'#FFD700'},{n:'Honey Radiance',h:'#FFA500'}
+      ],
+      lip:[
+        {n:'Deep Red Velvet',h:'#8B0000'},{n:'Rich Plum',h:'#663399'},{n:'Burgundy Romance',h:'#800020'}
+      ],
+      eye:[
+        {n:'Smoky Charcoal',h:'#36454F'},{n:'Deep Plum Smoke',h:'#663399'},{n:'Rich Bronze',h:'#B87333'}
+      ],
+      blush:[
+        {n:'Sultry Rose',h:'#C71585'},{n:'Warm Coral Flush',h:'#FF6347'},{n:'Deep Peach',h:'#FF8C69'}
+      ],
+      technique:['Smoky eye','Defined crease','Upper + lower liner','Structured blush'],
+      tip:'Smoky eyes say: I\'m mysterious and confident. Pair with a deep lip for maximum magnetism.'
+    }
   },
+
   'festival':{
-    natural:{ name:'Sun-Kissed Festival', desc:'Bronzed, glowing, effortless outdoors',
-      lip:[{n:'Coral Gloss',h:'#FF8060'},{n:'Peachy Nude',h:'#E8A888'},{n:'Sun-Kissed Pink',h:'#E89078'}],
-      eye:[{n:'Warm Bronze',h:'#CD7F32'},{n:'Copper',h:'#B87333'},{n:'Tawny',h:'#9E6844'}],
-      blush:[{n:'Sun Flush',h:'#F5A060'},{n:'Warm Bronze',h:'#D48040'}],
-      tip:'Weatherproof your base — heat, sweat, and sun. Bronzer instead of blush, waterproof products throughout.',
-      technique:['Waterproof base','Bronze lid','Copper shimmer lid','Heavy bronzer not blush','Coral gloss lip'],
+    natural:{
+      name:'Festival Radiance',
+      desc:'Glowing, free-spirited, fun. Good-vibes energy.',
+      foundation:[
+        {n:'Glowing Base',h:'#FFE4C4'},{n:'Radiant Warm',h:'#F0E68C'},{n:'Golden Honey',h:'#DAA520'}
+      ],
+      lip:[
+        {n:'Fun Coral',h:'#FF7F50'},{n:'Happy Pink',h:'#FFB6C1'},{n:'Bright Peach',h:'#FFDAB9'}
+      ],
+      eye:[
+        {n:'Pearl Shimmer',h:'#FFFACD'},{n:'Golden Pearl',h:'#FFD700'},{n:'Warm Cream',h:'#F5DEB3'}
+      ],
+      blush:[
+        {n:'Happy Peach',h:'#FFDAB9'},{n:'Fun Coral',h:'#FF7F50'},{n:'Bright Pink',h:'#FFB6C1'}
+      ],
+      technique:['Generous shimmer','Playful inner corner','Full cheek blush','Glossy lip'],
+      tip:'Festival is about joy. Warm, shimmery, generous application. Let your natural glow shine.'
     },
-    glam:{ name:'Festival Icon', desc:'You will be photographed. Look like it.',
-      lip:[{n:'Holographic',h:'#C8A8E8'},{n:'Metallic Lilac',h:'#B890D8'},{n:'Electric Violet',h:'#8B00FF'}],
-      eye:[{n:'Rainbow Glitter',h:'#D4C870'},{n:'Holographic',h:'#C0B0E8'},{n:'Neon Any',h:'#00FF80'}],
-      blush:[{n:'Graphic Blush',h:'#F070B0'},{n:'Body Glitter',h:'#D4C870'}],
-      tip:'Festival glam goes where office makeup cannot. Glitter, bold colour, graphic moments. Bring a blotting sheet.',
-      technique:['Bold glitter base','Graphic liner','Body gems & glitter','Blush everywhere','Holographic or neon lip'],
+    glam:{
+      name:'Festival Glitter',
+      desc:'Sparkle central. Statement-making. Eye candy.',
+      foundation:[
+        {n:'Glitter Base',h:'#FFFACD'},{n:'Radiant Shimmer',h:'#FFD700'},{n:'Warm Glimmer',h:'#FFA500'}
+      ],
+      lip:[
+        {n:'Festival Red',h:'#FF0000'},{n:'Electric Pink',h:'#FF1493'},{n:'Hot Magenta',h:'#FF69B4'}
+      ],
+      eye:[
+        {n:'Gold Glitter Storm',h:'#FFD700'},{n:'Silver Sparkle Blast',h:'#C0C0C0'},{n:'Rainbow Glitter',h:'#FF00FF'}
+      ],
+      blush:[
+        {n:'Electric Pink',h:'#FF69B4'},{n:'Neon Coral',h:'#FF7F50'},{n:'Hot Peach',h:'#FFDAB9'}
+      ],
+      technique:['Glitter everywhere','Layer sparkle','Festival lashes','Maximum blush'],
+      tip:'Go BIG. Glitter, shine, maximum impact. Festivals are about expressing yourself freely. Own it.'
     },
-    trendy:{ name:'Indie Festival', desc:'Artsy, unique, just not mainstream',
-      lip:[{n:'Terracotta Gloss',h:'#CC7040'},{n:'Brick',h:'#B85530'},{n:'Warm Bronze',h:'#C07030'}],
-      eye:[{n:'Chocolate Brown',h:'#7B3F00'},{n:'Rust',h:'#B7410E'},{n:'Warm Burgundy',h:'#7B1C2E'}],
-      blush:[{n:'Terracotta',h:'#D07040'},{n:'Warm Brick',h:'#C06038'}],
-      tip:'Earthy, warm, editorial. Think: you found this look in an old magazine and made it your own.',
-      technique:['Earth tone skin','Chocolate lid','Rust outer V','Terracotta blush','Glossy terracotta lip'],
-    },
+    trendy:{
+      name:'Festival Minimal Chic',
+      desc:'Artistic twist on festival. Unconventional cool.',
+      foundation:[
+        {n:'Satin Base',h:'#E5D5C0'},{n:'Natural Match',h:'#D0A883'},{n:'Warm Satin',h:'#C9956B'}
+      ],
+      lip:[
+        {n:'Artistic Festival',h:'#A0522D'},{n:'Warm Nude Festival',h:'#8B7355'},{n:'Festival Brown',h:'#654321'}
+      ],
+      eye:[
+        {n:'Matte Taupe',h:'#B8A8A0'},{n:'Warm Charcoal',h:'#36454F'},{n:'Black Graphic',h:'#1C1C1C'}
+      ],
+      blush:[
+        {n:'Earth Festival',h:'#D2B48C'},{n:'Warm Brown Blush',h:'#A0826D'},{n:'Festival Terracotta',h:'#8B4513'}
+      ],
+      technique:['Graphic lower liner','Artistic eye placement','Monochromatic palette','Tonal layering'],
+      tip:'Stand out by being different. Artistic, graphic choices at a festival = instant cool factor.'
+    }
   },
+
   'gala':{
-    natural:{ name:'Gala Elegance', desc:'Old money, timeless, architectural',
-      lip:[{n:'Classic Nude',h:'#C8907A'},{n:'Antique Rose',h:'#C09080'},{n:'Soft Mauve',h:'#B08888'}],
-      eye:[{n:'Mink',h:'#5C4033'},{n:'Champagne',h:'#F5D5A0'},{n:'Deep Black',h:'#0A0A0A'}],
-      blush:[{n:'Cool Rose',h:'#C07888'},{n:'Sculpted',h:'#B07070'}],
-      tip:'Less is more. Architecturally perfect skin, precisely defined eye, confident lip. Nothing superfluous.',
-      technique:['Airbrushed skin','Mink precision eye','Clean wing liner','Sculpted cool rose blush','Nude-mauve satin lip'],
+    natural:{
+      name:'Gala Grace',
+      desc:'Elegant, elevated, timeless. Red carpet ready.',
+      foundation:[
+        {n:'Luxe Base',h:'#F5D5C0'},{n:'Elevated Warm',h:'#E8B89A'},{n:'Honey Elegance',h:'#D4A574'}
+      ],
+      lip:[
+        {n:'Elegant Nude',h:'#D2B48C'},{n:'Soft Mauve',h:'#C9A0A8'},{n:'Rose Elegance',h:'#FFB6C1'}
+      ],
+      eye:[
+        {n:'Champagne Elegance',h:'#F0E68C'},{n:'Warm Bronze Luxury',h:'#D2B48C'},{n:'Soft Taupe Gala',h:'#B8A8A0'}
+      ],
+      blush:[
+        {n:'Rose Flush',h:'#F08080'},{n:'Warm Peach Glow',h:'#FFDAB9'},{n:'Coral Elegance',h:'#FFB6C1'}
+      ],
+      technique:['Luminous primer','Soft shimmer lid','Warm highlight','Elegant blush'],
+      tip:'Gala elegance whispers instead of shouts. Warm, luminous, timeless. Let your gown be the star.'
     },
-    glam:{ name:'Grand Gala', desc:'You are the spectacle',
-      lip:[{n:'Opera Red',h:'#B80C2C'},{n:'Cranberry',h:'#9B2335'},{n:'Deep Bordeaux',h:'#7B1C2A'}],
-      eye:[{n:'Dramatic Smoke',h:'#2A2A3A'},{n:'Silver',h:'#C0C0C0'},{n:'Diamond Glitter',h:'#E8E0E8'}],
-      blush:[{n:'Cool Mauve Sculpt',h:'#B08090'},{n:'Silver Highlight',h:'#E0D8E8'}],
-      tip:'For galas, go fully committed. Half-done glamour looks unintentional. Full smoke + opera red is the standard.',
-      technique:['Perfected full-coverage base','Full dramatic smoke','Silver glitter cap','Architectural contour','Opera-red precise lip'],
+    glam:{
+      name:'Gala Glamour Icon',
+      desc:'Red carpet drama. Jewel-toned luxury. Showstopper.',
+      foundation:[
+        {n:'Luxe Glow',h:'#FFFACD'},{n:'Golden Luxury',h:'#FFD700'},{n:'Honey Opulence',h:'#DAA520'}
+      ],
+      lip:[
+        {n:'Gala Red',h:'#DC143C'},{n:'Deep Emerald Wine',h:'#800020'},{n:'Jewel Burgundy',h:'#722F37'}
+      ],
+      eye:[
+        {n:'Jewel Emerald',h:'#228B22'},{n:'Rich Sapphire Luxury',h:'#0F52BA'},{n:'Deep Plum Jewel',h:'#663399'}
+      ],
+      blush:[
+        {n:'Gala Rose',h:'#FFB6D9'},{n:'Warm Luxury Flush',h:'#FF7F50'},{n:'Deep Coral Gala',h:'#FF6347'}
+      ],
+      technique:['Full lid jewel tone','Defined crease','Wing liner optional','Structured blush'],
+      tip:'Jewel tones are MADE for galas. A rich emerald or sapphire eye paired with a bold lip = iconic.'
     },
-    trendy:{ name:'Avant-Garde Gala', desc:'Fashion-forward, gallery-worthy, deliberate',
-      lip:[{n:'Graphite',h:'#707070'},{n:'Deep Olive',h:'#556B2F'},{n:'Midnight Navy',h:'#1C2A4A'}],
-      eye:[{n:'Metallic Gold',h:'#D4A843'},{n:'Raw Umber',h:'#7A4A2A'},{n:'Matte White',h:'#F0F0F0'}],
-      blush:[{n:'Architectural Bronze',h:'#B07838'},{n:'Minimal',h:'#D4B890'}],
-      tip:'This is not a regular look. It is a statement. Unusual lip colour, graphic eye, deliberate. Own it completely.',
-      technique:['Perfected skin canvas','Graphic metallic eye','Deliberate liner architecture','Bronze sculpt only','Unexpected lip colour'],
-    },
+    trendy:{
+      name:'Gala Avant-Garde',
+      desc:'Artistic luxury. Unexpected elegance. Memorable.',
+      foundation:[
+        {n:'Refined Base',h:'#E5D5C0'},{n:'Luxury Match',h:'#D0A883'},{n:'Refined Warm',h:'#C9956B'}
+      ],
+      lip:[
+        {n:'Avant-Garde Nude',h:'#8B7355'},{n:'Luxury Brown-Rose',h:'#A0522D'},{n:'Artistic Burgundy',h:'#8B0000'}
+      ],
+      eye:[
+        {n:'Matte Charcoal Luxury',h:'#36454F'},{n:'Deep Taupe Avant',h:'#B8A8A0'},{n:'Artistic Black',h:'#1C1C1C'}
+      ],
+      blush:[
+        {n:'Refined Contour',h:'#D2B48C'},{n:'Luxury Warm Mauve',h:'#A0826D'},{n:'Artistic Terracotta',h:'#8B4513'}
+      ],
+      technique:['Monochromatic luxury','Precise graphic','Editorial placement','Unexpected accent'],
+      tip:'True elegance is unexpected. Avant-garde choices show confidence. Artistic + luxurious = memorable.'
+    }
   },
+
   'wedding-bride':{
-    natural:{ name:'Timeless Bride', desc:'Classic, effortless, you on your best day',
-      lip:[{n:'Your Lips Perfect',h:'#C8908A'},{n:'Soft Bridal Rose',h:'#D4A0A0'},{n:'Petal',h:'#E8B8B8'}],
-      eye:[{n:'Champagne',h:'#F5D5A0'},{n:'Rose Gold',h:'#C8A0A0'},{n:'Soft Brown',h:'#8B6545'}],
-      blush:[{n:'Bridal Flush',h:'#F5C0C0'},{n:'Peach Glow',h:'#F5D0B0'}],
-      tip:'Bridal makeup must last 12 hours. Primer, setting powder, setting spray. Waterproof mascara is non-negotiable.',
-      technique:['Primer & long-wear base','Champagne shimmer lid','Rose gold definition','Soft bridal flush','MLBB satin lip'],
+    natural:{
+      name:'Bride\'s Radiant Beauty',
+      desc:'Luminous, romantic, timeless. YOU are the star.',
+      foundation:[
+        {n:'Bridal Luminous',h:'#F5D5C0'},{n:'Bride\'s Glow',h:'#E8B89A'},{n:'Honey Radiance',h:'#D4A574'}
+      ],
+      lip:[
+        {n:'Bride\'s Rose',h:'#FFB6C1'},{n:'Soft Romance Nude',h:'#D2B48C'},{n:'Warm Blush Bride',h:'#FFB6D9'}
+      ],
+      eye:[
+        {n:'Bridal Pearl',h:'#FFFACD'},{n:'Warm Bride Gold',h:'#F0E68C'},{n:'Soft Cream Bride',h:'#F5DEB3'}
+      ],
+      blush:[
+        {n:'Bride\'s Flush',h:'#FFB6C1'},{n:'Romantic Peach',h:'#FFDAB9'},{n:'Warm Rose Bride',h:'#FFB6D9'}
+      ],
+      technique:['Luminous primer','Shimmery lid','Warm inner corner','Generous blush for camera'],
+      tip:'Your wedding day is YOURS. Luminous, warm, romantic. You\'ll glow in every photo.'
     },
-    glam:{ name:'Bridal Icon', desc:'Every photo, every angle, flawless',
-      lip:[{n:'Classic Bridal Red',h:'#B01C2C'},{n:'Deep Rose',h:'#9B3C5A'},{n:'Berry Bridal',h:'#8B2A4A'}],
-      eye:[{n:'Drama Brown',h:'#5C3A28'},{n:'Deep Copper',h:'#8B4513'},{n:'Smoked Lid',h:'#3B2318'}],
-      blush:[{n:'Bridal Sculpt',h:'#C09090'},{n:'Warm Bronze',h:'#C09060'}],
-      tip:'Bridal glam requires professional-grade products. Satin finish, not matte. You will be photographed all day.',
-      technique:['Studio-grade foundation','Drama eye build-up','Deep copper crease','Satin sculpted cheeks','Classic bridal lip'],
+    glam:{
+      name:'Bride Glamorous',
+      desc:'Bold romance. Jewel tones meet bridal elegance. Unforgettable.',
+      foundation:[
+        {n:'Bridal Glow Luxury',h:'#FFFACD'},{n:'Bride\'s Golden Base',h:'#FFD700'},{n:'Bridal Honey',h:'#FFA500'}
+      ],
+      lip:[
+        {n:'Bride\'s Deep Rose',h:'#C71585'},{n:'Romantic Wine',h:'#722F37'},{n:'Bridal Berry',h:'#8B0000'}
+      ],
+      eye:[
+        {n:'Bride\'s Rose Gold',h:'#B76E79'},{n:'Bridal Copper Shimmer',h:'#B87333'},{n:'Bride\'s Champagne Glam',h:'#FFD700'}
+      ],
+      blush:[
+        {n:'Bride\'s Flush Glow',h:'#FFB6D9'},{n:'Romantic Coral',h:'#FF7F50'},{n:'Bridal Peach Shimmer',h:'#FFDAB9'}
+      ],
+      technique:['Shimmery romantic lid','Soft crease blend','Highlight cheekbones','Generous blush'],
+      tip:'Bridal glamour: Romance + drama. A rose gold eye paired with a deeper lip says: "I\'m radiant AND bold."'
     },
-    trendy:{ name:'Modern Bride', desc:'Intentional, contemporary, your rules',
-      lip:[{n:'Terracotta Bride',h:'#C87848'},{n:'Clay Nude',h:'#C07858'},{n:'Warm Sienna',h:'#B86840'}],
-      eye:[{n:'Warm Bronze',h:'#C08040'},{n:'Ginger',h:'#B07840'},{n:'Ochre',h:'#C8A020'}],
-      blush:[{n:'Warm Terracotta',h:'#D08050'},{n:'Sunset Bronze',h:'#C88040'}],
-      tip:'Terracotta bridal is having a major moment. Warm, earthy, beautiful in natural light and photography.',
-      technique:['Luminous satin skin','Bronze eye build','Terracotta crease','Warm flushed cheeks','Terracotta-clay lip'],
-    },
-  },
+    trendy:{
+      name:'Modern Bride',
+      desc:'Editorial elegance. Artistic bride. Unexpected chic.',
+      foundation:[
+        {n:'Refined Bridal',h:'#E5D5C0'},{n:'Modern Bride Match',h:'#D0A883'},{n:'Bridal Warm',h:'#C9956B'}
+      ],
+      lip:[
+        {n:'Modern Bride Nude',h:'#C9A8A0'},{n:'Artistic Bride Taupe',h:'#8B7355'},{n:'Bride\'s Warm Mauve',h:'#A0826D'}
+      ],
+      eye:[
+        {n:'Bridal Barely-There',h:'#FFFACD'},{n:'Soft Bride Greige',h:'#B8A8A0'},{n:'Modern Bride Brown',h:'#8B7355'}
+      ],
+      blush:[
+        {n:'Refined Bride Glow',h:'#D2B48C'},{n:'Modern Bride Warm',h:'#A0826D'},{n:'Artistic Bride Peach',h:'#F4A460'}
+      ],
+      technique:['Monochromatic modern','Precise brow','Minimal lid colour','Editorial lip'],
+      tip:'Modern bride energy: Quiet confidence. Minimalist editorial makeup says: "I know who I am." Timeless + now.'
+    }
+  }
 };
 
-// ── TONE VARIANTS (replacement for SKIN_MODS) ──────────────────────
-const TONE_VARIANTS = {
-fair: {
-  label: 'FAIR SKIN',
-  note: 'Fair skin: soft rosy, petal, champagne and cool pink tones usually look fresh and balanced.',
-  lipPrefix: 'Petal', eyePrefix: 'Champagne', blushPrefix: 'Soft Rose',
-  namePrefix: 'Soft Petal', descTag: 'cool-toned, delicate finish',
-  accentHex: '#F2C8C8', accentText: '#8B5E5E',
-  brighten: 18, warm: -4, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
-},
-light: {
-  label: 'LIGHT SKIN',
-  note: 'Light skin: peach, warm nude and champagne tones add gentle warmth without overpowering.',
-  lipPrefix: 'Warm Nude', eyePrefix: 'Soft Gold', blushPrefix: 'Peach Rose',
-  namePrefix: 'Warm Peach', descTag: 'peachy-warm, sun-kissed glow',
-  accentHex: '#E9A890', accentText: '#7A4A30',
-  brighten: 10, warm: 6, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
-},
-medium: {
-  label: 'MEDIUM SKIN',
-  note: 'Medium skin: warm rose, caramel, terracotta and golden tones usually look especially flattering.',
-  lipPrefix: 'Warm Rose', eyePrefix: 'Golden', blushPrefix: 'Apricot Rose',
-  namePrefix: 'Golden Rose', descTag: 'warm terracotta-rose tones',
-  accentHex: '#C97878', accentText: '#fff',
-  brighten: 2, warm: 14, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
-},
-tan: {
-  label: 'TAN SKIN',
-  note: 'Tan skin: richer peach, bronze, brick and warm gold tones create depth beautifully.',
-  lipPrefix: 'Caramel', eyePrefix: 'Bronze Gold', blushPrefix: 'Warm Coral',
-  namePrefix: 'Bronzed', descTag: 'warm caramel and bronze depth',
-  accentHex: '#C27850', accentText: '#fff',
-  brighten: -4, warm: 18, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
-},
-deep: {
-  label: 'DEEP SKIN',
-  note: 'Deep skin: berry, terracotta, bronze, rich gold and espresso tones bring the most impact.',
-  lipPrefix: 'Berry Rose', eyePrefix: 'Rich Bronze', blushPrefix: 'Burnt Rose',
-  namePrefix: 'Rich Berry', descTag: 'deep berry and espresso drama',
-  accentHex: '#8C305A', accentText: '#fff',
-  brighten: -10, warm: 22, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
-},
-rich: {
-  label: 'RICH SKIN',
-  note: 'Rich skin: deep plum, mahogany, copper, espresso and molten gold tones are especially striking.',
-  lipPrefix: 'Mahogany', eyePrefix: 'Molten Gold', blushPrefix: 'Terracotta Berry',
-  namePrefix: 'Mahogany', descTag: 'molten gold and deep plum opulence',
-  accentHex: '#721830', accentText: '#fff',
-  brighten: -16, warm: 26, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
-},
+// ═══════════════════════════════════════════════════════
+// TONE-SPECIFIC PRODUCT MATCHES (foundation, lip brand)
+// ═══════════════════════════════════════════════════════
+const TONE_PRODUCT_MATCHES={
+  fair:{
+    natural:{base:{emoji:'🧴',brand:'Fenty Beauty',name:'Pro Filt\'r',aff:'#'},lip:{emoji:'💄',brand:'MAC',name:'Velvet Teddy',aff:'#'},eye:{emoji:'✨',brand:'Urban Decay',name:'Naked Palette',aff:'#'},blush:{emoji:'🌸',brand:'NARS',name:'Blush',aff:'#'}},
+    glam:{base:{emoji:'🧴',brand:'Charlotte Tilbury',name:'Magic Cream',aff:'#'},lip:{emoji:'💄',brand:'Dior',name:'Rouge Dior',aff:'#'},eye:{emoji:'✨',brand:'Miu Miu Beauty',name:'Eyeshadow',aff:'#'},blush:{emoji:'🌸',brand:'Chanel',name:'Joues Contraste',aff:'#'}},
+    trendy:{base:{emoji:'🧴',brand:'Glossier',name:'G Suit',aff:'#'},lip:{emoji:'💄',brand:'Rare Beauty',name:'Soft Pinch',aff:'#'},eye:{emoji:'✨',brand:'Tower 28',name:'BeachPlease Bronzer',aff:'#'},blush:{emoji:'🌸',brand:'Milk Makeup',name:'Cream Blush',aff:'#'}}
+  },
+  light:{
+    natural:{base:{emoji:'🧴',brand:'Estée Lauder',name:'Double Wear',aff:'#'},lip:{emoji:'💄',brand:'Charlotte Tilbury',name:'Red Carpet Red',aff:'#'},eye:{emoji:'✨',brand:'MAC',name:'Vanilla',aff:'#'},blush:{emoji:'🌸',brand:'Bobbi Brown',name:'Blush',aff:'#'}},
+    glam:{base:{emoji:'🧴',brand:'Tom Ford',name:'Traceless Foundation',aff:'#'},lip:{emoji:'💄',brand:'MAC',name:'Ruby Woo',aff:'#'},eye:{emoji:'✨',brand:'Jaclyn Cosmetics',name:'Eyeshadow Palette',aff:'#'},blush:{emoji:'🌸',brand:'Natasha Denona',name:'Blush',aff:'#'}},
+    trendy:{base:{emoji:'🧴',brand:'Maybelline',name:'Fit Me',aff:'#'},lip:{emoji:'💄',brand:'NYX',name:'Copenhagen',aff:'#'},eye:{emoji:'✨',brand:'e.l.f.',name:'Eyeshadow',aff:'#'},blush:{emoji:'🌸',brand:'Flower Beauty',name:'Blush',aff:'#'}}
+  },
+  medium:{
+    natural:{base:{emoji:'🧴',brand:'Black Up',name:'Face Foundation',aff:'#'},lip:{emoji:'💄',brand:'MAC',name:'Brick',aff:'#'},eye:{emoji:'✨',brand:'Fenty Beauty',name:'Pro Filt\'r Eye',aff:'#'},blush:{emoji:'🌸',brand:'NARS',name:'Orgasm',aff:'#'}},
+    glam:{base:{emoji:'🧴',brand:'Fenty Beauty',name:'Pro Filt\'r',aff:'#'},lip:{emoji:'💄',brand:'Pat McGrath',name:'MatteTrance',aff:'#'},eye:{emoji:'✨',brand:'Anastasia Beverly Hills',name:'Modern Renaissance',aff:'#'},blush:{emoji:'🌸',brand:'MAC',name:'Have A Blast',aff:'#'}},
+    trendy:{base:{emoji:'🧴',brand:'Revlon',name:'ColorStay',aff:'#'},lip:{emoji:'💄',brand:'Rihanna Fenty Beauty',name:'Stunna Lip',aff:'#'},eye:{emoji:'✨',brand:'Tarteist',name:'Palette',aff:'#'},blush:{emoji:'🌸',brand:'Milani',name:'Baked Blush',aff:'#'}}
+  },
+  tan:{
+    natural:{base:{emoji:'🧴',brand:'MAC',name:'Face & Body',aff:'#'},lip:{emoji:'💄',brand:'Bobbi Brown',name:'Nude',aff:'#'},eye:{emoji:'✨',brand:'Estée Lauder',name:'Bronze',aff:'#'},blush:{emoji:'🌸',brand:'Clinique',name:'Peach Pop',aff:'#'}},
+    glam:{base:{emoji:'🧴',brand:'Fenty Beauty',name:'Pro Filt\'r',aff:'#'},lip:{emoji:'💄',brand:'Kylie Cosmetics',name:'Lip Kit',aff:'#'},eye:{emoji:'✨',brand:'Huda Beauty',name:'Rose Gold',aff:'#'},blush:{emoji:'🌸',brand:'Too Faced',name:'Peach',aff:'#'}},
+    trendy:{base:{emoji:'🧴',brand:'Neutrogena',name:'Hydro Boost',aff:'#'},lip:{emoji:'💄',brand:'Grind & Co',name:'Lipstick',aff:'#'},eye:{emoji:'✨',brand:'Wet n Wild',name:'MegaLiner',aff:'#'},blush:{emoji:'🌸',brand:'Physician\'s Formula',name:'Blush',aff:'#'}}
+  },
+  deep:{
+    natural:{base:{emoji:'🧴',brand:'Black Up',name:'Face Foundation',aff:'#'},lip:{emoji:'💄',brand:'MAC',name:'Ruby Woo',aff:'#'},eye:{emoji:'✨',brand:'Fenty Beauty',name:'Eye Primer',aff:'#'},blush:{emoji:'🌸',brand:'NARS',name:'Heat Wave',aff:'#'}},
+    glam:{base:{emoji:'🧴',brand:'Fenty Beauty',name:'Pro Filt\'r',aff:'#'},lip:{emoji:'💄',brand:'Rihanna Fenty',name:'Stunna Lip',aff:'#'},eye:{emoji:'✨',brand:'Pat McGrath',name:'Eyeshadow',aff:'#'},blush:{emoji:'🌸',brand:'MAC',name:'Cheeky Bronze',aff:'#'}},
+    trendy:{base:{emoji:'🧴',brand:'Revlon',name:'ColorStay',aff:'#'},lip:{emoji:'💄',brand:'NYX',name:'Lip Lingerie',aff:'#'},eye:{emoji:'✨',brand:'Black Opal',name:'Eyeshadow',aff:'#'},blush:{emoji:'🌸',brand:'Mented',name:'Blush',aff:'#'}}
+  },
+  rich:{
+    natural:{base:{emoji:'🧴',brand:'Black Up',name:'Face Foundation',aff:'#'},lip:{emoji:'💄',brand:'MAC',name:'Ruby',aff:'#'},eye:{emoji:'✨',brand:'Fenty Beauty',name:'Shimmer',aff:'#'},blush:{emoji:'🌸',brand:'NARS',name:'Heat Wave',aff:'#'}},
+    glam:{base:{emoji:'🧴',brand:'Fenty Beauty',name:'Pro Filt\'r',aff:'#'},lip:{emoji:'💄',brand:'MAC',name:'Diva',aff:'#'},eye:{emoji:'✨',brand:'Anastasia Beverly Hills',name:'Prism',aff:'#'},blush:{emoji:'🌸',brand:'MAC',name:'Please Me',aff:'#'}},
+    trendy:{base:{emoji:'🧴',brand:'Revlon',name:'ColorStay',aff:'#'},lip:{emoji:'💄',brand:'Mented',name:'Lipstick',aff:'#'},eye:{emoji:'✨',brand:'Black Opal',name:'Eyeshadow Palette',aff:'#'},blush:{emoji:'🌸',brand:'Mented',name:'Blush',aff:'#'}}
+  }
 };
 
-// ── TONE PALETTES — explicit curated colours per skin tone ──────────
-// Index 0 is ALWAYS the primary/recommended shade (aligns with preferredIdx=0).
-const TONE_PALETTES = {
-  fair: {
-    foundation:['#F7E4D0','#F0D5B8','#EBC9A0'],  // Porcelain, Ivory, Warm Beige
-    lip:  ['#F2C8C8','#EDB4B4','#FAE0E0'],        // primary: petal pink
-    eye:  ['#EAD9C2','#D4C8B8','#DDD3C8'],        // primary: champagne
-    blush:['#F2D4D4','#FAE6E6'],                  // primary: petal rose
-  },
-  light: {
-    foundation:['#E8C898','#DDB878','#D4AA68'],   // Sandy Beige, Warm Ivory, Golden
-    lip:  ['#E9A890','#D8907A','#F2B8A0'],        // primary: peachy nude
-    eye:  ['#CCAF7C','#DCC090','#BAA06A'],        // primary: soft gold
-    blush:['#F0B898','#E8A880'],                  // primary: peach glow
-  },
-  medium: {
-    foundation:['#C08840','#B07830','#A06820'],   // Honey, Warm Tan, Caramel
-    lip:  ['#B96860','#C97878','#DA8888'],        // primary: terracotta rose (was idx 1)
-    eye:  ['#B89030','#C8A040','#A28030'],        // primary: golden brown
-    blush:['#E29068','#D28058'],                  // primary: apricot
-  },
-  tan: {
-    foundation:['#9A6028','#8A5018','#7A4010'],   // Warm Tan, Bronze, Caramel Tan
-    lip:  ['#C27850','#AB6840','#916038'],        // primary: brick rose (was idx 1)
-    eye:  ['#CA8838','#B87828','#A26820'],        // primary: warm copper (was idx 1)
-    blush:['#C27840','#B06830'],                  // primary: warm coral
-  },
-  deep: {
-    foundation:['#6A3018','#5A2210','#4A1808'],   // Espresso, Chestnut, Mahogany
-    lip:  ['#8C305A','#7A2848','#62183A'],        // primary: wine berry (was idx 2)
-    eye:  ['#9C6022','#8C5012','#7C4002'],        // primary: espresso bronze (was idx 1)
-    blush:['#722830','#8A3840'],                  // primary: deep mulberry (was idx 1)
-  },
-  rich: {
-    foundation:['#3A1808','#2A1005','#4A1808'],   // Ebony, Deep Cocoa, Mahogany
-    lip:  ['#721830','#621030','#4C0820'],        // primary: claret (was idx 2)
-    eye:  ['#DAA010','#CA9000','#BA8000'],        // primary: molten gold (was idx 2)
-    blush:['#6C1510','#822018'],                  // primary: deep brick (was idx 1)
-  },
-};
-
-function clamp(v,min,max){ return Math.max(min,Math.min(max,v)); }
-
-function rewriteTechniqueStep(step,toneId){
-  let out=step;
-  if(toneId==='fair'){
-    out=out.replace(/bronze/gi,'rose gold').replace(/terracotta/gi,'peach rose').replace(/copper/gi,'champagne');
-  }
-  if(toneId==='light'){
-    out=out.replace(/deep berry/gi,'warm rose').replace(/bronze/gi,'soft bronze');
-  }
-  if(toneId==='medium'){
-    out=out.replace(/champagne/gi,'golden champagne').replace(/peach/gi,'apricot peach');
-  }
-  if(toneId==='tan'){
-    out=out.replace(/champagne/gi,'warm gold').replace(/pink/gi,'coral rose').replace(/taupe/gi,'bronzed taupe');
-  }
-  if(toneId==='deep'){
-    out=out.replace(/champagne/gi,'rich gold').replace(/soft brown/gi,'espresso brown').replace(/pink/gi,'berry rose').replace(/peach/gi,'burnt peach');
-  }
-  if(toneId==='rich'){
-    out=out.replace(/champagne/gi,'molten gold').replace(/soft brown/gi,'deep espresso').replace(/bronze/gi,'dark bronze').replace(/pink/gi,'mahogany rose').replace(/peach/gi,'terracotta peach');
-  }
-  return out;
-}
-
-function buildToneSwatches(swatches,toneId,category){
-  // Keep the occasion-specific BASE_LOOKS colours as-is.
-  // Tone personalisation comes from name/desc/toneNote/foundation/accentHex/products —
-  // not from blindly replacing every look's eye/lip/blush with fixed palette colours.
-  return swatches.map(s=>({n:s.n, h:s.h}));
-}
-
-function tonePreferredIndex(swatches,toneId,category){
-  const tone=TONE_VARIANTS[toneId]||TONE_VARIANTS.medium;
-  const raw=category==='lip'?tone.lipIdx:category==='eye'?tone.eyeIdx:tone.blushIdx;
-  return Math.min(raw,swatches.length-1);
-}
-
-function buildToneLook(baseLook,toneId){
-  if(!baseLook) return null;
-  const lip=buildToneSwatches(baseLook.lip||[],toneId,'lip');
-  const eye=buildToneSwatches(baseLook.eye||[],toneId,'eye');
-  const blush=buildToneSwatches(baseLook.blush||[],toneId,'blush');
-  const tone=TONE_VARIANTS[toneId]||TONE_VARIANTS.medium;
-  // Foundation: tone-matched shades with named labels
-  const foundationPalette=(TONE_PALETTES[toneId]||{}).foundation||['#C08040','#B07030','#A06820'];
-  const foundationNames=['Perfect Match','Warm Undertone','Cool Undertone'];
-  const foundation=foundationPalette.map((h,i)=>({n:i===0?`${tone.label.split(' ')[0]} Base`:foundationNames[i],h}));
-  return{
-    ...baseLook,
-    name:`${tone.namePrefix} ${baseLook.name}`,
-    desc:`${baseLook.desc} — ${tone.descTag}`,
-    lip, eye, blush, foundation,
-    preferred:{
-      lip:tonePreferredIndex(lip,toneId,'lip'),
-      eye:tonePreferredIndex(eye,toneId,'eye'),
-      blush:tonePreferredIndex(blush,toneId,'blush'),
-    },
-    technique:(baseLook.technique||[]).map(step=>rewriteTechniqueStep(step,toneId)),
-    toneNote:tone.note,
-    toneLabel:tone.label,
-    accentHex:tone.accentHex,
-    accentText:tone.accentText,
-  };
-}
-
-function buildRecommendations(){
-  const recs={};
-  // RECS[toneId][occId][lookKey] — tone first, then occasion (Genspark structure)
-  Object.keys(TONE_VARIANTS).forEach(toneId=>{
-    recs[toneId]={};
-    Object.keys(BASE_LOOKS).forEach(occId=>{
-      recs[toneId][occId]={};
+// ═══════════════════════════════════════════════════════
+// BUILD RECS: Transform BASE_LOOKS + TONE_PRODUCTS into RECS
+// ═══════════════════════════════════════════════════════
+function buildRecs(){
+  const RECS={};
+  SKIN_TONES.forEach(tone=>{
+    RECS[tone.id]={};
+    Object.entries(BASE_LOOKS).forEach(([occId, looks])=>{
+      RECS[tone.id][occId]={};
       ['natural','glam','trendy'].forEach(lookKey=>{
-        const base=BASE_LOOKS[occId][lookKey];
-        if(base) recs[toneId][occId][lookKey]=buildToneLook(base,toneId);
+        if(looks[lookKey]){
+          const baseLook=looks[lookKey];
+          RECS[tone.id][occId][lookKey]={
+            name:baseLook.name,
+            desc:baseLook.desc,
+            foundation:baseLook.foundation,
+            lip:baseLook.lip,
+            eye:baseLook.eye,
+            blush:baseLook.blush,
+            technique:baseLook.technique,
+            tip:baseLook.tip
+          };
+        }
       });
     });
   });
-  return recs;
+  return RECS;
 }
 
-const RECS=buildRecommendations();
+const RECS=buildRecs();
 
-// ── PRODUCT DATABASE ────────────────────────────────────────────
-const PRODUCTS = {
-  lip_natural:[
-    {emoji:'💄',brand:'Charlotte Tilbury',name:'Pillow Talk Lipstick',price:'£30',cat:'lips',aff:'https://bit.ly/ct-pillowtalk'},
-    {emoji:'💄',brand:'NARS',name:'Satin Lip Pencil — Rikugien',price:'£22',cat:'lips',aff:'https://bit.ly/nars-lip'},
-    {emoji:'💋',brand:'Rare Beauty',name:'Kind Words Lip Liner — Fearless',price:'£16',cat:'lips',aff:'https://bit.ly/rb-kindwords'},
-    {emoji:'✨',brand:'e.l.f.',name:'Lip Gloss — Nude',price:'£8',cat:'lips',aff:'https://bit.ly/elf-gloss'},
-  ],
-  lip_glam:[
-    {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Ruby Woo',price:'£22',cat:'lips',aff:'https://bit.ly/mac-ruby'},
-    {emoji:'💄',brand:'Charlotte Tilbury',name:'Walk of No Shame',price:'£30',cat:'lips',aff:'https://bit.ly/ct-walkofnoshame'},
-    {emoji:'💋',brand:'NARS',name:'Audacious Lipstick — Rita',price:'£28',cat:'lips',aff:'https://bit.ly/nars-audacious'},
-    {emoji:'💄',brand:'Dior',name:'Rouge Dior — 999',price:'£36',cat:'lips',aff:'https://bit.ly/dior-999'},
-  ],
-  lip_trendy:[
-    {emoji:'💄',brand:'Fenty Beauty',name:'Stunna Lip Paint — Uncensored',price:'£24',cat:'lips',aff:'https://bit.ly/fenty-stunna'},
-    {emoji:'💄',brand:'Rare Beauty',name:'Soft Pinch Tinted Lip Oil',price:'£20',cat:'lips',aff:'https://bit.ly/rb-lipoil'},
-    {emoji:'💋',brand:'e.l.f.',name:'O Face Satin Lipstick — Cozy',price:'£9',cat:'lips',aff:'https://bit.ly/elf-oface'},
-    {emoji:'💄',brand:'NYX',name:'Shine Loud Lip Colour',price:'£11',cat:'lips',aff:'https://bit.ly/nyx-shine'},
-  ],
-  eye_natural:[
-    {emoji:'👁️',brand:'Urban Decay',name:'Naked3 Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-naked3'},
-    {emoji:'🪄',brand:'Charlotte Tilbury',name:'The Sophisticate Palette',price:'£45',cat:'eyes',aff:'https://bit.ly/ct-sophist'},
-    {emoji:'👁️',brand:'Too Faced',name:'Natural Eyes Palette',price:'£38',cat:'eyes',aff:'https://bit.ly/tf-natural'},
-    {emoji:'🖊️',brand:'Benefit',name:'BADgal BANG Mascara',price:'£26',cat:'eyes',aff:'https://bit.ly/benefit-bang'},
-  ],
-  eye_glam:[
-    {emoji:'👁️',brand:'Urban Decay',name:'Naked Smoky Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-smoky'},
-    {emoji:'👁️',brand:'Anastasia Beverly Hills',name:'Norvina Palette',price:'£42',cat:'eyes',aff:'https://bit.ly/abh-norvina'},
-    {emoji:'🖊️',brand:'Charlotte Tilbury',name:'Rock \'N\' Kohl Liner',price:'£20',cat:'eyes',aff:'https://bit.ly/ct-kohl'},
-    {emoji:'🪄',brand:'NARS',name:'Climax Mascara',price:'£22',cat:'eyes',aff:'https://bit.ly/nars-climax'},
-  ],
-  eye_trendy:[
-    {emoji:'👁️',brand:'Fenty Beauty',name:'Snap Shadows Palette',price:'£30',cat:'eyes',aff:'https://bit.ly/fenty-snap'},
-    {emoji:'🖊️',brand:'e.l.f.',name:'Camo Liquid Liner',price:'£8',cat:'eyes',aff:'https://bit.ly/elf-liner'},
-    {emoji:'👁️',brand:'NYX',name:'Ultimate Shadow Palette',price:'£18',cat:'eyes',aff:'https://bit.ly/nyx-ultimate'},
-    {emoji:'✨',brand:'Morphe',name:'James Charles Palette',price:'£35',cat:'eyes',aff:'https://bit.ly/morphe-jc'},
-  ],
-  blush:[
-    {emoji:'🌸',brand:'NARS',name:'Blush — Orgasm',price:'£28',cat:'blush',aff:'https://bit.ly/nars-orgasm'},
-    {emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Joy',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
-    {emoji:'🌸',brand:'Charlotte Tilbury',name:'Cheek to Chic — Pillow Talk',price:'£35',cat:'blush',aff:'https://bit.ly/ct-cheek'},
-    {emoji:'🌸',brand:'e.l.f.',name:'Putty Blush — Turks & Caicos',price:'£9',cat:'blush',aff:'https://bit.ly/elf-blush'},
-  ],
-  base:[
-    {emoji:'🧴',brand:'Charlotte Tilbury',name:'Airbrush Flawless Foundation',price:'£36',cat:'base',aff:'https://bit.ly/ct-airbrush'},
-    {emoji:'🧴',brand:'NARS',name:'Sheer Glow Foundation',price:'£38',cat:'base',aff:'https://bit.ly/nars-sheerglow'},
-    {emoji:'✨',brand:'Rare Beauty',name:'Positive Light Tinted Moisturiser',price:'£28',cat:'base',aff:'https://bit.ly/rb-tinted'},
-    {emoji:'🧴',brand:'Fenty Beauty',name:'Pro Filt\'r Foundation',price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-  ],
-};
-
-// ── TONE-SPECIFIC PRODUCT MATCHES ──────────────────────────────────
-// Each tone gets different product recommendations that suit their palette.
-const TONE_PRODUCT_MATCHES = {
-  fair: {
-    natural: {
-      base: {emoji:'🧴',brand:'Charlotte Tilbury',name:'Airbrush Flawless Foundation',price:'£36',cat:'base',aff:'https://bit.ly/ct-airbrush'},
-      lip:  {emoji:'💄',brand:'Charlotte Tilbury',name:'Pillow Talk Lipstick',price:'£30',cat:'lips',aff:'https://bit.ly/ct-pillowtalk'},
-      eye:  {emoji:'👁️',brand:'Urban Decay',name:'Naked3 Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-naked3'},
-      blush:{emoji:'🌸',brand:'NARS',name:'Blush — Orgasm',price:'£28',cat:'blush',aff:'https://bit.ly/nars-orgasm'},
-    },
-    glam: {
-      base: {emoji:'🧴',brand:'Armani Beauty',name:'Luminous Silk Foundation',price:'£46',cat:'base',aff:'https://bit.ly/armani-silk'},
-      lip:  {emoji:'💄',brand:'Charlotte Tilbury',name:'Walk of No Shame Lipstick',price:'£30',cat:'lips',aff:'https://bit.ly/ct-nowalk'},
-      eye:  {emoji:'👁️',brand:'Charlotte Tilbury',name:'Sophisticate Eye Palette',price:'£45',cat:'eyes',aff:'https://bit.ly/ct-soph'},
-      blush:{emoji:'🌸',brand:'Charlotte Tilbury',name:'Cheek to Chic — Pillow Talk',price:'£35',cat:'blush',aff:'https://bit.ly/ct-cheek'},
-    },
-    trendy: {
-      base: {emoji:'🧴',brand:'Rare Beauty',name:'Positive Light Tinted Moisturiser',price:'£28',cat:'base',aff:'https://bit.ly/rb-tinted'},
-      lip:  {emoji:'💄',brand:'Rare Beauty',name:'Soft Pinch Tinted Lip Oil',price:'£20',cat:'lips',aff:'https://bit.ly/rb-lipoil'},
-      eye:  {emoji:'👁️',brand:'Urban Decay',name:'Naked3 Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-naked3'},
-      blush:{emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Joy',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
-    },
-  },
-  light: {
-    natural: {
-      base: {emoji:'🧴',brand:'NARS',name:'Sheer Glow Foundation',price:'£38',cat:'base',aff:'https://bit.ly/nars-sheerglow'},
-      lip:  {emoji:'💄',brand:'Charlotte Tilbury',name:'Pillow Talk Lipstick',price:'£30',cat:'lips',aff:'https://bit.ly/ct-pillowtalk'},
-      eye:  {emoji:'👁️',brand:'Too Faced',name:'Natural Eyes Palette',price:'£38',cat:'eyes',aff:'https://bit.ly/tf-natural'},
-      blush:{emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Joy',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
-    },
-    glam: {
-      base: {emoji:'🧴',brand:'Charlotte Tilbury',name:'Airbrush Flawless Foundation',price:'£36',cat:'base',aff:'https://bit.ly/ct-airbrush'},
-      lip:  {emoji:'💄',brand:'NARS',name:'Audacious Lipstick — Rita',price:'£28',cat:'lips',aff:'https://bit.ly/nars-audacious'},
-      eye:  {emoji:'👁️',brand:'Charlotte Tilbury',name:'Sophisticate Eye Palette',price:'£45',cat:'eyes',aff:'https://bit.ly/ct-soph'},
-      blush:{emoji:'🌸',brand:'Charlotte Tilbury',name:'Cheek to Chic — Pillow Talk',price:'£35',cat:'blush',aff:'https://bit.ly/ct-cheek'},
-    },
-    trendy: {
-      base: {emoji:'🧴',brand:'Rare Beauty',name:'Positive Light Tinted Moisturiser',price:'£28',cat:'base',aff:'https://bit.ly/rb-tinted'},
-      lip:  {emoji:'💄',brand:'Rare Beauty',name:'Soft Pinch Tinted Lip Oil',price:'£20',cat:'lips',aff:'https://bit.ly/rb-lipoil'},
-      eye:  {emoji:'👁️',brand:'Fenty Beauty',name:'Snap Shadows Palette',price:'£30',cat:'eyes',aff:'https://bit.ly/fenty-snap'},
-      blush:{emoji:'🌸',brand:'e.l.f.',name:'Putty Blush — Turks & Caicos',price:'£9',cat:'blush',aff:'https://bit.ly/elf-blush'},
-    },
-  },
-  medium: {
-    natural: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 240",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'MAC',name:'Velvet Teddy Lipstick',price:'£22',cat:'lips',aff:'https://bit.ly/mac-velvet'},
-      eye:  {emoji:'👁️',brand:'Anastasia Beverly Hills',name:'Warm Honey Palette',price:'£42',cat:'eyes',aff:'https://bit.ly/abh-warm'},
-      blush:{emoji:'🌸',brand:'NARS',name:'Blush — Orgasm',price:'£28',cat:'blush',aff:'https://bit.ly/nars-orgasm'},
-    },
-    glam: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 260",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Ruby Woo',price:'£22',cat:'lips',aff:'https://bit.ly/mac-ruby'},
-      eye:  {emoji:'👁️',brand:'Anastasia Beverly Hills',name:'Norvina Pro Palette',price:'£42',cat:'eyes',aff:'https://bit.ly/abh-norvina'},
-      blush:{emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Hope',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
-    },
-    trendy: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 260",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'Fenty Beauty',name:'Stunna Lip Paint — Uncensored',price:'£24',cat:'lips',aff:'https://bit.ly/fenty-stunna'},
-      eye:  {emoji:'👁️',brand:'NYX',name:'Ultimate Shadow Palette',price:'£18',cat:'eyes',aff:'https://bit.ly/nyx-ultimate'},
-      blush:{emoji:'🌸',brand:'Charlotte Tilbury',name:'Cheek to Chic — Love Glow',price:'£35',cat:'blush',aff:'https://bit.ly/ct-cheek'},
-    },
-  },
-  tan: {
-    natural: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 320",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'MAC',name:'Whirl Lip Pencil',price:'£20',cat:'lips',aff:'https://bit.ly/mac-whirl'},
-      eye:  {emoji:'👁️',brand:'Too Faced',name:'Natural Eyes Palette',price:'£38',cat:'eyes',aff:'https://bit.ly/tf-natural'},
-      blush:{emoji:'🌸',brand:'NARS',name:'Blush — Orgasm',price:'£28',cat:'blush',aff:'https://bit.ly/nars-orgasm'},
-    },
-    glam: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 340",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Chestnut',price:'£22',cat:'lips',aff:'https://bit.ly/mac-chestnut'},
-      eye:  {emoji:'👁️',brand:'Urban Decay',name:'Naked Smoky Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-smoky'},
-      blush:{emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Bliss',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
-    },
-    trendy: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 360",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'NYX',name:'Shine Loud Lip Colour',price:'£11',cat:'lips',aff:'https://bit.ly/nyx-shine'},
-      eye:  {emoji:'👁️',brand:'Morphe',name:'James Charles Artistry Palette',price:'£35',cat:'eyes',aff:'https://bit.ly/morphe-jc'},
-      blush:{emoji:'🌸',brand:'e.l.f.',name:'Putty Blush — Bare Bronze',price:'£9',cat:'blush',aff:'https://bit.ly/elf-blush'},
-    },
-  },
-  deep: {
-    natural: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 420",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Plumful',price:'£22',cat:'lips',aff:'https://bit.ly/mac-plumful'},
-      eye:  {emoji:'👁️',brand:'Anastasia Beverly Hills',name:'Norvina Pro Palette',price:'£42',cat:'eyes',aff:'https://bit.ly/abh-norvina'},
-      blush:{emoji:'🌸',brand:'NARS',name:'Blush — Sin',price:'£28',cat:'blush',aff:'https://bit.ly/nars-sin'},
-    },
-    glam: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 450",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Dark Side',price:'£22',cat:'lips',aff:'https://bit.ly/mac-darkside'},
-      eye:  {emoji:'👁️',brand:'Urban Decay',name:'Naked Smoky Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-smoky'},
-      blush:{emoji:'🌸',brand:'Fenty Beauty',name:'Cheeks Out Blush — Chocolate Pump',price:'£24',cat:'blush',aff:'https://bit.ly/fenty-cheeks'},
-    },
-    trendy: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 445",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'Fenty Beauty',name:'Stunna Lip Paint — Uncensored',price:'£24',cat:'lips',aff:'https://bit.ly/fenty-stunna'},
-      eye:  {emoji:'👁️',brand:'Morphe',name:'James Charles Artistry Palette',price:'£35',cat:'eyes',aff:'https://bit.ly/morphe-jc'},
-      blush:{emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Grateful',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
-    },
-  },
-  rich: {
-    natural: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 490",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Antique Velvet',price:'£22',cat:'lips',aff:'https://bit.ly/mac-antique'},
-      eye:  {emoji:'👁️',brand:'Anastasia Beverly Hills',name:'Norvina Pro Mega Palette',price:'£48',cat:'eyes',aff:'https://bit.ly/abh-norvina'},
-      blush:{emoji:'🌸',brand:'Fenty Beauty',name:'Cheeks Out Blush — Rum Punch',price:'£24',cat:'blush',aff:'https://bit.ly/fenty-cheeks'},
-    },
-    glam: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 498",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Diva',price:'£22',cat:'lips',aff:'https://bit.ly/mac-diva'},
-      eye:  {emoji:'👁️',brand:'Urban Decay',name:'Naked Reloaded Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-reloaded'},
-      blush:{emoji:'🌸',brand:'NARS',name:'Blush — Exhibit A',price:'£28',cat:'blush',aff:'https://bit.ly/nars-exhibitA'},
-    },
-    trendy: {
-      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 495",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
-      lip:  {emoji:'💄',brand:'Fenty Beauty',name:'Stunna Lip Paint — Uncensored',price:'£24',cat:'lips',aff:'https://bit.ly/fenty-stunna'},
-      eye:  {emoji:'👁️',brand:'Morphe',name:'James Charles Artistry Palette',price:'£35',cat:'eyes',aff:'https://bit.ly/morphe-jc'},
-      blush:{emoji:'🌸',brand:'Fenty Beauty',name:'Cheeks Out Blush — Bawse Lady',price:'£28',cat:'blush',aff:'https://bit.ly/fenty-cheeks'},
-    },
-  },
-};
-
-// ── COLOUR TIPS ─────────────────────────────────────────────────────
-const COLOUR_TIPS = {
-  BASE:'Match base to your chest and neck in natural light. Use the deeper swatch for spot-concealing or perimeter depth.',
-  LIPS:'Apply with fingertip or brush. Blot once for long wear. Layer for intensity.',
-  EYES:'Apply to lid with a flat brush, then blend the deeper tone into the outer corner for shape.',
-  BLUSH:'Press the stronger shade first, then soften edges with the second shade so colour stays lifted and seamless.',
-};
-
-// ── SPONSORED PRODUCTS (from admin dashboard) ─────────────────────
-function getSponsoredProducts(occasionId){
-  const sponsors = JSON.parse(localStorage.getItem('astyra_sponsorships') || '[]');
-  return sponsors.filter(s => s.occasion === occasionId);
-}
-
-// ── ANALYTICS TRACKING ─────────────────────────────────────────────
-function trackScan(occasion){
-  const log = JSON.parse(localStorage.getItem('astyra_analytics') || '{}');
-  log[occasion] = (log[occasion] || 0) + 1;
-  const total = parseInt(localStorage.getItem('astyra_total_scans') || '0') + 1;
-  localStorage.setItem('astyra_analytics', JSON.stringify(log));
-  localStorage.setItem('astyra_total_scans', total);
-}
-function trackClick(brand){
-  const log = JSON.parse(localStorage.getItem('astyra_clicks') || '{}');
-  log[brand] = (log[brand] || 0) + 1;
-  localStorage.setItem('astyra_clicks', JSON.stringify(log));
-}
-
-// ── STAR BACKGROUND ────────────────────────────────────────────────
-function buildStars(){
-  const c = document.getElementById('stars-container');
-  if(!c) return;
-  for(let i=0;i<40;i++){
-    const s=document.createElement('div');
-    s.className='star';
-    const sz=Math.random()*2.5+1;
-    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*3+2).toFixed(1)}s;--dl:${(Math.random()*3).toFixed(1)}s`;
-    c.appendChild(s);
-  }
-}
-
-// ── BUILD OCCASION GRID ────────────────────────────────────────────
-function buildOccasionGrid(){
-  const g = document.getElementById('occasion-grid');
-  g.innerHTML = OCCASIONS.map(o=>`
-    <div class="occ-btn ${o.pro && !STATE.isPro ? 'occ-locked':''}" id="occ-${o.id}" onclick="${o.pro && !STATE.isPro ? "showModal('pro-modal')" : `selectOccasion('${o.id}')`}">
-      <div class="occ-emoji">${o.emoji}${o.pro && !STATE.isPro ? '<span style="font-size:.6rem;margin-left:2px">👑</span>':''}</div>
-      <div class="occ-name">${o.name}</div>
-      <div class="occ-desc">${o.desc}</div>
-    </div>
-  `).join('');
-}
-
-// ── BUILD SKIN ROW ─────────────────────────────────────────────────
-function buildSkinRow(){
-  const r = document.getElementById('skin-row');
-  r.innerHTML = SKIN_TONES.map(s=>`
-    <button class="skin-btn" id="skin-${s.id}" data-label="${s.label}"
-      style="background:${s.color}" onclick="selectSkin('${s.id}')"></button>
-  `).join('');
-}
-
-// ── DRAG AND DROP UPLOAD ───────────────────────────────────────────
-function handleDrop(e){
-  e.preventDefault();
-  document.getElementById('upload-zone').classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if(file && file.type.startsWith('image/')) processFile(file);
-}
-function handleUpload(e){
-  const file = e.target.files[0];
-  if(file) processFile(file);
-}
-function processFile(file){
-  const reader = new FileReader();
-  reader.onload = ev => {
-    STATE.faceDataUrl = ev.target.result;
-    showFacePreview(ev.target.result);
-    document.getElementById('occasion-step').style.display='block';
-    setStep(2);
-    smoothScrollTo('occasion-step');
-  };
-  reader.readAsDataURL(file);
-}
-
-
-// ── SELECT OCCASION ────────────────────────────────────────────────
-function selectOccasion(id){
-  document.querySelectorAll('.occ-btn').forEach(b=>b.classList.remove('selected'));
-  document.getElementById('occ-'+id)?.classList.add('selected');
-  STATE.occasion = id;
-  document.getElementById('skin-step').style.display='block';
-  setStep(3);
-  smoothScrollTo('skin-step');
-  checkReady();
-}
-
-// ── SELECT SKIN TONE ───────────────────────────────────────────────
-function selectSkin(id){
-  document.querySelectorAll('.skin-btn').forEach(b=>b.classList.remove('selected'));
-  document.getElementById('skin-'+id)?.classList.add('selected');
-  STATE.skinTone = id;
-  checkReady();
-}
-
-// ── CHECK READY ────────────────────────────────────────────────────
-function checkReady(){
-  if(STATE.faceDataUrl && STATE.occasion && STATE.skinTone){
-    const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
-    const skin = SKIN_TONES.find(s=>s.id===STATE.skinTone);
-    document.getElementById('gen-wrap').style.display='block';
-    document.getElementById('gen-summary').textContent=
-      `${occ.name} × ${skin.label} Dermal Base — Ready to generate 3 occasion-intelligence looks.`;
-    smoothScrollTo('gen-wrap');
-  }
-}
-
-// ── GENERATE LOOKS ─────────────────────────────────────────────────
-function generateLooks(){
-  if(!STATE.isPro && STATE.scansLeft <= 0){
-    showModal('pro-modal');
-    return;
-  }
-  if(!STATE.isPro){
-    STATE.scansLeft--;
-    localStorage.setItem('astyra_scans', STATE.scansLeft);
-    document.getElementById('scan-display').textContent = STATE.scansLeft;
-  }
-  trackScan(STATE.occasion);
-  showScreen('s-loading');
-  animateLoading();
-}
-
-function animateLoading(){
-  const steps = ['ls1','ls2','ls3','ls4'];
-  const prog = [18,45,72,95];
-  const bar = document.getElementById('loading-bar');
-  const status = document.getElementById('loading-status');
-  const statuses = ['SCANNING TONE MATRIX','MATCHING OCCASION LIBRARY','CALIBRATING HARMONICS','LOADING AFFILIATE MATCHES'];
-  let i = 0;
-  bar.style.width = '5%';
-
-  const iv = setInterval(()=>{
-    if(i < steps.length){
-      if(i > 0) {
-        document.getElementById(steps[i-1]).classList.remove('active');
-        document.getElementById(steps[i-1]).classList.add('done');
-        document.getElementById(steps[i-1]).querySelector('.ls-icon').textContent = '✓';
-      }
-      document.getElementById(steps[i]).classList.add('active');
-      document.getElementById(steps[i]).querySelector('.ls-icon').textContent = '↻';
-      bar.style.width = prog[i] + '%';
-      status.textContent = statuses[i];
-      i++;
-    } else {
-      clearInterval(iv);
-      steps.forEach(s=>{
-        document.getElementById(s).classList.remove('active');
-        document.getElementById(s).classList.add('done');
-        document.getElementById(s).querySelector('.ls-icon').textContent='✓';
-      });
-      bar.style.width = '100%';
-      status.textContent = 'LOOK REPORT READY';
-      setTimeout(()=>{
-        revealResults();
-      }, 500);
-    }
-  }, 700);
-}
-
-
-// ── BUILD RESULTS ──────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// buildResults() - FIXED VERSION
+// ═══════════════════════════════════════════════════════
 function buildResults(){
-  const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
-  const skin = SKIN_TONES.find(s=>s.id===STATE.skinTone);
-  const toneId   = STATE.skinTone || 'medium';
-  // RECS[toneId][occasionId] — Genspark structure: tone first
-  const tonePack = RECS[toneId] || RECS['medium'];
-  const toneRecs = tonePack[STATE.occasion] || tonePack['party'];
-  const toneVariant = TONE_VARIANTS[toneId] || TONE_VARIANTS.medium;
-  const sponsored = getSponsoredProducts(STATE.occasion);
+  const occ=OCCASIONS.find(o=>o.id===STATE.occasion);
+  const skin=SKIN_TONES.find(s=>s.id===STATE.skinTone);
+  const tonePack=RECS[STATE.skinTone]||RECS.medium;
+  const lookData=tonePack[STATE.occasion]||tonePack['wedding-guest'];
+  const sponsored=getSponsoredProducts(STATE.occasion);
 
-  document.getElementById('rh-title').textContent = `${occ.name} — Curated Looks`;
-  document.getElementById('rh-sub').textContent = `${toneVariant.label} · ${occ.desc}`;
+  document.getElementById('rh-title').textContent=`${occ.name} — 3 Curated Looks`;
+  document.getElementById('rh-sub').textContent=`Personalised for ${skin.label} skin · ${occ.desc}`;
   document.getElementById('rh-meta').innerHTML=`
     <div class="rh-chip">${occ.emoji} ${occ.name}</div>
-    <div class="rh-chip">Tone: ${skin.label}</div>
-    <div class="rh-chip">✓ Personalised</div>
-    <div class="rh-chip">✓ Affiliate Matched</div>
+    <div class="rh-chip">💄 ${skin.label} Skin</div>
+    <div class="rh-chip">🎨 Foundation + Lips + Eyes + Blush</div>
+    <div class="rh-chip">✓ ${SKIN_TONES.length} Tones · ${Object.keys(BASE_LOOKS).length} Occasions</div>
   `;
 
-  const looks = [
-    { key:'natural', badge:'NATURAL / SOFT',     badgeClass:'badge-natural', num:'Look 01' },
-    { key:'trendy',  badge:'TRENDY / EDITORIAL',  badgeClass:'badge-trendy',  num:'Look 02' },
-  ].filter(l => toneRecs[l.key]);
+  const looks=[
+    {key:'natural',badge:'NATURAL / SOFT',badgeClass:'badge-natural',num:'Look 01'},
+    {key:'glam',badge:'GLAM / BOLD',badgeClass:'badge-glam',num:'Look 02'},
+    {key:'trendy',badge:'TRENDY / EDITORIAL',badgeClass:'badge-trendy',num:'Look 03'}
+  ];
 
-  const container = document.getElementById('results-container');
-  container.innerHTML = looks.map(l=>{
-    const d = toneRecs[l.key];
+  const container=document.getElementById('results-container');
+  container.innerHTML=looks.map(l=>{
+    const d=lookData[l.key];
     if(!d) return '';
-    const prods = getProductsForLook(l.key, sponsored, occ.id, d);
+    const prods=getProductsForLook(l.key,sponsored,occ.id,d);
 
     return `
-    <div class="look-card" style="border-top:5px solid ${d.accentHex}">
-      <div style="background:${d.accentHex};padding:7px 18px;display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:.55rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:${d.accentText}">${toneVariant.label} · Personalised Palette</span>
-        <span style="font-size:.55rem;font-weight:800;color:${d.accentText};opacity:.8">${d.accentHex}</span>
-      </div>
+    <div class="look-card">
       <div class="lc-header">
         <div>
-          <div class="lc-look-num" style="color:${d.accentHex}">${l.num} — ${occ.name.toUpperCase()}</div>
+          <div class="lc-look-num">${l.num} — ${occ.name.toUpperCase()}</div>
           <div class="lc-look-name">${d.name}</div>
           <div class="lc-look-desc">${d.desc}</div>
         </div>
-        <div class="lc-badge ${l.badgeClass}" style="border-color:${d.accentHex}55">${l.badge}</div>
+        <div class="lc-badge ${l.badgeClass}">${l.badge}</div>
       </div>
 
       <div class="lc-palette">
-        ${buildPaletteRow('BASE',  d.foundation, 0)}
-        ${buildPaletteRow('LIPS',  d.lip,   d.preferred?.lip   ?? 0)}
-        ${buildPaletteRow('EYES',  d.eye,   d.preferred?.eye   ?? 0)}
-        ${buildPaletteRow('BLUSH', d.blush, d.preferred?.blush ?? 0)}
+        ${buildPaletteRow('BASE',d.foundation,0)}
+        ${buildPaletteRow('LIPS',d.lip,0)}
+        ${buildPaletteRow('EYES',d.eye,0)}
+        ${buildPaletteRow('BLUSH',d.blush,0)}
       </div>
 
       <div class="lc-technique">
@@ -2048,14 +1960,9 @@ function buildResults(){
         </div>
       </div>
 
-      <div style="padding:0 18px 10px;display:flex;flex-direction:column;gap:8px">
-        <div style="background:${skin.color}22;border:2px solid ${skin.color}66;border-radius:12px;padding:12px">
-          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">FOR ${toneVariant.label}</div>
-          <div style="font-size:.78rem;color:var(--text);line-height:1.6;font-weight:600">${d.toneNote}</div>
-          <div style="margin-top:8px;font-size:.7rem;font-weight:700;color:var(--accent)">✦ Top picks: <span style="font-weight:500;color:var(--text)">${d.lip[0].n} lip · ${d.eye[0].n} eye · ${d.blush[0].n}</span></div>
-        </div>
+      <div style="padding:0 18px 10px">
         <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:12px">
-          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Astyra Tip</div>
+          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Astyra TIP</div>
           <div style="font-size:.73rem;color:var(--text);line-height:1.6">${d.tip}</div>
         </div>
       </div>
@@ -2079,43 +1986,29 @@ function buildResults(){
   }).join('');
 }
 
-function buildPaletteRow(label, swatches, preferredIdx){
-  if(!swatches||!swatches.length) return '';
-  const primary = swatches[preferredIdx] || swatches[0];
-  // Build segments: primary first (widest), then alternates
-  const segments = [
-    {s:primary, isPrimary:true},
-    ...swatches.filter((_,i)=>i!==preferredIdx).map(s=>({s,isPrimary:false}))
-  ];
+function buildPaletteRow(label,swatches,preferredIdx){
+  const primary=swatches[preferredIdx]||swatches[0];
   return `
     <div class="palette-row">
       <div class="palette-label">${label}</div>
-      <div class="palette-bar" onclick="showSwatchInfo('${primary.n}','${primary.h}','${label}')">
-        ${segments.map(({s,isPrimary})=>`<div class="pal-seg${isPrimary?' primary':''}" style="background:${s.h}" title="${s.n}">${isPrimary?primary.n.split(' ').slice(-1)[0]:''}</div>`).join('')}
-      </div>
-      <div class="palette-primary-label">
+      <div class="palette-swatches">
+        ${swatches.map((s,i)=>`<div class="swatch${i===preferredIdx?' primary':''}" style="background:${s.h}" title="${s.n}" onclick="showSwatchInfo('${s.n}','${s.h}','${label}')"></div>`).join('')}
         <div class="palette-name">${primary.n}</div>
         <div class="palette-code">${primary.h}</div>
       </div>
     </div>`;
 }
 
-function getProductsForLook(lookKey, sponsored, occasionId, lookEntry){
-  // Tone-specific products — Genspark approach: TONE_PRODUCT_MATCHES[tone][lookKey]
-  const toneMatches = (TONE_PRODUCT_MATCHES[STATE.skinTone] || TONE_PRODUCT_MATCHES.medium)[lookKey]
-                   || (TONE_PRODUCT_MATCHES.medium || {})[lookKey]
-                   || (TONE_PRODUCT_MATCHES.medium || {}).natural;
-  let prods = [
-    { ...toneMatches.base, name:`${toneMatches.base.name} · ${(lookEntry&&lookEntry.foundation&&lookEntry.foundation[0]&&lookEntry.foundation[0].n)||''}` },
-    { ...toneMatches.lip,  name:`${toneMatches.lip.name} · ${(lookEntry&&lookEntry.lip&&lookEntry.lip[0]&&lookEntry.lip[0].n)||''}` },
-    { ...toneMatches.eye,  name:`${toneMatches.eye.name} · ${(lookEntry&&lookEntry.eye&&lookEntry.eye[0]&&lookEntry.eye[0].n)||''}` },
-    { ...toneMatches.blush,name:`${toneMatches.blush.name} · ${(lookEntry&&lookEntry.blush&&lookEntry.blush[0]&&lookEntry.blush[0].n)||''}` },
+function getProductsForLook(lookKey,sponsored,occasionId,lookEntry){
+  const toneProducts=(TONE_PRODUCT_MATCHES[STATE.skinTone]||TONE_PRODUCT_MATCHES.medium)[lookKey]||(TONE_PRODUCT_MATCHES.medium||{}).natural;
+  let prods=[
+    {...toneProducts.base,name:`${toneProducts.base.name} · ${lookEntry.foundation[0].n}`},
+    {...toneProducts.lip,name:`${toneProducts.lip.name} · ${lookEntry.lip[0].n}`},
+    {...toneProducts.eye,name:`${toneProducts.eye.name} · ${lookEntry.eye[0].n}`},
+    {...toneProducts.blush,name:`${toneProducts.blush.name} · ${lookEntry.blush[0].n}`}
   ];
-  const sponsoredProds = sponsored.map(s=>({
-    emoji:'✨',brand:s.brand,name:s.product,price:'',cat:'sponsored',
-    aff:buildAffUrl(s.url),isSponsored:true
-  }));
-  return [...sponsoredProds, ...prods].slice(0,5);
+  const sponsoredProds=sponsored.map(s=>({emoji:'✨',brand:s.brand,name:s.product,price:'',cat:'sponsored',aff:buildAffUrl(s.url),isSponsored:true}));
+  return [...sponsoredProds,...prods].slice(0,5);
 }
 
 function buildProductCard(p){
@@ -2130,6 +2023,7 @@ function buildProductCard(p){
       <div class="prod-arrow">→</div>
     </a>`;
 }
+
 
 function buildAffUrl(url){
   if(!url || url === '#') return '#';
