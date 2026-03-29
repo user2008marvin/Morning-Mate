@@ -2025,6 +2025,37 @@ function buildProductCard(p){
 }
 
 
+function buildStars(){
+  const c = document.getElementById('stars-container');
+  if(!c) return;
+  for(let i=0;i<40;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const sz=Math.random()*2.5+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*3+2).toFixed(1)}s;--dl:${(Math.random()*3).toFixed(1)}s`;
+    c.appendChild(s);
+  }
+}
+
+function buildOccasionGrid(){
+  const g = document.getElementById('occasion-grid');
+  g.innerHTML = OCCASIONS.map(o=>`
+    <div class="occ-btn ${o.pro && !STATE.isPro ? 'occ-locked':''}" id="occ-${o.id}" onclick="${o.pro && !STATE.isPro ? "showModal('pro-modal')" : `selectOccasion('${o.id}')`}">
+      <div class="occ-emoji">${o.emoji}${o.pro && !STATE.isPro ? '<span style="font-size:.6rem;margin-left:2px">👑</span>':''}</div>
+      <div class="occ-name">${o.name}</div>
+      <div class="occ-desc">${o.desc}</div>
+    </div>
+  `).join('');
+}
+
+function buildSkinRow(){
+  const r = document.getElementById('skin-row');
+  r.innerHTML = SKIN_TONES.map(s=>`
+    <button class="skin-btn" id="skin-${s.id}" data-label="${s.label}"
+      style="background:${s.hex}" onclick="selectSkin('${s.id}')"></button>
+  `).join('');
+}
+
 function buildAffUrl(url){
   if(!url || url === '#') return '#';
   const safeId = encodeURIComponent(AFF_ID || '');
