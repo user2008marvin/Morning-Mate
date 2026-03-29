@@ -1,0 +1,125 @@
+function buildResults(){
+  const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
+  const skin = SKIN_TONES.find(s=>s.id===STATE.skinTone);
+  const tonePack = RECS[STATE.skinTone] || RECS.medium;
+  const lookData = tonePack[STATE.occasion] || tonePack.party;
+  const sponsored = getSponsoredProducts(STATE.occasion);
+
+  document.getElementById('rh-title').textContent = `${occ.name} — 3 Curated Looks`;
+  document.getElementById('rh-sub').textContent = `Hardcoded consultation logic for ${skin.label} skin · ${occ.desc}`;
+  document.getElementById('rh-meta').innerHTML=`
+    <div class="rh-chip">${occ.emoji} ${occ.name}</div>
+    <div class="rh-chip">Tone: ${skin.label}</div>
+    <div class="rh-chip">Base + lips + eyes + blush</div>
+    <div class="rh-chip">11 occasions · no fake API</div>
+  `;
+
+  const looks = [
+    { key:'natural', badge:'NATURAL / SOFT', badgeClass:'badge-natural', num:'Look 01' },
+    { key:'glam', badge:'GLAM / BOLD', badgeClass:'badge-glam', num:'Look 02' },
+    { key:'trendy', badge:'TRENDY / EDITORIAL', badgeClass:'badge-trendy', num:'Look 03' },
+  ];
+
+  const container = document.getElementById('results-container');
+  container.innerHTML = looks.map(l=>{
+    const d = lookData[l.key];
+    const prods = getProductsForLook(l.key, sponsored, occ.id, d);
+
+    return `
+    <div class="look-card">
+      <div class="lc-header">
+        <div>
+          <div class="lc-look-num">${l.num} — ${occ.name.toUpperCase()}</div>
+          <div class="lc-look-name">${d.name}</div>
+          <div class="lc-look-desc">${d.desc}</div>
+        </div>
+        <div class="lc-badge ${l.badgeClass}">${l.badge}</div>
+      </div>
+
+      <div class="lc-palette">
+        ${buildPaletteRow('BASE', d.foundation, 0)}
+        ${buildPaletteRow('LIPS', d.lip, 0)}
+        ${buildPaletteRow('EYES', d.eye, 0)}
+        ${buildPaletteRow('BLUSH', d.blush, 0)}
+      </div>
+
+      <div class="lc-technique">
+        <div class="tech-label">Application Sequence</div>
+        <div class="tech-steps">
+          ${d.technique.map((t,i)=>`<div class="tech-step"><span class="tech-step-num">${i+1}</span>${t}</div>`).join('')}
+        </div>
+      </div>
+
+      <div style="padding:0 18px 10px">
+        <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:12px">
+          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Astyra TIP</div>
+          <div style="font-size:.73rem;color:var(--text);line-height:1.6">${d.tip}</div>
+        </div>
+      </div>
+
+      <div class="lc-products">
+        <div class="prod-label">
+          Affiliate Matches
+          <span class="aff-tag">★ EARN</span>
+        </div>
+        <div class="prod-list">
+          ${prods.map(p=>buildProductCard(p)).join('')}
+        </div>
+      </div>
+
+      <div class="lc-actions">
+        <button class="lca-btn lca-save" onclick="saveLook('${l.key}','${occ.name}','${d.name}')">💾 Save</button>
+        <button class="lca-btn lca-share" onclick="shareLook('${occ.name}','${d.name}')">📲 Share</button>
+        <button class="lca-btn lca-try" onclick="tryLook('${d.name}')">🪄 Tutorial</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildPaletteRow(label, swatches, preferredIdx){
+  const primary = swatches[preferredIdx] || swatches[0];
+  return `
+    <div class="palette-row">
+      <div class="palette-label">${label}</div>
+      <div class="palette-swatches">
+        ${swatches.map((s,i)=>`<div class="swatch${i===preferredIdx?' primary':''}" style="background:${s.h}" title="${s.n}" onclick="showSwatchInfo('${s.n}','${s.h}','${label}')"></div>`).join('')}
+        <div class="palette-name">${primary.n}</div>
+        <div class="palette-code">${primary.h}</div>
+      </div>
+    </div>`;
+}
+
+function getProductsForLook(lookKey, sponsored, occasionId, lookEntry){
+  const toneProducts = (TONE_PRODUCT_MATCHES[STATE.skinTone] || TONE_PRODUCT_MATCHES.medium)[lookKey] || (TONE_PRODUCT_MATCHES.medium || {}).natural;
+  let prods = [
+    { ...toneProducts.base, name:`${toneProducts.base.name} · ${lookEntry.foundation[0].n}` },
+    { ...toneProducts.lip, name:`${toneProducts.lip.name} · ${lookEntry.lip[0].n}` },
+    { ...toneProducts.eye, name:`${toneProducts.eye.name} · ${lookEntry.eye[0].n}` },
+    { ...toneProducts.blush, name:`${toneProducts.blush.name} · ${lookEntry.blush[0].n}` },
+  ];
+  const sponsoredProds = sponsored.map(s=>({
+    emoji:'✨',brand:s.brand,name:s.product,price:'',cat:'sponsored',
+    aff:buildAffUrl(s.url),isSponsored:true
+  }));
+  return [...sponsoredProds, ...prods].slice(0,5);
+}
+
+function buildProductCard(p){
+  return `
+    <a class="prod-item ${p.isSponsored?'sponsored':''}" href="${p.isSponsored?p.aff:buildAffUrl(p.aff)}" target="_blank" rel="noopener" onclick="trackClick('${p.brand}')">
+      <span class="prod-emoji">${p.emoji}</span>
+      <div class="prod-info">
+        <div class="prod-brand">${p.brand}${p.isSponsored?'<span class="prod-sponsored-badge">PARTNER</span>':''}</div>
+        <div class="prod-name">${p.name}</div>
+      </div>
+      <div class="prod-price">${p.price}</div>
+      <div class="prod-arrow">→</div>
+    </a>`;
+}
+
+const COLOUR_TIPS = {
+  BASE:'Match base to your chest and neck in natural light. Use the deeper swatch for spot-concealing or perimeter depth.',
+  LIPS:'Apply with fingertip or brush. Blot once for long wear. Layer for intensity.',
+  EYES:'Apply to lid with a flat brush, then blend the deeper tone into the outer corner for shape.',
+  BLUSH:'Press the stronger shade first, then soften edges with the second shade so colour stays lifted and seamless.',
+};

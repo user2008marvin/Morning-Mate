@@ -1487,67 +1487,72 @@ medium: {
   lipPrefix: 'Warm Rose', eyePrefix: 'Golden', blushPrefix: 'Apricot Rose',
   namePrefix: 'Golden Rose', descTag: 'warm terracotta-rose tones',
   accentHex: '#C97878', accentText: '#fff',
-  brighten: 2, warm: 14, lipIdx: 1, eyeIdx: 0, blushIdx: 0,
+  brighten: 2, warm: 14, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
 },
 tan: {
   label: 'TAN SKIN',
   note: 'Tan skin: richer peach, bronze, brick and warm gold tones create depth beautifully.',
   lipPrefix: 'Caramel', eyePrefix: 'Bronze Gold', blushPrefix: 'Warm Coral',
   namePrefix: 'Bronzed', descTag: 'warm caramel and bronze depth',
-  accentHex: '#AB6840', accentText: '#fff',
-  brighten: -4, warm: 18, lipIdx: 1, eyeIdx: 1, blushIdx: 0,
+  accentHex: '#C27850', accentText: '#fff',
+  brighten: -4, warm: 18, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
 },
 deep: {
   label: 'DEEP SKIN',
   note: 'Deep skin: berry, terracotta, bronze, rich gold and espresso tones bring the most impact.',
   lipPrefix: 'Berry Rose', eyePrefix: 'Rich Bronze', blushPrefix: 'Burnt Rose',
   namePrefix: 'Rich Berry', descTag: 'deep berry and espresso drama',
-  accentHex: '#7A2848', accentText: '#fff',
-  brighten: -10, warm: 22, lipIdx: 2, eyeIdx: 1, blushIdx: 1,
+  accentHex: '#8C305A', accentText: '#fff',
+  brighten: -10, warm: 22, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
 },
 rich: {
   label: 'RICH SKIN',
   note: 'Rich skin: deep plum, mahogany, copper, espresso and molten gold tones are especially striking.',
   lipPrefix: 'Mahogany', eyePrefix: 'Molten Gold', blushPrefix: 'Terracotta Berry',
   namePrefix: 'Mahogany', descTag: 'molten gold and deep plum opulence',
-  accentHex: '#621030', accentText: '#fff',
-  brighten: -16, warm: 26, lipIdx: 2, eyeIdx: 2, blushIdx: 1,
+  accentHex: '#721830', accentText: '#fff',
+  brighten: -16, warm: 26, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
 },
 };
 
 // ── TONE PALETTES — explicit curated colours per skin tone ──────────
-// Each tone has its own lip / eye / blush hex array.
-// Index 0 = first swatch, 1 = middle, 2 = third (matches lipIdx / eyeIdx / blushIdx)
+// Index 0 is ALWAYS the primary/recommended shade (aligns with preferredIdx=0).
 const TONE_PALETTES = {
   fair: {
-    lip:  ['#F2C8C8','#EDB4B4','#FAE0E0'],  // petal pink, soft blush, barely-pink
-    eye:  ['#EAD9C2','#D4C8B8','#DDD3C8'],  // champagne, cool nude, soft ivory
-    blush:['#F2D4D4','#FAE6E6'],             // petal rose, whisper pink
+    foundation:['#F7E4D0','#F0D5B8','#EBC9A0'],  // Porcelain, Ivory, Warm Beige
+    lip:  ['#F2C8C8','#EDB4B4','#FAE0E0'],        // primary: petal pink
+    eye:  ['#EAD9C2','#D4C8B8','#DDD3C8'],        // primary: champagne
+    blush:['#F2D4D4','#FAE6E6'],                  // primary: petal rose
   },
   light: {
-    lip:  ['#E9A890','#D8907A','#F2B8A0'],  // peachy nude, warm rose, soft coral
-    eye:  ['#CCAF7C','#DCC090','#BAA06A'],  // soft gold, champagne, peach bronze
-    blush:['#F0B898','#E8A880'],             // peach glow, warm apricot
+    foundation:['#E8C898','#DDB878','#D4AA68'],   // Sandy Beige, Warm Ivory, Golden
+    lip:  ['#E9A890','#D8907A','#F2B8A0'],        // primary: peachy nude
+    eye:  ['#CCAF7C','#DCC090','#BAA06A'],        // primary: soft gold
+    blush:['#F0B898','#E8A880'],                  // primary: peach glow
   },
   medium: {
-    lip:  ['#C97878','#B96860','#DA8888'],  // warm rose, terracotta rose, mauve
-    eye:  ['#B89030','#C8A040','#A28030'],  // golden brown, warm gold, amber
-    blush:['#E29068','#D28058'],             // apricot, warm peach
+    foundation:['#C08840','#B07830','#A06820'],   // Honey, Warm Tan, Caramel
+    lip:  ['#B96860','#C97878','#DA8888'],        // primary: terracotta rose (was idx 1)
+    eye:  ['#B89030','#C8A040','#A28030'],        // primary: golden brown
+    blush:['#E29068','#D28058'],                  // primary: apricot
   },
   tan: {
-    lip:  ['#AB6840','#C27850','#916038'],  // caramel, brick rose, terracotta
-    eye:  ['#B87828','#CA8838','#A26820'],  // bronze, warm copper, caramel gold
-    blush:['#C27840','#B06830'],             // warm coral, bronzed terracotta
+    foundation:['#9A6028','#8A5018','#7A4010'],   // Warm Tan, Bronze, Caramel Tan
+    lip:  ['#C27850','#AB6840','#916038'],        // primary: brick rose (was idx 1)
+    eye:  ['#CA8838','#B87828','#A26820'],        // primary: warm copper (was idx 1)
+    blush:['#C27840','#B06830'],                  // primary: warm coral
   },
   deep: {
-    lip:  ['#7A2848','#62183A','#8C305A'],  // berry rose, deep plum, wine
-    eye:  ['#8C5012','#9C6022','#7C4002'],  // rich bronze, espresso, dark amber
-    blush:['#8A3840','#722830'],             // burnt rose, deep mulberry
+    foundation:['#6A3018','#5A2210','#4A1808'],   // Espresso, Chestnut, Mahogany
+    lip:  ['#8C305A','#7A2848','#62183A'],        // primary: wine berry (was idx 2)
+    eye:  ['#9C6022','#8C5012','#7C4002'],        // primary: espresso bronze (was idx 1)
+    blush:['#722830','#8A3840'],                  // primary: deep mulberry (was idx 1)
   },
   rich: {
-    lip:  ['#621030','#4C0820','#721830'],  // mahogany, dark plum, claret
-    eye:  ['#CA9000','#DAA010','#BA8000'],  // molten gold, burnished, deep bronze
-    blush:['#822018','#6C1510'],             // terracotta berry, deep brick
+    foundation:['#3A1808','#2A1005','#4A1808'],   // Ebony, Deep Cocoa, Mahogany
+    lip:  ['#721830','#621030','#4C0820'],        // primary: claret (was idx 2)
+    eye:  ['#DAA010','#CA9000','#BA8000'],        // primary: molten gold (was idx 2)
+    blush:['#6C1510','#822018'],                  // primary: deep brick (was idx 1)
   },
 };
 
@@ -1601,12 +1606,15 @@ function buildToneLook(baseLook,toneId){
   const eye=buildToneSwatches(baseLook.eye||[],toneId,'eye');
   const blush=buildToneSwatches(baseLook.blush||[],toneId,'blush');
   const tone=TONE_VARIANTS[toneId]||TONE_VARIANTS.medium;
+  // Foundation: tone-matched shades with named labels
+  const foundationPalette=(TONE_PALETTES[toneId]||{}).foundation||['#C08040','#B07030','#A06820'];
+  const foundationNames=['Perfect Match','Warm Undertone','Cool Undertone'];
+  const foundation=foundationPalette.map((h,i)=>({n:i===0?`${tone.label.split(' ')[0]} Base`:foundationNames[i],h}));
   return{
     ...baseLook,
-    // Tone-specific name and desc so every skin tone gets a visually distinct look title
     name:`${tone.namePrefix} ${baseLook.name}`,
     desc:`${baseLook.desc} — ${tone.descTag}`,
-    lip, eye, blush,
+    lip, eye, blush, foundation,
     preferred:{
       lip:tonePreferredIndex(lip,toneId,'lip'),
       eye:tonePreferredIndex(eye,toneId,'eye'),
@@ -1622,13 +1630,14 @@ function buildToneLook(baseLook,toneId){
 
 function buildRecommendations(){
   const recs={};
-  Object.keys(BASE_LOOKS).forEach(occId=>{
-    recs[occId]={};
-    Object.keys(TONE_VARIANTS).forEach(toneId=>{
-      recs[occId][toneId]={};
+  // RECS[toneId][occId][lookKey] — tone first, then occasion (Genspark structure)
+  Object.keys(TONE_VARIANTS).forEach(toneId=>{
+    recs[toneId]={};
+    Object.keys(BASE_LOOKS).forEach(occId=>{
+      recs[toneId][occId]={};
       ['natural','glam','trendy'].forEach(lookKey=>{
         const base=BASE_LOOKS[occId][lookKey];
-        if(base) recs[occId][toneId][lookKey]=buildToneLook(base,toneId);
+        if(base) recs[toneId][occId][lookKey]=buildToneLook(base,toneId);
       });
     });
   });
@@ -1687,6 +1696,139 @@ const PRODUCTS = {
     {emoji:'✨',brand:'Rare Beauty',name:'Positive Light Tinted Moisturiser',price:'£28',cat:'base',aff:'https://bit.ly/rb-tinted'},
     {emoji:'🧴',brand:'Fenty Beauty',name:'Pro Filt\'r Foundation',price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
   ],
+};
+
+// ── TONE-SPECIFIC PRODUCT MATCHES ──────────────────────────────────
+// Each tone gets different product recommendations that suit their palette.
+const TONE_PRODUCT_MATCHES = {
+  fair: {
+    natural: {
+      base: {emoji:'🧴',brand:'Charlotte Tilbury',name:'Airbrush Flawless Foundation',price:'£36',cat:'base',aff:'https://bit.ly/ct-airbrush'},
+      lip:  {emoji:'💄',brand:'Charlotte Tilbury',name:'Pillow Talk Lipstick',price:'£30',cat:'lips',aff:'https://bit.ly/ct-pillowtalk'},
+      eye:  {emoji:'👁️',brand:'Urban Decay',name:'Naked3 Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-naked3'},
+      blush:{emoji:'🌸',brand:'NARS',name:'Blush — Orgasm',price:'£28',cat:'blush',aff:'https://bit.ly/nars-orgasm'},
+    },
+    glam: {
+      base: {emoji:'🧴',brand:'Armani Beauty',name:'Luminous Silk Foundation',price:'£46',cat:'base',aff:'https://bit.ly/armani-silk'},
+      lip:  {emoji:'💄',brand:'Charlotte Tilbury',name:'Walk of No Shame Lipstick',price:'£30',cat:'lips',aff:'https://bit.ly/ct-nowalk'},
+      eye:  {emoji:'👁️',brand:'Charlotte Tilbury',name:'Sophisticate Eye Palette',price:'£45',cat:'eyes',aff:'https://bit.ly/ct-soph'},
+      blush:{emoji:'🌸',brand:'Charlotte Tilbury',name:'Cheek to Chic — Pillow Talk',price:'£35',cat:'blush',aff:'https://bit.ly/ct-cheek'},
+    },
+    trendy: {
+      base: {emoji:'🧴',brand:'Rare Beauty',name:'Positive Light Tinted Moisturiser',price:'£28',cat:'base',aff:'https://bit.ly/rb-tinted'},
+      lip:  {emoji:'💄',brand:'Rare Beauty',name:'Soft Pinch Tinted Lip Oil',price:'£20',cat:'lips',aff:'https://bit.ly/rb-lipoil'},
+      eye:  {emoji:'👁️',brand:'Urban Decay',name:'Naked3 Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-naked3'},
+      blush:{emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Joy',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
+    },
+  },
+  light: {
+    natural: {
+      base: {emoji:'🧴',brand:'NARS',name:'Sheer Glow Foundation',price:'£38',cat:'base',aff:'https://bit.ly/nars-sheerglow'},
+      lip:  {emoji:'💄',brand:'Charlotte Tilbury',name:'Pillow Talk Lipstick',price:'£30',cat:'lips',aff:'https://bit.ly/ct-pillowtalk'},
+      eye:  {emoji:'👁️',brand:'Too Faced',name:'Natural Eyes Palette',price:'£38',cat:'eyes',aff:'https://bit.ly/tf-natural'},
+      blush:{emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Joy',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
+    },
+    glam: {
+      base: {emoji:'🧴',brand:'Charlotte Tilbury',name:'Airbrush Flawless Foundation',price:'£36',cat:'base',aff:'https://bit.ly/ct-airbrush'},
+      lip:  {emoji:'💄',brand:'NARS',name:'Audacious Lipstick — Rita',price:'£28',cat:'lips',aff:'https://bit.ly/nars-audacious'},
+      eye:  {emoji:'👁️',brand:'Charlotte Tilbury',name:'Sophisticate Eye Palette',price:'£45',cat:'eyes',aff:'https://bit.ly/ct-soph'},
+      blush:{emoji:'🌸',brand:'Charlotte Tilbury',name:'Cheek to Chic — Pillow Talk',price:'£35',cat:'blush',aff:'https://bit.ly/ct-cheek'},
+    },
+    trendy: {
+      base: {emoji:'🧴',brand:'Rare Beauty',name:'Positive Light Tinted Moisturiser',price:'£28',cat:'base',aff:'https://bit.ly/rb-tinted'},
+      lip:  {emoji:'💄',brand:'Rare Beauty',name:'Soft Pinch Tinted Lip Oil',price:'£20',cat:'lips',aff:'https://bit.ly/rb-lipoil'},
+      eye:  {emoji:'👁️',brand:'Fenty Beauty',name:'Snap Shadows Palette',price:'£30',cat:'eyes',aff:'https://bit.ly/fenty-snap'},
+      blush:{emoji:'🌸',brand:'e.l.f.',name:'Putty Blush — Turks & Caicos',price:'£9',cat:'blush',aff:'https://bit.ly/elf-blush'},
+    },
+  },
+  medium: {
+    natural: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 240",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'MAC',name:'Velvet Teddy Lipstick',price:'£22',cat:'lips',aff:'https://bit.ly/mac-velvet'},
+      eye:  {emoji:'👁️',brand:'Anastasia Beverly Hills',name:'Warm Honey Palette',price:'£42',cat:'eyes',aff:'https://bit.ly/abh-warm'},
+      blush:{emoji:'🌸',brand:'NARS',name:'Blush — Orgasm',price:'£28',cat:'blush',aff:'https://bit.ly/nars-orgasm'},
+    },
+    glam: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 260",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Ruby Woo',price:'£22',cat:'lips',aff:'https://bit.ly/mac-ruby'},
+      eye:  {emoji:'👁️',brand:'Anastasia Beverly Hills',name:'Norvina Pro Palette',price:'£42',cat:'eyes',aff:'https://bit.ly/abh-norvina'},
+      blush:{emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Hope',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
+    },
+    trendy: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 260",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'Fenty Beauty',name:'Stunna Lip Paint — Uncensored',price:'£24',cat:'lips',aff:'https://bit.ly/fenty-stunna'},
+      eye:  {emoji:'👁️',brand:'NYX',name:'Ultimate Shadow Palette',price:'£18',cat:'eyes',aff:'https://bit.ly/nyx-ultimate'},
+      blush:{emoji:'🌸',brand:'Charlotte Tilbury',name:'Cheek to Chic — Love Glow',price:'£35',cat:'blush',aff:'https://bit.ly/ct-cheek'},
+    },
+  },
+  tan: {
+    natural: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 320",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'MAC',name:'Whirl Lip Pencil',price:'£20',cat:'lips',aff:'https://bit.ly/mac-whirl'},
+      eye:  {emoji:'👁️',brand:'Too Faced',name:'Natural Eyes Palette',price:'£38',cat:'eyes',aff:'https://bit.ly/tf-natural'},
+      blush:{emoji:'🌸',brand:'NARS',name:'Blush — Orgasm',price:'£28',cat:'blush',aff:'https://bit.ly/nars-orgasm'},
+    },
+    glam: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 340",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Chestnut',price:'£22',cat:'lips',aff:'https://bit.ly/mac-chestnut'},
+      eye:  {emoji:'👁️',brand:'Urban Decay',name:'Naked Smoky Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-smoky'},
+      blush:{emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Bliss',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
+    },
+    trendy: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 360",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'NYX',name:'Shine Loud Lip Colour',price:'£11',cat:'lips',aff:'https://bit.ly/nyx-shine'},
+      eye:  {emoji:'👁️',brand:'Morphe',name:'James Charles Artistry Palette',price:'£35',cat:'eyes',aff:'https://bit.ly/morphe-jc'},
+      blush:{emoji:'🌸',brand:'e.l.f.',name:'Putty Blush — Bare Bronze',price:'£9',cat:'blush',aff:'https://bit.ly/elf-blush'},
+    },
+  },
+  deep: {
+    natural: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 420",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Plumful',price:'£22',cat:'lips',aff:'https://bit.ly/mac-plumful'},
+      eye:  {emoji:'👁️',brand:'Anastasia Beverly Hills',name:'Norvina Pro Palette',price:'£42',cat:'eyes',aff:'https://bit.ly/abh-norvina'},
+      blush:{emoji:'🌸',brand:'NARS',name:'Blush — Sin',price:'£28',cat:'blush',aff:'https://bit.ly/nars-sin'},
+    },
+    glam: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 450",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Dark Side',price:'£22',cat:'lips',aff:'https://bit.ly/mac-darkside'},
+      eye:  {emoji:'👁️',brand:'Urban Decay',name:'Naked Smoky Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-smoky'},
+      blush:{emoji:'🌸',brand:'Fenty Beauty',name:'Cheeks Out Blush — Chocolate Pump',price:'£24',cat:'blush',aff:'https://bit.ly/fenty-cheeks'},
+    },
+    trendy: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 445",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'Fenty Beauty',name:'Stunna Lip Paint — Uncensored',price:'£24',cat:'lips',aff:'https://bit.ly/fenty-stunna'},
+      eye:  {emoji:'👁️',brand:'Morphe',name:'James Charles Artistry Palette',price:'£35',cat:'eyes',aff:'https://bit.ly/morphe-jc'},
+      blush:{emoji:'🌸',brand:'Rare Beauty',name:'Soft Pinch Liquid Blush — Grateful',price:'£23',cat:'blush',aff:'https://bit.ly/rb-blush'},
+    },
+  },
+  rich: {
+    natural: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 490",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Antique Velvet',price:'£22',cat:'lips',aff:'https://bit.ly/mac-antique'},
+      eye:  {emoji:'👁️',brand:'Anastasia Beverly Hills',name:'Norvina Pro Mega Palette',price:'£48',cat:'eyes',aff:'https://bit.ly/abh-norvina'},
+      blush:{emoji:'🌸',brand:'Fenty Beauty',name:'Cheeks Out Blush — Rum Punch',price:'£24',cat:'blush',aff:'https://bit.ly/fenty-cheeks'},
+    },
+    glam: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 498",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'MAC',name:'Matte Lipstick — Diva',price:'£22',cat:'lips',aff:'https://bit.ly/mac-diva'},
+      eye:  {emoji:'👁️',brand:'Urban Decay',name:'Naked Reloaded Palette',price:'£46',cat:'eyes',aff:'https://bit.ly/ud-reloaded'},
+      blush:{emoji:'🌸',brand:'NARS',name:'Blush — Exhibit A',price:'£28',cat:'blush',aff:'https://bit.ly/nars-exhibitA'},
+    },
+    trendy: {
+      base: {emoji:'🧴',brand:'Fenty Beauty',name:"Pro Filt'r Foundation — 495",price:'£32',cat:'base',aff:'https://bit.ly/fenty-filtR'},
+      lip:  {emoji:'💄',brand:'Fenty Beauty',name:'Stunna Lip Paint — Uncensored',price:'£24',cat:'lips',aff:'https://bit.ly/fenty-stunna'},
+      eye:  {emoji:'👁️',brand:'Morphe',name:'James Charles Artistry Palette',price:'£35',cat:'eyes',aff:'https://bit.ly/morphe-jc'},
+      blush:{emoji:'🌸',brand:'Fenty Beauty',name:'Cheeks Out Blush — Bawse Lady',price:'£28',cat:'blush',aff:'https://bit.ly/fenty-cheeks'},
+    },
+  },
+};
+
+// ── COLOUR TIPS ─────────────────────────────────────────────────────
+const COLOUR_TIPS = {
+  BASE:'Match base to your chest and neck in natural light. Use the deeper swatch for spot-concealing or perimeter depth.',
+  LIPS:'Apply with fingertip or brush. Blot once for long wear. Layer for intensity.',
+  EYES:'Apply to lid with a flat brush, then blend the deeper tone into the outer corner for shape.',
+  BLUSH:'Press the stronger shade first, then soften edges with the second shade so colour stays lifted and seamless.',
 };
 
 // ── SPONSORED PRODUCTS (from admin dashboard) ─────────────────────
@@ -1857,8 +1999,9 @@ function buildResults(){
   const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
   const skin = SKIN_TONES.find(s=>s.id===STATE.skinTone);
   const toneId   = STATE.skinTone || 'medium';
-  const occRecs  = RECS[STATE.occasion] || RECS['party'];
-  const toneRecs = occRecs[toneId] || occRecs['medium'];
+  // RECS[toneId][occasionId] — Genspark structure: tone first
+  const tonePack = RECS[toneId] || RECS['medium'];
+  const toneRecs = tonePack[STATE.occasion] || tonePack['party'];
   const toneVariant = TONE_VARIANTS[toneId] || TONE_VARIANTS.medium;
   const sponsored = getSponsoredProducts(STATE.occasion);
 
@@ -1879,8 +2022,9 @@ function buildResults(){
 
   const container = document.getElementById('results-container');
   container.innerHTML = looks.map(l=>{
-    const d = toneRecs[l.key];   // already tone-adapted: colours shifted, technique rewritten
-    const prods = getProductsForLook(l.key, sponsored, occ.id);
+    const d = toneRecs[l.key];
+    if(!d) return '';
+    const prods = getProductsForLook(l.key, sponsored, occ.id, d);
 
     return `
     <div class="look-card" style="border-top:5px solid ${d.accentHex}">
@@ -1898,9 +2042,10 @@ function buildResults(){
       </div>
 
       <div class="lc-palette">
-        ${buildPaletteRow('LIPS',  d.lip,   d.preferred.lip)}
-        ${buildPaletteRow('EYES',  d.eye,   d.preferred.eye)}
-        ${buildPaletteRow('BLUSH', d.blush, d.preferred.blush)}
+        ${buildPaletteRow('BASE',  d.foundation, 0)}
+        ${buildPaletteRow('LIPS',  d.lip,   0)}
+        ${buildPaletteRow('EYES',  d.eye,   0)}
+        ${buildPaletteRow('BLUSH', d.blush, 0)}
       </div>
 
       <div class="lc-technique">
@@ -1914,10 +2059,10 @@ function buildResults(){
         <div style="background:${skin.color}22;border:2px solid ${skin.color}66;border-radius:12px;padding:12px">
           <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">FOR ${toneVariant.label}</div>
           <div style="font-size:.78rem;color:var(--text);line-height:1.6;font-weight:600">${d.toneNote}</div>
-          <div style="margin-top:8px;font-size:.7rem;font-weight:700;color:var(--accent)">✦ Top picks: <span style="font-weight:500;color:var(--text)">${d.lip[d.preferred.lip].n} lip · ${d.eye[d.preferred.eye].n} eye · ${d.blush[d.preferred.blush].n}</span></div>
+          <div style="margin-top:8px;font-size:.7rem;font-weight:700;color:var(--accent)">✦ Top picks: <span style="font-weight:500;color:var(--text)">${d.lip[0].n} lip · ${d.eye[0].n} eye · ${d.blush[0].n}</span></div>
         </div>
         <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:12px;padding:12px">
-          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Application Tip</div>
+          <div style="font-size:.55rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:5px">Astyra Tip</div>
           <div style="font-size:.73rem;color:var(--text);line-height:1.6">${d.tip}</div>
         </div>
       </div>
@@ -1962,11 +2107,17 @@ function buildPaletteRow(label, swatches, preferredIdx){
     </div>`;
 }
 
-function getProductsForLook(lookKey, sponsored, occasionId){
-  const lip = PRODUCTS['lip_'+lookKey] || PRODUCTS.lip_natural;
-  const eye = PRODUCTS['eye_'+lookKey] || PRODUCTS.eye_natural;
-  let prods = [lip[0], eye[0], PRODUCTS.blush[0], PRODUCTS.base[0]];
-  // Insert sponsored products at top
+function getProductsForLook(lookKey, sponsored, occasionId, lookEntry){
+  // Tone-specific products — Genspark approach: TONE_PRODUCT_MATCHES[tone][lookKey]
+  const toneMatches = (TONE_PRODUCT_MATCHES[STATE.skinTone] || TONE_PRODUCT_MATCHES.medium)[lookKey]
+                   || (TONE_PRODUCT_MATCHES.medium || {})[lookKey]
+                   || (TONE_PRODUCT_MATCHES.medium || {}).natural;
+  let prods = [
+    { ...toneMatches.base, name:`${toneMatches.base.name} · ${(lookEntry&&lookEntry.foundation&&lookEntry.foundation[0]&&lookEntry.foundation[0].n)||''}` },
+    { ...toneMatches.lip,  name:`${toneMatches.lip.name} · ${(lookEntry&&lookEntry.lip&&lookEntry.lip[0]&&lookEntry.lip[0].n)||''}` },
+    { ...toneMatches.eye,  name:`${toneMatches.eye.name} · ${(lookEntry&&lookEntry.eye&&lookEntry.eye[0]&&lookEntry.eye[0].n)||''}` },
+    { ...toneMatches.blush,name:`${toneMatches.blush.name} · ${(lookEntry&&lookEntry.blush&&lookEntry.blush[0]&&lookEntry.blush[0].n)||''}` },
+  ];
   const sponsoredProds = sponsored.map(s=>({
     emoji:'✨',brand:s.brand,name:s.product,price:'',cat:'sponsored',
     aff:buildAffUrl(s.url),isSponsored:true
@@ -2001,11 +2152,6 @@ function buildAffUrl(url){
 }
 
 // ── SWATCH INFO ────────────────────────────────────────────────────
-const COLOUR_TIPS = {
-  LIPS:'Apply with fingertip or brush. Blot once for long wear. Layer for intensity.',
-  EYES:'Apply to lid with flat brush. Blend edges with fluffy brush in circular motions.',
-  BLUSH:'Smile and apply to apples of cheeks. Blend upward toward temples.',
-};
 function showSwatchInfo(name, hex, category){
   document.getElementById('swatch-modal-color').style.background = hex;
   document.getElementById('swatch-modal-name').textContent = name;
