@@ -2042,9 +2042,9 @@ function buildResults(){
 
       <div class="lc-palette">
         ${buildPaletteRow('BASE',  d.foundation, 0)}
-        ${buildPaletteRow('LIPS',  d.lip,   0)}
-        ${buildPaletteRow('EYES',  d.eye,   0)}
-        ${buildPaletteRow('BLUSH', d.blush, 0)}
+        ${buildPaletteRow('LIPS',  d.lip,   d.preferred?.lip   ?? 0)}
+        ${buildPaletteRow('EYES',  d.eye,   d.preferred?.eye   ?? 0)}
+        ${buildPaletteRow('BLUSH', d.blush, d.preferred?.blush ?? 0)}
       </div>
 
       <div class="lc-technique">
