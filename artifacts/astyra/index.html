@@ -1582,16 +1582,10 @@ function rewriteTechniqueStep(step,toneId){
 }
 
 function buildToneSwatches(swatches,toneId,category){
-  const tone=TONE_VARIANTS[toneId]||TONE_VARIANTS.medium;
-  const palette=(TONE_PALETTES[toneId]||{})[category];
-  const prefIdx=category==='lip'?tone.lipIdx:category==='eye'?tone.eyeIdx:tone.blushIdx;
-  const preferred=Math.min(prefIdx,swatches.length-1);
-  const renamedPrefix=category==='lip'?tone.lipPrefix:category==='eye'?tone.eyePrefix:tone.blushPrefix;
-  return swatches.map((s,idx)=>{
-    // Use curated palette colour; fall back to original swatch hex only if palette missing
-    const hex=palette&&palette[idx]?palette[idx]:s.h;
-    return{n:idx===preferred?`${renamedPrefix} ${s.n}`:s.n, h:hex};
-  });
+  // Keep the occasion-specific BASE_LOOKS colours as-is.
+  // Tone personalisation comes from name/desc/toneNote/foundation/accentHex/products —
+  // not from blindly replacing every look's eye/lip/blush with fixed palette colours.
+  return swatches.map(s=>({n:s.n, h:s.h}));
 }
 
 function tonePreferredIndex(swatches,toneId,category){
