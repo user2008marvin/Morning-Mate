@@ -2583,7 +2583,8 @@ function trackSponsorClick(cat, brand){
 function revealResults(){
   const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
   const toneId = STATE.skinTone || 'medium';
-  const toneRecs = (RECS[STATE.occasion] || RECS['party'])[toneId] || (RECS[STATE.occasion] || RECS['party'])['medium'];
+  const tonePack = RECS[toneId] || RECS['medium'];
+  const toneRecs = tonePack[STATE.occasion] || tonePack['party'];
   const firstLookName = toneRecs?.natural?.name || 'Your Look';
 
   // 1. Flash look name on screen
