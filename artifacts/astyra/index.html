@@ -2685,7 +2685,7 @@ function buildBeforeAfter(){
   const lookData = BASE_LOOKS[STATE.occasion] || BASE_LOOKS['party'];
   const firstLook = lookData?.natural || lookData?.glam || Object.values(lookData||{})[0];
   const lipColor = firstLook?.lip?.[0]?.h || '#C17B7B';
-  const eyeColor = firstLook?.eye?.[0]?.h || '#8B7355';
+  const eyeColor = '#4A3020'; // fixed neutral brown — never yellow regardless of occasion/tone
   const blushColor = firstLook?.blush?.[0]?.h || '#E88A8A';
   wrap.innerHTML = `
     <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
