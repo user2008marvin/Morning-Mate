@@ -461,23 +461,28 @@ body{
 .lc-palette{padding:16px 18px;border-top:1px solid var(--border);margin-top:14px}
 .palette-row{margin-bottom:14px}
 .palette-label{
-  font-size:.5rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;
-  color:var(--text-soft);margin-bottom:5px;
+  font-size:.48rem;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--text-soft);margin-bottom:6px;
 }
-.palette-swatches{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
-.swatch{
-  width:30px;height:30px;border-radius:50%;
-  border:2px solid rgba(255,255,255,.18);cursor:pointer;
-  transition:all .15s;flex-shrink:0;
+/* Full-width colour bar */
+.palette-bar{display:flex;width:100%;border-radius:10px;overflow:hidden;height:44px;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.3)}
+.pal-seg{
+  flex:1;display:flex;align-items:flex-end;justify-content:center;
+  padding-bottom:5px;transition:flex .2s;
+  font-size:.48rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  color:rgba(255,255,255,.8);text-shadow:0 1px 3px rgba(0,0,0,.6);
 }
-.swatch:hover{transform:scale(1.15);box-shadow:0 2px 10px rgba(0,0,0,.35)}
-.swatch.primary{
-  width:58px;height:58px;
-  border:3px solid rgba(255,255,255,.55);
-  box-shadow:0 4px 16px rgba(0,0,0,.4);
+.pal-seg.primary{flex:3;font-size:.54rem;color:#fff;}
+.pal-seg:hover{opacity:.85}
+.palette-primary-label{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:6px;padding:0 2px;
 }
-.palette-name{font-size:.72rem;font-weight:800;color:var(--text);line-height:1.2}
-.palette-code{font-size:.6rem;font-weight:600;color:var(--text-soft);font-family:monospace;margin-top:2px}
+.palette-name{font-size:.7rem;font-weight:800;color:var(--text)}
+.palette-code{font-size:.58rem;font-weight:600;color:var(--text-soft);font-family:monospace}
+/* legacy swatch — keep for swatch info modal */
+.swatch{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.2);cursor:pointer;transition:all .15s;flex-shrink:0;}
+.swatch.primary{width:34px;height:34px;}
 
 /* Technique */
 .lc-technique{padding:0 18px 14px}
@@ -1464,36 +1469,48 @@ fair: {
   label: 'FAIR SKIN',
   note: 'Fair skin: soft rosy, petal, champagne and cool pink tones usually look fresh and balanced.',
   lipPrefix: 'Petal', eyePrefix: 'Champagne', blushPrefix: 'Soft Rose',
+  namePrefix: 'Soft Petal', descTag: 'cool-toned, delicate finish',
+  accentHex: '#F2C8C8', accentText: '#8B5E5E',
   brighten: 18, warm: -4, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
 },
 light: {
   label: 'LIGHT SKIN',
   note: 'Light skin: peach, warm nude and champagne tones add gentle warmth without overpowering.',
   lipPrefix: 'Warm Nude', eyePrefix: 'Soft Gold', blushPrefix: 'Peach Rose',
+  namePrefix: 'Warm Peach', descTag: 'peachy-warm, sun-kissed glow',
+  accentHex: '#E9A890', accentText: '#7A4A30',
   brighten: 10, warm: 6, lipIdx: 0, eyeIdx: 0, blushIdx: 0,
 },
 medium: {
   label: 'MEDIUM SKIN',
   note: 'Medium skin: warm rose, caramel, terracotta and golden tones usually look especially flattering.',
   lipPrefix: 'Warm Rose', eyePrefix: 'Golden', blushPrefix: 'Apricot Rose',
+  namePrefix: 'Golden Rose', descTag: 'warm terracotta-rose tones',
+  accentHex: '#C97878', accentText: '#fff',
   brighten: 2, warm: 14, lipIdx: 1, eyeIdx: 0, blushIdx: 0,
 },
 tan: {
   label: 'TAN SKIN',
   note: 'Tan skin: richer peach, bronze, brick and warm gold tones create depth beautifully.',
   lipPrefix: 'Caramel', eyePrefix: 'Bronze Gold', blushPrefix: 'Warm Coral',
+  namePrefix: 'Bronzed', descTag: 'warm caramel and bronze depth',
+  accentHex: '#AB6840', accentText: '#fff',
   brighten: -4, warm: 18, lipIdx: 1, eyeIdx: 1, blushIdx: 0,
 },
 deep: {
   label: 'DEEP SKIN',
   note: 'Deep skin: berry, terracotta, bronze, rich gold and espresso tones bring the most impact.',
   lipPrefix: 'Berry Rose', eyePrefix: 'Rich Bronze', blushPrefix: 'Burnt Rose',
+  namePrefix: 'Rich Berry', descTag: 'deep berry and espresso drama',
+  accentHex: '#7A2848', accentText: '#fff',
   brighten: -10, warm: 22, lipIdx: 2, eyeIdx: 1, blushIdx: 1,
 },
 rich: {
   label: 'RICH SKIN',
   note: 'Rich skin: deep plum, mahogany, copper, espresso and molten gold tones are especially striking.',
   lipPrefix: 'Mahogany', eyePrefix: 'Molten Gold', blushPrefix: 'Terracotta Berry',
+  namePrefix: 'Mahogany', descTag: 'molten gold and deep plum opulence',
+  accentHex: '#621030', accentText: '#fff',
   brighten: -16, warm: 26, lipIdx: 2, eyeIdx: 2, blushIdx: 1,
 },
 };
@@ -1585,7 +1602,11 @@ function buildToneLook(baseLook,toneId){
   const blush=buildToneSwatches(baseLook.blush||[],toneId,'blush');
   const tone=TONE_VARIANTS[toneId]||TONE_VARIANTS.medium;
   return{
-    ...baseLook, lip, eye, blush,
+    ...baseLook,
+    // Tone-specific name and desc so every skin tone gets a visually distinct look title
+    name:`${tone.namePrefix} ${baseLook.name}`,
+    desc:`${baseLook.desc} — ${tone.descTag}`,
+    lip, eye, blush,
     preferred:{
       lip:tonePreferredIndex(lip,toneId,'lip'),
       eye:tonePreferredIndex(eye,toneId,'eye'),
@@ -1594,6 +1615,8 @@ function buildToneLook(baseLook,toneId){
     technique:(baseLook.technique||[]).map(step=>rewriteTechniqueStep(step,toneId)),
     toneNote:tone.note,
     toneLabel:tone.label,
+    accentHex:tone.accentHex,
+    accentText:tone.accentText,
   };
 }
 
@@ -1860,15 +1883,18 @@ function buildResults(){
     const prods = getProductsForLook(l.key, sponsored, occ.id);
 
     return `
-    <div class="look-card" style="border-top:4px solid ${skin.color}">
-      <div style="background:linear-gradient(90deg,${skin.color}33,transparent);padding:6px 18px;font-size:.6rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--text)">${toneVariant.label} · Personalised Palette</div>
+    <div class="look-card" style="border-top:5px solid ${d.accentHex}">
+      <div style="background:${d.accentHex};padding:7px 18px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:.55rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:${d.accentText}">${toneVariant.label} · Personalised Palette</span>
+        <span style="font-size:.55rem;font-weight:800;color:${d.accentText};opacity:.8">${d.accentHex}</span>
+      </div>
       <div class="lc-header">
         <div>
-          <div class="lc-look-num">${l.num} — ${occ.name.toUpperCase()}</div>
+          <div class="lc-look-num" style="color:${d.accentHex}">${l.num} — ${occ.name.toUpperCase()}</div>
           <div class="lc-look-name">${d.name}</div>
           <div class="lc-look-desc">${d.desc}</div>
         </div>
-        <div class="lc-badge ${l.badgeClass}">${l.badge}</div>
+        <div class="lc-badge ${l.badgeClass}" style="border-color:${d.accentHex}55">${l.badge}</div>
       </div>
 
       <div class="lc-palette">
@@ -1916,20 +1942,22 @@ function buildResults(){
 }
 
 function buildPaletteRow(label, swatches, preferredIdx){
+  if(!swatches||!swatches.length) return '';
   const primary = swatches[preferredIdx] || swatches[0];
-  const others = swatches.filter((_,i)=>i!==preferredIdx);
+  // Build segments: primary first (widest), then alternates
+  const segments = [
+    {s:primary, isPrimary:true},
+    ...swatches.filter((_,i)=>i!==preferredIdx).map(s=>({s,isPrimary:false}))
+  ];
   return `
     <div class="palette-row">
       <div class="palette-label">${label}</div>
-      <div class="palette-swatches">
-        <div class="swatch primary" style="background:${primary.h}" title="${primary.n}" onclick="showSwatchInfo('${primary.n}','${primary.h}','${label}')"></div>
-        <div style="display:flex;flex-direction:column;gap:5px;flex:1">
-          <div class="palette-name">${primary.n}</div>
-          <div class="palette-code">${primary.h}</div>
-          <div style="display:flex;gap:6px;margin-top:2px">
-            ${others.map(s=>`<div class="swatch" style="background:${s.h}" title="${s.n}" onclick="showSwatchInfo('${s.n}','${s.h}','${label}')"></div>`).join('')}
-          </div>
-        </div>
+      <div class="palette-bar" onclick="showSwatchInfo('${primary.n}','${primary.h}','${label}')">
+        ${segments.map(({s,isPrimary})=>`<div class="pal-seg${isPrimary?' primary':''}" style="background:${s.h}" title="${s.n}">${isPrimary?primary.n.split(' ').slice(-1)[0]:''}</div>`).join('')}
+      </div>
+      <div class="palette-primary-label">
+        <div class="palette-name">${primary.n}</div>
+        <div class="palette-code">${primary.h}</div>
       </div>
     </div>`;
 }
