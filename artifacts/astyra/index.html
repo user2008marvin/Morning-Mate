@@ -459,21 +459,25 @@ body{
 
 /* Palette */
 .lc-palette{padding:16px 18px;border-top:1px solid var(--border);margin-top:14px}
-.palette-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.palette-row{margin-bottom:14px}
 .palette-label{
-  font-size:.52rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;
-  color:var(--text-soft);width:42px;flex-shrink:0;
+  font-size:.5rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:var(--text-soft);margin-bottom:5px;
 }
-.palette-swatches{display:flex;align-items:center;gap:6px;flex:1}
+.palette-swatches{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
 .swatch{
-  width:28px;height:28px;border-radius:50%;
-  border:2px solid rgba(0,0,0,.08);cursor:pointer;
+  width:30px;height:30px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.18);cursor:pointer;
   transition:all .15s;flex-shrink:0;
 }
-.swatch:hover{transform:scale(1.2);box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.swatch.primary{width:34px;height:34px;border-color:rgba(0,0,0,.15)}
-.palette-name{font-size:.68rem;font-weight:700;color:var(--text);margin-left:4px}
-.palette-code{font-size:.58rem;font-weight:600;color:var(--text-soft);font-family:monospace;margin-left:2px}
+.swatch:hover{transform:scale(1.15);box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.swatch.primary{
+  width:58px;height:58px;
+  border:3px solid rgba(255,255,255,.55);
+  box-shadow:0 4px 16px rgba(0,0,0,.4);
+}
+.palette-name{font-size:.72rem;font-weight:800;color:var(--text);line-height:1.2}
+.palette-code{font-size:.6rem;font-weight:600;color:var(--text-soft);font-family:monospace;margin-top:2px}
 
 /* Technique */
 .lc-technique{padding:0 18px 14px}
@@ -1913,13 +1917,19 @@ function buildResults(){
 
 function buildPaletteRow(label, swatches, preferredIdx){
   const primary = swatches[preferredIdx] || swatches[0];
+  const others = swatches.filter((_,i)=>i!==preferredIdx);
   return `
     <div class="palette-row">
       <div class="palette-label">${label}</div>
       <div class="palette-swatches">
-        ${swatches.map((s,i)=>`<div class="swatch${i===preferredIdx?' primary':''}" style="background:${s.h}" title="${s.n}" onclick="showSwatchInfo('${s.n}','${s.h}','${label}')"></div>`).join('')}
-        <div class="palette-name">${primary.n}</div>
-        <div class="palette-code">${primary.h}</div>
+        <div class="swatch primary" style="background:${primary.h}" title="${primary.n}" onclick="showSwatchInfo('${primary.n}','${primary.h}','${label}')"></div>
+        <div style="display:flex;flex-direction:column;gap:5px;flex:1">
+          <div class="palette-name">${primary.n}</div>
+          <div class="palette-code">${primary.h}</div>
+          <div style="display:flex;gap:6px;margin-top:2px">
+            ${others.map(s=>`<div class="swatch" style="background:${s.h}" title="${s.n}" onclick="showSwatchInfo('${s.n}','${s.h}','${label}')"></div>`).join('')}
+          </div>
+        </div>
       </div>
     </div>`;
 }
@@ -2496,11 +2506,15 @@ function buildBeforeAfter(){
   const faceUrl = STATE.faceDataUrl;
   if(!faceUrl){ wrap.innerHTML=''; return; }
   const occ = OCCASIONS.find(o=>o.id===STATE.occasion);
-  const lookData = BASE_LOOKS[STATE.occasion] || BASE_LOOKS['party'];
-  const firstLook = lookData?.natural || lookData?.glam || Object.values(lookData||{})[0];
-  const lipColor = firstLook?.lip?.[0]?.h || '#C17B7B';
-  const eyeColor = firstLook?.eye?.[0]?.h || '#8B7355';
-  const blushColor = firstLook?.blush?.[0]?.h || '#E88A8A';
+  const toneId = STATE.skinTone || 'medium';
+  const toneRecs = (RECS[STATE.occasion]||RECS['party'])[toneId]||(RECS[STATE.occasion]||RECS['party'])['medium'];
+  const firstLook = toneRecs?.natural || toneRecs?.glam || Object.values(toneRecs||{})[0];
+  const lipPrefIdx = firstLook?.preferred?.lip ?? 0;
+  const eyePrefIdx = firstLook?.preferred?.eye ?? 0;
+  const blushPrefIdx = firstLook?.preferred?.blush ?? 0;
+  const lipColor = firstLook?.lip?.[lipPrefIdx]?.h || '#C17B7B';
+  const eyeColor = firstLook?.eye?.[eyePrefIdx]?.h || '#8B7355';
+  const blushColor = firstLook?.blush?.[blushPrefIdx]?.h || '#E88A8A';
   wrap.innerHTML = `
     <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
       <div style="background:var(--surface2);padding:10px 14px;font-size:.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)">✦ Your Before / After</div>
