@@ -122,22 +122,51 @@ async function speak(text: string, lang: Language = "en") {
     audioCache[cacheKey] = audioUrl;
     new Audio(audioUrl).play().catch(() => {});
   } catch {
-    // Browser fallback — prefer British en-GB voice
+    // Browser fallback — always pick a FEMALE voice
     try {
       const utterance = new SpeechSynthesisUtterance(clean);
       const voices = window.speechSynthesis.getVoices();
+
+      // Known female voice names across platforms (ordered by preference)
+      const FEMALE_EN = [
+        "Google UK English Female",   // Chrome Windows/Linux ✓
+        "Samantha",                   // macOS/iOS US female ✓
+        "Karen",                      // iOS Australian female ✓
+        "Tessa",                      // iOS South African female ✓
+        "Moira",                      // iOS Irish female ✓
+        "Fiona",                      // macOS Scottish female ✓
+        "Google US English",          // Chrome (female) ✓
+        "Microsoft Zira",             // Windows Edge female ✓
+        "Microsoft Hazel",            // Windows British female ✓
+      ];
+      const FEMALE_ES = [
+        "Google español",             // Chrome Spanish female ✓
+        "Paulina",                    // macOS Mexican Spanish female ✓
+        "Monica",                     // iOS Spanish female ✓
+        "Google español de Estados Unidos", // Chrome US Spanish ✓
+        "Microsoft Helena",           // Windows Spanish female ✓
+      ];
+      // Male voices to explicitly skip for English
+      const MALE_EN_SKIP = ["Daniel", "Google UK English Male", "Alex", "Fred", "Microsoft David", "Microsoft Mark", "Arthur"];
+
       if (lang === "es") {
-        utterance.voice = voices.find(v => v.lang.startsWith("es")) ?? null;
+        utterance.voice =
+          voices.find(v => FEMALE_ES.includes(v.name)) ??
+          voices.find(v => v.lang.startsWith("es") && v.name.toLowerCase().includes("female")) ??
+          voices.find(v => v.lang.startsWith("es")) ?? null;
         utterance.lang = "es-ES";
       } else {
-        utterance.voice =
-          voices.find(v => v.name.includes("Google UK English")) ??
-          voices.find(v => v.name === "Daniel") ??  // iOS British
-          voices.find(v => v.lang === "en-GB") ??
-          voices.find(v => v.lang.startsWith("en")) ?? null;
+        const female = voices.find(v => FEMALE_EN.includes(v.name))
+          ?? voices.find(v => v.lang === "en-GB" && !MALE_EN_SKIP.includes(v.name) && v.name.toLowerCase().includes("female"))
+          ?? voices.find(v => v.lang === "en-GB" && !MALE_EN_SKIP.includes(v.name))
+          ?? voices.find(v => v.lang.startsWith("en") && !MALE_EN_SKIP.includes(v.name) && v.name.toLowerCase().includes("female"))
+          ?? voices.find(v => v.lang.startsWith("en") && !MALE_EN_SKIP.includes(v.name))
+          ?? voices.find(v => v.lang.startsWith("en")) ?? null;
+        utterance.voice = female;
         utterance.lang = "en-GB";
       }
-      utterance.pitch = 1.05;
+
+      utterance.pitch = 1.1;
       utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
     } catch {}
