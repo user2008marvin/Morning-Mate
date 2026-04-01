@@ -197,6 +197,8 @@ async function startServer() {
   // HTTPS enforcement in production
   if (process.env.NODE_ENV === "production") {
     app.use((req, res, next) => {
+      // Skip for health checks (Railway pings internally over HTTP)
+      if (req.path === "/health" || req.path === "/") return next();
       if (req.protocol !== "https" && req.get("x-forwarded-proto") !== "https") {
         return res.redirect(301, `https://${req.get("host")}${req.url}`);
       }
