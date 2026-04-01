@@ -36,6 +36,32 @@ artifacts-monorepo/
 └── package.json            # Root package with hoisted devDeps
 ```
 
+## GlowJo (morning-mate/)
+
+**Location**: `morning-mate/` (standalone project, cloned from GitHub — not yet in pnpm workspace)
+
+**Stack**: React + Vite frontend, tRPC + Express backend, Drizzle ORM + MySQL (Manus-hosted), JWT sessions in cookies, Manus OAuth
+
+**Routes**: `/` Home, `/onboarding`, `/app` game, `/parent` Parent Dashboard, `/success` post-payment page
+
+### Auth Flow
+Manus OAuth → `/api/oauth/callback` → JWT cookie (`app_session_id` via `COOKIE_NAME` in `shared/const.ts`) → `trpc.auth.me` for session
+
+### Key Files
+- `server/_core/session.ts` — JWT session creation/verification + `setSessionCookie(res, token, req)`
+- `server/_core/oauth.ts` — Manus OAuth callback, sets session cookie
+- `server/_core/cookies.ts` — `getSessionCookieOptions(req)` — uses `sameSite: "none"` for cross-origin OAuth
+- `server/routers.ts` — root tRPC router: `auth`, `subscription`, `app`, `tts`, `stripe`, `analytics`, `email`
+- `client/src/hooks/useAuth.ts` — `trpc.auth.me` wrapper
+- `client/src/hooks/useSubscription.ts` — `trpc.subscription.getSubscription` wrapper
+- `client/src/pages/ParentDashboard.tsx` — real auth, child CRUD, Stripe upgrade
+- `client/src/pages/Success.tsx` — post-Stripe confirmation page
+
+### Subscription Tiers
+`freemium` (1 kid) → `starter` ($2.99/mo, 1 kid) → `plus` ($7.99/mo, 2 kids) → `gold` ($12.99/mo, 4 kids)
+
+---
+
 ## Astyra Makeup Try-On App
 
 **Artifact**: `artifacts/astyra` (preview path: `/`)
