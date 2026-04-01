@@ -1,0 +1,94 @@
+
+[Region: us-west1]
+==============
+Using Nixpacks
+==============
+
+context: 777p-BfAs
+╔═════════════════════════════ Nixpacks v1.38.0 ════════════════════════════╗
+║ setup │ nodejs_20 ║
+║───────────────────────────────────────────────────────────────────────────║
+║ caddy │ pkgs: caddy ║
+║ │ cmds: caddy fmt --overwrite /assets/Caddyfile ║
+║───────────────────────────────────────────────────────────────────────────║
+║ install │ npm install -g pnpm@10.4.1 && pnpm install --frozen-lockfile ║
+║───────────────────────────────────────────────────────────────────────────║
+║ build │ pnpm build ║
+║───────────────────────────────────────────────────────────────────────────║
+║ start │ node dist/index.js ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+internal
+load build definition from Dockerfile
+0ms
+
+internal
+load metadata for ghcr.io/railwayapp/nixpacks:ubuntu-1745885067
+324ms
+
+internal
+load .dockerignore
+0ms
+
+stage-0
+FROM ghcr.io/railwayapp/nixpacks:ubuntu-1745885067@sha256:d45c89d80e13d7ad0fd555b5130f22a866d9dd10e861f589932303ef2314c7de
+9ms
+
+internal
+load build context
+0ms
+
+stage-0
+COPY .nixpacks/assets /assets/ cached
+0ms
+
+stage-0
+COPY .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix cached
+0ms
+
+stage-0
+RUN nix-env -if .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix && nix-collect-garbage -d cached
+0ms
+
+stage-0
+COPY .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix .nixpacks/nixpkgs-ba913eda2df8eb72147259189d55932012df6301.nix cached
+0ms
+
+stage-0
+WORKDIR /app/ cached
+0ms
+
+stage-0
+RUN nix-env -if .nixpacks/nixpkgs-ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7.nix && nix-collect-garbage -d cached
+0ms
+
+stage-0
+COPY . /app/.
+33ms
+
+stage-0
+RUN caddy fmt --overwrite /assets/Caddyfile
+233ms
+
+stage-0
+COPY . /app/.
+40ms
+
+stage-0
+RUN npm install -g pnpm@10.4.1 && pnpm install --frozen-lockfile
+1s
+npm warn config production Use `--omit=dev` instead.
+added 1 package in 1s
+1 package is looking for funding
+run `npm fund` for details
+/bin/bash: line 1: pnpm: command not found
+Dockerfile:26
+-------------------
+24 | ENV NIXPACKS_PATH=/app/node_modules/.bin:$NIXPACKS_PATH
+25 | COPY . /app/.
+26 | >>> RUN --mount=type=cache,id=s/e853a406-3c36-45da-bec1-21b53475f95e-/root/local/share/pnpm/store/v3,target=/root/.local/share/pnpm/store/v3 npm install -g pnpm@10.4.1 && pnpm install --frozen-lockfile
+27 |
+28 | # build phase
+-------------------
+ERROR: failed to build: failed to solve: process "/bin/bash -ol pipefail -c npm install -g pnpm@10.4.1 && pnpm install --frozen-lockfile" did not complete successfully: exit code: 127
+Error: Docker build failed
