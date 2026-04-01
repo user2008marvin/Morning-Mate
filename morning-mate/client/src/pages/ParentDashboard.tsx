@@ -166,21 +166,63 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
   );
 }
 
+const PLANS = [
+  { tier: "starter" as const, label: "Starter", emoji: "⭐", monthly: 4.99, yearly: 49.90, features: "1 child · Voice encouragement" },
+  { tier: "plus"    as const, label: "Plus",    emoji: "🌟", monthly: 9.99, yearly: 99.90, features: "3 children · Bilingual mode" },
+  { tier: "gold"    as const, label: "Gold",    emoji: "🏆", monthly: 14.99, yearly: 149.90, features: "Unlimited · All features" },
+];
+
 function UpgradeCard({ tier }: { tier: string }) {
+  const [period, setPeriod] = useState<"month" | "year">("month");
   const createCheckout = trpc.stripe.createCheckoutSession.useMutation({
     onSuccess: (data) => { if (data.checkoutUrl) window.location.href = data.checkoutUrl; },
     onError: (err) => toast.error(err.message || "Failed to start checkout"),
   });
   if (tier !== "freemium") return null;
+
   return (
     <div style={{ background: "linear-gradient(135deg, #667eea, #764ba2)", borderRadius: "20px", padding: "20px", color: "white", marginBottom: "20px" }}>
-      <div style={{ fontSize: "1.3rem", fontWeight: "bold", marginBottom: "6px" }}>🌟 Upgrade to Pro</div>
-      <p style={{ fontSize: "0.85rem", opacity: 0.9, marginBottom: "14px" }}>Multiple kids · Voice encouragement · Bilingual mode</p>
-      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-        {(["starter", "plus", "gold"] as const).map(t => (
-          <button key={t} onClick={() => createCheckout.mutate({ tier: t, billingPeriod: "month" })} disabled={createCheckout.isPending}
-            style={{ background: "rgba(255,255,255,0.2)", color: "white", border: "2px solid rgba(255,255,255,0.4)", borderRadius: "10px", padding: "8px 12px", cursor: "pointer", fontFamily: "'Fredoka One', cursive", fontSize: "0.8rem" }}>
-            {t === "starter" ? "⭐ $2.99/mo" : t === "plus" ? "🌟 $7.99/mo" : "🏆 $12.99/mo"}
+      <div style={{ fontSize: "1.3rem", fontWeight: "bold", marginBottom: "4px" }}>🌟 Upgrade GlowJo</div>
+      <p style={{ fontSize: "0.85rem", opacity: 0.9, marginBottom: "14px" }}>Multiple kids · British voice · Bilingual mode</p>
+
+      {/* Monthly / Yearly toggle */}
+      <div style={{ display: "flex", gap: "6px", marginBottom: "14px", background: "rgba(0,0,0,0.2)", borderRadius: "10px", padding: "4px", width: "fit-content" }}>
+        {(["month", "year"] as const).map(p => (
+          <button key={p} onClick={() => setPeriod(p)} style={{
+            padding: "6px 14px", borderRadius: "7px", border: "none", cursor: "pointer",
+            fontFamily: "'Fredoka One', cursive", fontSize: "0.8rem",
+            background: period === p ? "white" : "transparent",
+            color: period === p ? "#764ba2" : "rgba(255,255,255,0.7)",
+            fontWeight: 700,
+          }}>
+            {p === "month" ? "Monthly" : "Yearly"}
+            {p === "year" && <span style={{ marginLeft: 4, fontSize: "0.65rem", background: "#ffd700", color: "#333", borderRadius: 4, padding: "1px 4px" }}>SAVE 17%</span>}
+          </button>
+        ))}
+      </div>
+
+      {/* Plan buttons */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        {PLANS.map(plan => (
+          <button key={plan.tier}
+            onClick={() => createCheckout.mutate({ tier: plan.tier, billingPeriod: period })}
+            disabled={createCheckout.isPending}
+            style={{
+              background: "rgba(255,255,255,0.15)", color: "white",
+              border: "2px solid rgba(255,255,255,0.35)", borderRadius: "12px",
+              padding: "10px 14px", cursor: "pointer", textAlign: "left",
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              opacity: createCheckout.isPending ? 0.6 : 1,
+            }}>
+            <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: "0.95rem" }}>
+              {plan.emoji} {plan.label}
+              <span style={{ fontWeight: 400, fontSize: "0.75rem", opacity: 0.8, marginLeft: 8 }}>{plan.features}</span>
+            </span>
+            <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: "0.9rem", whiteSpace: "nowrap" }}>
+              {period === "month"
+                ? `$${plan.monthly.toFixed(2)}/mo`
+                : `$${plan.yearly.toFixed(2)}/yr`}
+            </span>
           </button>
         ))}
       </div>
