@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1774132546238,
+      "tag": "0000_fancy_hawkeye",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1774132592476,
+      "tag": "0001_eminent_sally_floyd",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1774523746647,
+      "tag": "0002_fearless_baron_zemo",
+      "breakpoints": true
+    }
+  ]
+}

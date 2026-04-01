@@ -1,0 +1,192 @@
+import "dotenv/config";
+import express from "express";
+import { createServer } from "http";
+import net from "net";
+import helmet from "helmet";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
+import Stripe from "stripe";
+import { createExpressMiddleware } from "@trpc/server/adapters/express";
+import { registerOAuthRoutes } from "./oauth";
+import { appRouter } from "../routers";
+import { createContext } from "./context";
+import { serveStatic, setupVite } from "./vite";
+
+function isPortAvailable(port: number): Promise<boolean> {
+  return new Promise(resolve => {
+    const server = net.createServer();
+    server.listen(port, () => {
+      server.close(() => resolve(true));
+    });
+    server.on("error", () => resolve(false));
+  });
+}
+
+async function findAvailablePort(startPort: number = 3000): Promise<number> {
+  for (let port = startPort; port < startPort + 20; port++) {
+    if (await isPortAvailable(port)) {
+      return port;
+    }
+  }
+  throw new Error(`No available port found starting from ${startPort}`);
+}
+
+async function startServer() {
+  const app = express();
+  const server = createServer(app);
+
+  // ==================== SECURITY MIDDLEWARE ====================
+
+  // Security: Helmet for HTTP headers (CSP, X-Frame-Options, etc.)
+  app.use(helmet());
+
+  // ==================== STRIPE WEBHOOK (BEFORE CORS & BODY PARSERS) ====================
+  // CRITICAL: Stripe webhook MUST be registered BEFORE express.json() and CORS
+  // because it needs the raw body for signature verification
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+
+  app.post(
+    "/api/webhooks/stripe",
+    express.raw({ type: "application/json" }), // Raw body for signature verification
+    async (req, res) => {
+      const sig = req.headers["stripe-signature"] as string;
+      const secret = process.env.STRIPE_WEBHOOK_SECRET;
+
+      // Validate signature and secret
+      if (!sig || !secret) {
+        console.error("[Stripe] Missing signature or secret");
+        return res.status(400).send("Missing signature or secret");
+      }
+
+      try {
+        const event = stripe.webhooks.constructEvent(req.body, sig, secret);
+        console.log(`[Stripe] Webhook received: ${event.type}`);
+
+        // Handle subscription created or updated
+        if (
+          event.type === "customer.subscription.created" ||
+          event.type === "customer.subscription.updated"
+        ) {
+          const subscription = event.data.object as any;
+          console.log(`[Stripe] Subscription ${event.type}: ${subscription.id}`);
+          console.log(`[Stripe] Customer: ${subscription.customer}, Status: ${subscription.status}`);
+          // Subscription update will be handled by client-side tRPC call
+        }
+
+        // Handle subscription deleted
+        if (event.type === "customer.subscription.deleted") {
+          const subscription = event.data.object as any;
+          console.log(`[Stripe] Subscription canceled: ${subscription.id}`);
+          // Cancellation will be handled by client-side tRPC call
+        }
+
+        // Handle charge failed
+        if (event.type === "charge.failed") {
+          const charge = event.data.object as any;
+          console.log(`[Stripe] Charge failed: ${charge.id}`);
+          // User notification will be handled by client-side
+        }
+
+        res.json({ received: true });
+      } catch (err: any) {
+        console.error("[Stripe] Webhook error:", err.message);
+        res.status(400).send(`Webhook error: ${err.message}`);
+      }
+    }
+  );
+
+  // CORS configuration (AFTER Stripe webhook)
+  app.use(cors({
+    origin: process.env.FRONTEND_URL || "*",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }));
+
+  // Rate limiting: General API limit (100 requests per 15 minutes)
+  const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: "Too many requests from this IP, please try again later.",
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => req.path === "/health", // Skip health checks
+  });
+  app.use("/api/", apiLimiter);
+
+  // Rate limiting: Stricter limit for auth endpoints (5 attempts per 15 min)
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: "Too many login attempts, please try again later.",
+  });
+
+  // HTTPS enforcement in production
+  if (process.env.NODE_ENV === "production") {
+    app.use((req, res, next) => {
+      if (req.protocol !== "https" && req.get("x-forwarded-proto") !== "https") {
+        return res.redirect(301, `https://${req.get("host")}${req.url}`);
+      }
+      res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+      next();
+    });
+  }
+
+  // ==================== BODY PARSERS ====================
+
+  // Configure body parser with larger size limit for file uploads
+  app.use(express.json({ limit: "50mb" }));
+  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+  // ==================== OAUTH & API ROUTES ====================
+
+  // OAuth callback under /api/oauth/callback
+  registerOAuthRoutes(app);
+
+  // tRPC API
+  app.use(
+    "/api/trpc",
+    createExpressMiddleware({
+      router: appRouter,
+      createContext,
+    })
+  );
+
+  // Analytics endpoint (bridges to tRPC analytics router)
+  app.post("/api/analytics", express.json(), (req, res) => {
+    console.log("[Analytics]", req.body.type, req.body.name);
+    res.json({ success: true });
+  });
+
+  // Health check endpoint (for monitoring)
+  app.get("/health", (req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  // ==================== STATIC FILES ====================
+
+  // development mode uses Vite, production mode uses static files
+  if (process.env.NODE_ENV === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+
+  // ==================== START SERVER ====================
+
+  const preferredPort = parseInt(process.env.PORT || "3000");
+  const port = await findAvailablePort(preferredPort);
+
+  if (port !== preferredPort) {
+    console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
+  }
+
+  server.listen(port, () => {
+    console.log(`[Server] Running on http://localhost:${port}/`);
+    console.log(`[Environment] NODE_ENV=${process.env.NODE_ENV}`);
+    console.log(`[Security] Helmet enabled, CORS configured, Rate limiting active`);
+  });
+}
+
+startServer().catch(console.error);
