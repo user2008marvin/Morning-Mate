@@ -6,18 +6,31 @@ import * as db from "../db";
 /**
  * Text-to-Speech using Manus built-in TTS service
  * Supports English and Spanish with proper female voices
+ *
+ * speak is PUBLIC — no login required so children can use the app
+ * even when Manus OAuth is broken on the custom domain.
+ * Abuse is limited by IP-based rate limiting below.
  */
 
 const MANUS_TTS_URL = process.env.BUILT_IN_FORGE_API_URL || "https://forge.manus.ai";
-const TTS_RATE_LIMIT = 10; // Max 10 TTS calls per user per minute
-const TTS_DAILY_LIMIT = 100; // Max 100 TTS calls per user per day
+const TTS_DAILY_LIMIT = 100;
+
+// Simple in-memory IP rate limiter: max 30 calls per minute per IP
+const ipCallLog = new Map<string, number[]>();
+function checkIpRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const calls = (ipCallLog.get(ip) || []).filter(t => now - t < 60_000);
+  if (calls.length >= 30) return false;
+  ipCallLog.set(ip, [...calls, now]);
+  return true;
+}
 
 export const ttsRouter = router({
   /**
-   * Generate speech audio from text using Manus TTS
-   * Includes rate limiting and usage tracking
+   * Generate speech audio from text using Manus TTS.
+   * PUBLIC — no auth required (children use this directly).
    */
-  speak: protectedProcedure
+  speak: publicProcedure
     .input(
       z.object({
         text: z.string().min(1, "Text required").max(500, "Max 500 characters"),
@@ -25,9 +38,13 @@ export const ttsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // IP-based rate limit (30 calls/min per IP)
+      const ip = (ctx.req as any)?.ip || (ctx.req as any)?.headers?.["x-forwarded-for"] || "unknown";
+      if (!checkIpRateLimit(ip)) {
+        throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many TTS requests. Please wait a moment." });
+      }
 
-
-      // 2. CLEAN TEXT (remove emojis and special characters)
+      // CLEAN TEXT (remove emojis and special characters)
       const cleanedText = input.text
         .replace(/[^\w\s\.\,\!\?\-\'\"\:\;\(\)]/g, "")
         .trim();
