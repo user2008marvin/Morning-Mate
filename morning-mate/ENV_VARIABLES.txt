@@ -52,3 +52,28 @@ VITE_FRONTEND_URL=https://yourdomain.com
 
 NODE_ENV=production
 PORT=3000
+
+# ── MANUS CUSTOM DOMAIN — OAUTH WHITELIST (IMPORTANT) ─────────────────────────
+# On custom domains (e.g. getglowjo.com) Manus's OAuth proxy intercepts ALL
+# requests and redirects unauthenticated users to manus.im/app-auth.
+# This breaks CORS for static assets (manifest.json etc.) and blocks sign-ins.
+#
+# Ask Manus support to whitelist the following paths from OAuth interception:
+#   /manifest.json
+#   /favicon.ico
+#   /favicon.png
+#   /robots.txt
+#   /apple-touch-icon.png
+#   /logo192.png
+#   /logo512.png
+#   /assets/*
+#   /icons/*
+#   /images/*
+#   /static/*
+#   /api/oauth/*         ← OAuth callback must be reachable without auth
+#   /api/webhooks/*      ← Stripe webhooks must not be intercepted
+#   /health              ← Health check endpoint
+#
+# Our server already sends Access-Control-Allow-Origin: * for these paths,
+# but the Manus proxy redirect must be disabled at their layer for the fix
+# to take effect.

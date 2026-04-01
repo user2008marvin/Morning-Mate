@@ -43,9 +43,45 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
+// Paths that must NEVER require authentication (static assets, PWA files)
+const PUBLIC_ASSET_PATHS = [
+  "/manifest.json",
+  "/favicon.ico",
+  "/favicon.png",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/apple-touch-icon.png",
+  "/logo192.png",
+  "/logo512.png",
+];
+const PUBLIC_ASSET_PREFIXES = ["/assets/", "/icons/", "/images/", "/static/"];
+
 async function startServer() {
   const app = express();
   const server = createServer(app);
+
+  // ==================== PUBLIC STATIC ASSET BYPASS ====================
+  // MUST be first — before Helmet, CORS, auth, everything.
+  // Serves manifest.json and other static assets with open CORS headers so
+  // PWA install, OAuth flows, and browsers can always fetch them without
+  // being redirected to the login page (fixes Manus custom-domain issue).
+  app.use((req, res, next) => {
+    const isPublicAsset =
+      PUBLIC_ASSET_PATHS.includes(req.path) ||
+      PUBLIC_ASSET_PREFIXES.some(prefix => req.path.startsWith(prefix));
+
+    if (isPublicAsset) {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+      res.setHeader("Cache-Control", "public, max-age=86400");
+      if (req.method === "OPTIONS") {
+        res.status(204).end();
+        return;
+      }
+    }
+    next();
+  });
 
   // ==================== SECURITY MIDDLEWARE ====================
 
