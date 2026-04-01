@@ -24,3 +24,22 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+OAUTH_SERVER_URL = "https://api.manus.im"
+VITE_OAUTH_PORTAL_URL = "https://manus.im"
+VITE_STRIPE_PUBLISHABLE_KEY = "pk_live_51TEVOcQzOVPRlS3EAfHhb8zEo5PG26XZv9dntUyjsWRu0SJlaBV3FE4J4HX0NFVxABB8NffEZpasYoj1XR3VSgvC00hEqfEb8j"
+MAILGUN_DOMAIN = "sandbox78f2a765f8f94f178109cb10c130ab63.mailgun.org"
+MAILGUN_FROM_EMAIL = "postmaster@sandbox78f2a765f8f94f178109cb10c130ab63.mailgun.org"
+BUILT_IN_FORGE_API_URL = "https://forge.manus.ai"
+VITE_FRONTEND_FORGE_API_URL = "https://forge.manus.ai"
+VITE_FRONTEND_FORGE_API_KEY = "NSZghjo2SqjJt4UgozpcEY"
+VITE_APP_ID = "Q6tJTdg6w67gktwsr4Arms"
+VITE_APP_TITLE = "GLOWJO"
+VITE_APP_LOGO = "https://files.manuscdn.com/user_upload_by_module/web_dev_logo/310519663462837813/OZvHKaoylVsMxKYZ.png"
+VITE_ANALYTICS_ENDPOINT = "https://manus-analytics.com"
+VITE_ANALYTICS_WEBSITE_ID = "350f6ad2-4ab2-4c1d-9e97-36539a6ff5c8"
+OWNER_NAME = "martin cou"
+OWNER_OPEN_ID = "es53EmE9vvSbsmzdJuvdTT"
