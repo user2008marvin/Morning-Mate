@@ -11,6 +11,20 @@ import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { getUserByStripeCustomerId, getUserByStripeSubscriptionId, updateSubscription, cancelSubscription } from "../db";
+
+const PRICE_TO_TIER: Record<string, "starter" | "plus" | "gold"> = {
+  [process.env.STRIPE_STARTER_MONTHLY_PRICE_ID || ""]: "starter",
+  [process.env.STRIPE_STARTER_YEARLY_PRICE_ID || ""]: "starter",
+  [process.env.STRIPE_PLUS_MONTHLY_PRICE_ID || ""]: "plus",
+  [process.env.STRIPE_PLUS_YEARLY_PRICE_ID || ""]: "plus",
+  [process.env.STRIPE_GOLD_MONTHLY_PRICE_ID || ""]: "gold",
+  [process.env.STRIPE_GOLD_YEARLY_PRICE_ID || ""]: "gold",
+};
+
+function tierFromPriceId(priceId: string): "starter" | "plus" | "gold" {
+  return PRICE_TO_TIER[priceId] ?? "starter";
+}
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -63,29 +77,53 @@ async function startServer() {
         const event = stripe.webhooks.constructEvent(req.body, sig, secret);
         console.log(`[Stripe] Webhook received: ${event.type}`);
 
-        // Handle subscription created or updated
+        // checkout.session.completed — user just paid
+        if (event.type === "checkout.session.completed") {
+          const session = event.data.object as any;
+          const userId = session.metadata?.userId ? parseInt(session.metadata.userId) : null;
+          const tier = session.metadata?.tier as "starter" | "plus" | "gold" | undefined;
+          if (userId && tier) {
+            await updateSubscription(userId, {
+              tier,
+              stripeCustomerId: session.customer ?? undefined,
+              status: "active",
+            });
+            console.log(`[Stripe] Activated ${tier} for user ${userId}`);
+          }
+        }
+
+        // subscription created / updated
         if (
           event.type === "customer.subscription.created" ||
           event.type === "customer.subscription.updated"
         ) {
-          const subscription = event.data.object as any;
-          console.log(`[Stripe] Subscription ${event.type}: ${subscription.id}`);
-          console.log(`[Stripe] Customer: ${subscription.customer}, Status: ${subscription.status}`);
-          // Subscription update will be handled by client-side tRPC call
+          const sub = event.data.object as any;
+          const priceId = sub.items?.data?.[0]?.price?.id as string | undefined;
+          const tier = priceId ? tierFromPriceId(priceId) : undefined;
+          const user = await getUserByStripeCustomerId(sub.customer);
+          if (user && tier) {
+            await updateSubscription(user.id, {
+              tier,
+              stripeCustomerId: sub.customer,
+              stripeSubscriptionId: sub.id,
+              status: sub.status,
+              currentPeriodEnd: sub.current_period_end
+                ? new Date(sub.current_period_end * 1000)
+                : undefined,
+              cancelAtPeriodEnd: sub.cancel_at_period_end ? 1 : 0,
+            });
+            console.log(`[Stripe] Updated subscription ${sub.id} → ${tier} for user ${user.id}`);
+          }
         }
 
-        // Handle subscription deleted
+        // subscription cancelled
         if (event.type === "customer.subscription.deleted") {
-          const subscription = event.data.object as any;
-          console.log(`[Stripe] Subscription canceled: ${subscription.id}`);
-          // Cancellation will be handled by client-side tRPC call
-        }
-
-        // Handle charge failed
-        if (event.type === "charge.failed") {
-          const charge = event.data.object as any;
-          console.log(`[Stripe] Charge failed: ${charge.id}`);
-          // User notification will be handled by client-side
+          const sub = event.data.object as any;
+          const user = await getUserByStripeSubscriptionId(sub.id);
+          if (user) {
+            await cancelSubscription(user.id);
+            console.log(`[Stripe] Cancelled subscription for user ${user.id}`);
+          }
         }
 
         res.json({ received: true });

@@ -46,19 +46,19 @@ export const ttsRouter = router({
         });
       }
 
-      // 3. SELECT VOICE CONFIGURATION
+      // 3. SELECT VOICE CONFIGURATION — warm, safe, kind British
       const voiceConfig = {
         en: {
-          voiceId: "en-GB-Neural2-C", // British female voice - warm, friendly, comforting
+          voiceId: "en-GB-Neural2-C", // British female — warm, nurturing
           languageCode: "en-GB",
-          pitch: 0.2, // Slightly higher pitch for friendliness
-          speakingRate: 0.95, // Slightly slower for clarity
+          pitch: 0.5,        // Gentle lift for warmth
+          speakingRate: 0.88, // Slightly slower — clear and calming for children
         },
         es: {
-          voiceId: "es-ES-Neural2-C", // Spanish female voice
+          voiceId: "es-ES-Neural2-C",
           languageCode: "es-ES",
-          pitch: 0.2,
-          speakingRate: 0.95,
+          pitch: 0.5,
+          speakingRate: 0.88,
         },
       };
 
