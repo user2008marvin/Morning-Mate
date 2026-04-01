@@ -1,0 +1,54 @@
+
+# GlowJo — Required Environment Variables
+# ==========================================
+# Copy these into your deployment environment (e.g. Railway, Render, Manus).
+# Never commit actual secret values to git.
+
+# ── DATABASE ──────────────────────────────────────────────────────────────────
+DATABASE_URL=mysql://user:password@host:3306/glowjo
+# TiDB Cloud (MySQL-compatible). Used for users, children, subscriptions.
+
+# ── AUTH / SESSION ────────────────────────────────────────────────────────────
+JWT_SECRET=replace_with_random_64_char_string
+SESSION_SECRET=replace_with_another_random_64_char_string
+
+# ── STRIPE ────────────────────────────────────────────────────────────────────
+STRIPE_SECRET_KEY=sk_live_xxxxxxxxxxxxxxxxxxxx
+# Your Stripe secret key (live or test). Used to create checkout sessions
+# and look up active price IDs dynamically from your Stripe products.
+
+STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxx
+# Webhook signing secret from Stripe Dashboard → Webhooks.
+# Required so the server can verify incoming webhook events.
+
+# ── STRIPE PRODUCT IDs ────────────────────────────────────────────────────────
+# These are your Stripe Product IDs (NOT Price IDs).
+# Price IDs are fetched automatically from Stripe using the product ID + billing period.
+# Do NOT change these unless you create new products in Stripe.
+
+STRIPE_PRODUCT_STARTER=prod_UFv1lk6xTeRu0r
+STRIPE_PRODUCT_PLUS=prod_UFv7wwXLIFTBhw
+STRIPE_PRODUCT_GOLD=prod_UFvCIa9o0bg0Ei
+
+# ── STRIPE PRICING (for reference only — displayed in UI) ────────────────────
+# Starter:  $4.99/month  or  $49.90/year   (1 child)
+# Plus:     $9.99/month  or  $99.90/year   (3 children, bilingual)
+# Gold:    $14.99/month  or $149.90/year   (unlimited children, all features)
+
+# ── GOOGLE TTS ────────────────────────────────────────────────────────────────
+BUILT_IN_FORGE_API_KEY=your_google_cloud_api_key
+# Google Cloud Text-to-Speech API key.
+# Voice used: en-GB-Neural2-C (British English), es-ES-Neural2-C (Spanish)
+
+# ── OAUTH (Google Login) ──────────────────────────────────────────────────────
+GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+# Create at: https://console.cloud.google.com → APIs & Services → Credentials
+# Authorised redirect URI: https://yourdomain.com/auth/google/callback
+
+# ── FRONTEND / URLS ───────────────────────────────────────────────────────────
+VITE_FRONTEND_URL=https://yourdomain.com
+# The public URL of your deployed app. Used for Stripe success/cancel redirects.
+
+NODE_ENV=production
+PORT=3000

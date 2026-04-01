@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useSubscription } from "@/hooks/useSubscription";
 
 // ── CONSTANTS ──
 const TASKS_EN = [
@@ -276,10 +277,11 @@ function Onboarding({ onComplete }: { onComplete: (state: Partial<AppState>) => 
 
 // ── MAIN KID SCREEN ──
 function MainScreen({
-  state, onWin, onParent, onUpdateState
+  state, onWin, onParent, onUpdateState, bilingualEnabled
 }: {
   state: AppState; onWin: (starsEarned: number) => void;
   onParent: () => void; onUpdateState: (updates: Partial<AppState>) => void;
+  bilingualEnabled: boolean;
 }) {
   const activeTasks = TASKS_EN.filter((_, i) => state.enabledTasks[i]);
   const [taskIdx, setTaskIdx] = useState(0);
@@ -470,19 +472,32 @@ function MainScreen({
         </div>
       </div>
 
-      {/* Language toggle */}
-      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-        {(["en", "es"] as Language[]).map(lang => (
-          <button key={lang} onClick={() => onUpdateState({ language: lang })} style={{
+      {/* Language toggle — bilingual is Plus/Gold only */}
+      <div style={{ display: "flex", gap: 8, marginTop: 12, alignItems: "center" }}>
+        <button onClick={() => onUpdateState({ language: "en" })} style={{
+          padding: "6px 14px", borderRadius: 20,
+          border: `2px solid ${state.language === "en" ? "#ffd700" : "rgba(255,255,255,0.2)"}`,
+          background: state.language === "en" ? "rgba(255,215,0,0.2)" : "transparent",
+          color: state.language === "en" ? "#ffd700" : "rgba(255,255,255,0.4)",
+          fontSize: 12, fontWeight: 800, cursor: "pointer"
+        }}>🇬🇧 EN</button>
+        {bilingualEnabled ? (
+          <button onClick={() => onUpdateState({ language: "es" })} style={{
             padding: "6px 14px", borderRadius: 20,
-            border: `2px solid ${state.language === lang ? "#ffd700" : "rgba(255,255,255,0.2)"}`,
-            background: state.language === lang ? "rgba(255,215,0,0.2)" : "transparent",
-            color: state.language === lang ? "#ffd700" : "rgba(255,255,255,0.4)",
+            border: `2px solid ${state.language === "es" ? "#ffd700" : "rgba(255,255,255,0.2)"}`,
+            background: state.language === "es" ? "rgba(255,215,0,0.2)" : "transparent",
+            color: state.language === "es" ? "#ffd700" : "rgba(255,255,255,0.4)",
             fontSize: 12, fontWeight: 800, cursor: "pointer"
-          }}>
-            {lang === "en" ? "🇬🇧 EN" : "🇪🇸 ES"}
-          </button>
-        ))}
+          }}>🇪🇸 ES</button>
+        ) : (
+          <button onClick={onParent} title="Upgrade to Plus for bilingual mode" style={{
+            padding: "6px 14px", borderRadius: 20,
+            border: "2px solid rgba(255,255,255,0.15)",
+            background: "transparent",
+            color: "rgba(255,255,255,0.25)",
+            fontSize: 12, fontWeight: 800, cursor: "pointer"
+          }}>🔒 ES</button>
+        )}
       </div>
 
       {/* Parent link — no PIN, navigate to /parent */}
@@ -568,6 +583,8 @@ export default function AppPage() {
     return saved ? "main" : "onboarding";
   });
   const [childId, setChildId] = useState<number | null>(null);
+  const { tier } = useSubscription();
+  const bilingualEnabled = tier === "plus" || tier === "gold";
 
   // Auth + child profile from DB
   const { data: user } = trpc.auth.me.useQuery(undefined, { retry: false, staleTime: 5 * 60 * 1000 });
@@ -643,7 +660,7 @@ export default function AppPage() {
     <div style={{ maxWidth: 480, margin: "0 auto", minHeight: "100vh", position: "relative" }}>
       {screen === "onboarding" && <Onboarding onComplete={handleOnboardingComplete} />}
       {screen === "main" && (
-        <MainScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} />
+        <MainScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} />
       )}
       {screen === "win" && (
         <WinScreen state={appState} onParent={goParent} onNext={() => setScreen("main")} />
