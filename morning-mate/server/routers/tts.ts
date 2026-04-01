@@ -17,7 +17,7 @@ export const ttsRouter = router({
    * Generate speech audio from text using Manus TTS
    * Includes rate limiting and usage tracking
    */
-  speak: publicProcedure
+  speak: protectedProcedure
     .input(
       z.object({
         text: z.string().min(1, "Text required").max(500, "Max 500 characters"),
@@ -25,19 +25,6 @@ export const ttsRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      // DEBUG: Log the context to see if user is being passed
-      console.log("[TTS] ctx.user:", ctx.user);
-      console.log("[TTS] ctx.user?.id:", ctx.user?.id);
-      
-      // 1. CHECK USER IS AUTHENTICATED
-      if (!ctx.user?.id) {
-        console.error("[TTS] 401 Error - User not authenticated");
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "You must be logged in",
-        });
-      }
-      console.log("[TTS] ✅ User authenticated:", ctx.user.id, ctx.user.email);
 
 
       // 2. CLEAN TEXT (remove emojis and special characters)

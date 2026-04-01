@@ -1,273 +1,293 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
+import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
 
-export default function ParentDashboard() {
-  const [pinInput, setPinInput] = useState("");
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [selectedChildId, setSelectedChildId] = useState<number | null>(null);
-  const [pin, setPin] = useState("1234");
+const BG = "linear-gradient(180deg, #4facfe 0%, #ff9a3c 60%, #ff6b35 100%)";
 
-  const { data: children, isLoading } = trpc.app.getChildren.useQuery();
-  const updateChildMutation = trpc.app.updateChild.useMutation({
-    onSuccess: () => {
-      toast.success("Settings saved!");
-    },
-    onError: (err) => {
-      toast.error(err.message || "Failed to save settings");
-    },
-  });
+const TIER_LABELS: Record<string, string> = {
+  freemium: "Free", starter: "Starter ⭐", plus: "Plus 🌟", gold: "Gold 🏆",
+};
 
-  const handleUnlock = () => {
-    if (pinInput === pin) {
-      setIsUnlocked(true);
-      setPinInput("");
-      toast.success("Parent dashboard unlocked");
-    } else {
-      toast.error("Incorrect PIN");
-      setPinInput("");
-    }
-  };
+function LoginPrompt() {
+  return (
+    <div style={{
+      minHeight: "100vh", background: BG,
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      fontFamily: "'Fredoka One', cursive", padding: "24px", textAlign: "center",
+    }}>
+      <div style={{ fontSize: "64px", marginBottom: "16px" }}>👨‍👩‍👧</div>
+      <h1 style={{ color: "white", fontSize: "2rem", marginBottom: "8px" }}>Parent Dashboard</h1>
+      <p style={{ color: "rgba(255,255,255,0.85)", marginBottom: "32px" }}>
+        Sign in to manage your kids' morning routines
+      </p>
+      <a
+        href={getLoginUrl()}
+        style={{
+          background: "white", color: "#4facfe", border: "none", borderRadius: "16px",
+          padding: "16px 32px", fontSize: "1.1rem", cursor: "pointer",
+          fontFamily: "'Fredoka One', cursive", textDecoration: "none",
+          display: "inline-block", fontWeight: "bold",
+        }}
+      >
+        🔐 Sign In with Google / Apple
+      </a>
+      <a href="/" style={{ color: "rgba(255,255,255,0.7)", marginTop: "16px", fontSize: "0.9rem", display: "block" }}>
+        ← Back to Home
+      </a>
+    </div>
+  );
+}
 
-  if (isLoading) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
-        <Loader2 className="animate-spin" size={32} />
-      </div>
-    );
-  }
+type Child = {
+  id: number;
+  name: string;
+  age: number | null;
+  schoolTime: string | null;
+  reward: string | null;
+  language: "en" | "es";
+  enabledTasks: string | null;
+  stars: number | null;
+  streak: number | null;
+};
 
-  if (!isUnlocked) {
-    return (
-      <div style={{
-        minHeight: "100vh",
-        background: "linear-gradient(180deg, #4facfe 0%, #ff9a3c 60%, #ff6b35 100%)",
-        padding: "24px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-      }}>
-        <Card style={{ maxWidth: 400, width: "100%", padding: 32, textAlign: "center" }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, color: "#2d1a00", marginBottom: 24 }}>
-            Parent Dashboard
-          </h1>
-          <p style={{ fontSize: 14, color: "#6b3a00", marginBottom: 24 }}>
-            Enter your PIN to access settings and progress tracking.
-          </p>
-          <input
-            type="password"
-            value={pinInput}
-            onChange={(e) => setPinInput(e.target.value.slice(0, 4))}
-            placeholder="0000"
-            maxLength={4}
-            style={{
-              width: "100%",
-              padding: "12px 16px",
-              borderRadius: 12,
-              border: "2px solid #ff5f1f",
-              fontSize: 32,
-              fontFamily: "monospace",
-              textAlign: "center",
-              letterSpacing: 8,
-              marginBottom: 24,
-            }}
-            autoFocus
-          />
-          <Button
-            onClick={handleUnlock}
-            style={{ width: "100%", padding: "12px 24px", fontSize: 16 }}
-            disabled={pinInput.length !== 4}
-          >
-            Unlock
-          </Button>
-        </Card>
-      </div>
-    );
-  }
-
-  const selectedChild = children?.find((c) => c.id === selectedChildId) || children?.[0];
+function ChildCard({
+  child, onEdit, onDelete, canDelete,
+}: {
+  child: Child; onEdit: (c: Child) => void; onDelete: (id: number) => void; canDelete: boolean;
+}) {
+  const tasks = child.enabledTasks ? JSON.parse(child.enabledTasks) : [true, true, true, true, true, true];
+  const taskLabels = ["☀️ Wake Up", "🛁 Shower", "🥛 Breakfast", "🪥 Teeth", "🎒 Pack Bag", "🚀 Let's Go"];
+  const enabledCount = (tasks as boolean[]).filter(Boolean).length;
 
   return (
     <div style={{
-      minHeight: "100vh",
-      background: "#f5f5f5",
-      padding: "24px",
+      background: "white", borderRadius: "20px", padding: "20px",
+      boxShadow: "0 4px 20px rgba(0,0,0,0.08)", marginBottom: "16px",
     }}>
-      <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
-          <h1 style={{ fontSize: 32, fontWeight: 900, color: "#2d1a00" }}>
-            👨‍👩‍👧 Parent Dashboard
-          </h1>
-          <Button
-            onClick={() => setIsUnlocked(false)}
-            variant="outline"
-          >
-            Lock
-          </Button>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+        <div>
+          <div style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#1a1a2e", fontFamily: "'Fredoka One', cursive" }}>{child.name}</div>
+          <div style={{ fontSize: "0.85rem", color: "#888" }}>
+            {child.age ? `Age ${child.age}` : ""}
+            {child.schoolTime ? ` · 🏫 ${child.schoolTime}` : ""}
+            {` · ${enabledCount} tasks`}
+          </div>
         </div>
-
-        {/* Child Selection */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12, marginBottom: 32 }}>
-          {children?.map((child) => (
-            <button
-              key={child.id}
-              onClick={() => setSelectedChildId(child.id)}
-              style={{
-                padding: "16px 12px",
-                borderRadius: 12,
-                border: selectedChild?.id === child.id ? "3px solid #ff5f1f" : "2px solid #ddd",
-                background: selectedChild?.id === child.id ? "#fff3e0" : "white",
-                cursor: "pointer",
-                fontSize: 14,
-                fontWeight: 700,
-                transition: "all 0.2s",
-              }}
-            >
-              <div style={{ fontSize: 24, marginBottom: 8 }}>👧</div>
-              <div>{child.name}</div>
-              <div style={{ fontSize: 12, color: "#999" }}>{child.age} yrs</div>
-            </button>
-          ))}
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button onClick={() => onEdit(child)} style={{ background: "#f0f4ff", color: "#4facfe", border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontSize: "0.85rem" }}>✏️ Edit</button>
+          {canDelete && <button onClick={() => onDelete(child.id)} style={{ background: "#fff0f0", color: "#ff4444", border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontSize: "0.85rem" }}>🗑️</button>}
         </div>
-
-        {selectedChild && (
-          <>
-            {/* Progress Stats */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 32 }}>
-              <Card style={{ padding: 20, textAlign: "center" }}>
-                <div style={{ fontSize: 12, color: "#999", marginBottom: 8 }}>Current Streak</div>
-                <div style={{ fontSize: 48, fontWeight: 900, color: "#ff5f1f" }}>
-                  {selectedChild.streak || 0}
-                </div>
-                <div style={{ fontSize: 12, color: "#999" }}>days 🔥</div>
-              </Card>
-              <Card style={{ padding: 20, textAlign: "center" }}>
-                <div style={{ fontSize: 12, color: "#999", marginBottom: 8 }}>Total Stars</div>
-                <div style={{ fontSize: 48, fontWeight: 900, color: "#ffd700" }}>
-                  {selectedChild.stars || 0}
-                </div>
-                <div style={{ fontSize: 12, color: "#999" }}>earned ⭐</div>
-              </Card>
-              <Card style={{ padding: 20, textAlign: "center" }}>
-                <div style={{ fontSize: 12, color: "#999", marginBottom: 8 }}>Tier</div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: "#4facfe", marginBottom: 8 }}>
-                  Premium
-                </div>
-                <div style={{ fontSize: 12, color: "#999" }}>Plus Member</div>
-              </Card>
-            </div>
-
-            {/* Settings */}
-            <Card style={{ padding: 24, marginBottom: 32 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 900, color: "#2d1a00", marginBottom: 20 }}>
-                Settings
-              </h2>
-              <div style={{ display: "grid", gap: 16 }}>
-                <div>
-                  <label style={{ display: "block", fontSize: 14, fontWeight: 700, marginBottom: 8, color: "#2d1a00" }}>
-                    Child Name
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={selectedChild.name}
-                    style={{
-                      width: "100%",
-                      padding: "12px 16px",
-                      borderRadius: 12,
-                      border: "2px solid #ddd",
-                      fontSize: 16,
-                      fontFamily: "inherit",
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 14, fontWeight: 700, marginBottom: 8, color: "#2d1a00" }}>
-                    School Start Time
-                  </label>
-                  <input
-                    type="time"
-                    defaultValue={selectedChild.schoolTime || "08:30"}
-                    style={{
-                      width: "100%",
-                      padding: "12px 16px",
-                      borderRadius: 12,
-                      border: "2px solid #ddd",
-                      fontSize: 16,
-                      fontFamily: "inherit",
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: "block", fontSize: 14, fontWeight: 700, marginBottom: 8, color: "#2d1a00" }}>
-                    Weekly Reward
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={selectedChild.reward || "Ice Cream Friday"}
-                    style={{
-                      width: "100%",
-                      padding: "12px 16px",
-                      borderRadius: 12,
-                      border: "2px solid #ddd",
-                      fontSize: 16,
-                      fontFamily: "inherit",
-                    }}
-                  />
-                </div>
-                <Button
-                  onClick={() => {
-                    if (selectedChild) {
-                      updateChildMutation.mutate({
-                        childId: selectedChild.id,
-                        name: (document.querySelector('input[value="' + selectedChild.name + '"]') as HTMLInputElement)?.value || selectedChild.name,
-                      });
-                    }
-                  }}
-                  style={{ width: "100%", padding: "12px 24px", fontSize: 16 }}
-                  disabled={updateChildMutation.isPending}
-                >
-                  {updateChildMutation.isPending ? "Saving..." : "Save Changes"}
-                </Button>
-              </div>
-            </Card>
-
-            {/* Weekly Progress Calendar */}
-            <Card style={{ padding: 24 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 900, color: "#2d1a00", marginBottom: 20 }}>
-                📅 This Week's Progress
-              </h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
-                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => (
-                  <div key={day} style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#999", marginBottom: 8 }}>
-                      {day}
-                    </div>
-                    <div
-                      style={{
-                        width: "100%",
-                        aspectRatio: "1",
-                        borderRadius: 12,
-                        background: i < 5 ? "#4facfe" : "#ddd",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 24,
-                      }}
-                    >
-                      {i < 5 ? "✅" : ""}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </>
+      </div>
+      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "12px" }}>
+        {taskLabels.map((label, i) => (
+          <span key={i} style={{ background: tasks[i] ? "#e8f5e9" : "#f5f5f5", color: tasks[i] ? "#2e7d32" : "#bbb", borderRadius: "8px", padding: "4px 8px", fontSize: "0.75rem" }}>{label}</span>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: "16px" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "1.3rem" }}>⭐ {child.stars ?? 0}</div>
+          <div style={{ fontSize: "0.7rem", color: "#aaa" }}>Stars</div>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "1.3rem" }}>🔥 {child.streak ?? 0}</div>
+          <div style={{ fontSize: "0.7rem", color: "#aaa" }}>Streak</div>
+        </div>
+        {child.reward && (
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: "0.75rem", color: "#aaa" }}>🎁 Reward goal</div>
+            <div style={{ fontSize: "0.9rem", color: "#333" }}>{child.reward}</div>
+          </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSave: (data: Partial<Child> & { id?: number }) => void; onClose: () => void; }) {
+  const TASK_LABELS = ["☀️ Wake Up", "🛁 Shower", "🥛 Breakfast", "🪥 Brush Teeth", "🎒 Pack Bag", "🚀 Let's Go"];
+  const defaultTasks = child?.enabledTasks ? JSON.parse(child.enabledTasks) : [true, true, true, true, true, true];
+  const [name, setName] = useState(child?.name ?? "");
+  const [age, setAge] = useState(child?.age?.toString() ?? "");
+  const [schoolTime, setSchoolTime] = useState(child?.schoolTime ?? "");
+  const [reward, setReward] = useState(child?.reward ?? "");
+  const [tasks, setTasks] = useState<boolean[]>(defaultTasks);
+
+  const toggleTask = (i: number) => setTasks(prev => { const n = [...prev]; n[i] = !n[i]; return n; });
+  const handleSave = () => {
+    if (!name.trim()) { toast.error("Name is required"); return; }
+    onSave({ id: child?.id, name: name.trim(), age: age ? parseInt(age) : undefined, schoolTime: schoolTime || undefined, reward: reward || undefined, enabledTasks: JSON.stringify(tasks) });
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", zIndex: 100 }}>
+      <div style={{ background: "white", borderRadius: "24px", padding: "28px", width: "100%", maxWidth: "420px", maxHeight: "90vh", overflowY: "auto" }}>
+        <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: "1.5rem", marginBottom: "20px", color: "#1a1a2e" }}>
+          {child ? "✏️ Edit Child" : "➕ Add Child"}
+        </h2>
+        <label style={{ display: "block", marginBottom: "12px" }}>
+          <div style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666", marginBottom: "4px" }}>Name *</div>
+          <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Emma" style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "2px solid #eee", fontSize: "1rem", outline: "none", boxSizing: "border-box" }} />
+        </label>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" }}>
+          <label>
+            <div style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666", marginBottom: "4px" }}>Age</div>
+            <input type="number" min="3" max="12" value={age} onChange={e => setAge(e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "2px solid #eee", fontSize: "1rem", boxSizing: "border-box" }} />
+          </label>
+          <label>
+            <div style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666", marginBottom: "4px" }}>School Time</div>
+            <input type="time" value={schoolTime} onChange={e => setSchoolTime(e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "2px solid #eee", fontSize: "1rem", boxSizing: "border-box" }} />
+          </label>
+        </div>
+        <label style={{ display: "block", marginBottom: "16px" }}>
+          <div style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666", marginBottom: "4px" }}>🎁 Reward (optional)</div>
+          <input value={reward} onChange={e => setReward(e.target.value)} placeholder="e.g. 30 min screen time" style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "2px solid #eee", fontSize: "1rem", boxSizing: "border-box" }} />
+        </label>
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666", marginBottom: "10px" }}>Tasks to Include</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {TASK_LABELS.map((label, i) => (
+              <label key={i} style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}>
+                <input type="checkbox" checked={tasks[i]} onChange={() => toggleTask(i)} style={{ width: "18px", height: "18px", cursor: "pointer" }} />
+                <span style={{ fontSize: "0.95rem" }}>{label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: "12px" }}>
+          <button onClick={onClose} style={{ flex: 1, padding: "14px", borderRadius: "14px", border: "2px solid #eee", background: "white", color: "#666", fontSize: "1rem", cursor: "pointer", fontFamily: "'Fredoka One', cursive" }}>Cancel</button>
+          <button onClick={handleSave} style={{ flex: 2, padding: "14px", borderRadius: "14px", border: "none", background: "linear-gradient(135deg, #4facfe, #00f2fe)", color: "white", fontSize: "1rem", cursor: "pointer", fontFamily: "'Fredoka One', cursive" }}>Save</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function UpgradeCard({ tier }: { tier: string }) {
+  const createCheckout = trpc.stripe.createCheckoutSession.useMutation({
+    onSuccess: (data) => { if (data.checkoutUrl) window.location.href = data.checkoutUrl; },
+    onError: (err) => toast.error(err.message || "Failed to start checkout"),
+  });
+  if (tier !== "freemium") return null;
+  return (
+    <div style={{ background: "linear-gradient(135deg, #667eea, #764ba2)", borderRadius: "20px", padding: "20px", color: "white", marginBottom: "20px" }}>
+      <div style={{ fontSize: "1.3rem", fontWeight: "bold", marginBottom: "6px" }}>🌟 Upgrade to Pro</div>
+      <p style={{ fontSize: "0.85rem", opacity: 0.9, marginBottom: "14px" }}>Multiple kids · Voice encouragement · Bilingual mode</p>
+      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+        {(["starter", "plus", "gold"] as const).map(t => (
+          <button key={t} onClick={() => createCheckout.mutate({ tier: t, billingPeriod: "month" })} disabled={createCheckout.isPending}
+            style={{ background: "rgba(255,255,255,0.2)", color: "white", border: "2px solid rgba(255,255,255,0.4)", borderRadius: "10px", padding: "8px 12px", cursor: "pointer", fontFamily: "'Fredoka One', cursive", fontSize: "0.8rem" }}>
+            {t === "starter" ? "⭐ $2.99/mo" : t === "plus" ? "🌟 $7.99/mo" : "🏆 $12.99/mo"}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function ParentDashboard() {
+  const [, navigate] = useLocation();
+  const { user, isLoading: authLoading } = useAuth();
+  const { tier } = useSubscription();
+  const [editingChild, setEditingChild] = useState<Child | null | "new">(null);
+
+  const { data: children = [], isLoading: childrenLoading, refetch } = trpc.app.getChildren.useQuery(undefined, { enabled: !!user });
+
+  const createChild = trpc.app.createChild.useMutation({
+    onSuccess: () => { toast.success("Child added!"); refetch(); setEditingChild(null); },
+    onError: (err) => toast.error(err.message || "Failed to add child"),
+  });
+  const updateChild = trpc.app.updateChild.useMutation({
+    onSuccess: () => { toast.success("Saved!"); refetch(); setEditingChild(null); },
+    onError: (err) => toast.error(err.message || "Failed to save"),
+  });
+  const deleteChild = trpc.app.deleteChild.useMutation({
+    onSuccess: () => { toast.success("Removed"); refetch(); },
+    onError: (err) => toast.error(err.message || "Failed to remove"),
+  });
+
+  const handleSave = (data: Partial<Child> & { id?: number }) => {
+    if (data.id) {
+      updateChild.mutate({ childId: data.id, name: data.name, age: data.age ?? undefined, schoolTime: data.schoolTime ?? undefined, reward: data.reward ?? undefined, enabledTasks: data.enabledTasks ? JSON.parse(data.enabledTasks) : undefined });
+    } else {
+      createChild.mutate({ name: data.name!, age: data.age ?? undefined, schoolTime: data.schoolTime ?? undefined, reward: data.reward ?? undefined, enabledTasks: data.enabledTasks ? JSON.parse(data.enabledTasks) : undefined, language: "en" });
+    }
+  };
+
+  const handleDelete = (id: number) => { if (confirm("Remove this child?")) deleteChild.mutate({ childId: id }); };
+
+  const logoutMutation = trpc.auth.logout.useMutation({
+    onSuccess: () => { navigate("/"); },
+  });
+  const handleLogout = () => logoutMutation.mutate();
+
+  if (authLoading) {
+    return (
+      <div style={{ minHeight: "100vh", background: BG, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ fontSize: "48px", animation: "spin 1s linear infinite" }}>⭐</div>
+        <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
+      </div>
+    );
+  }
+
+  if (!user) return <LoginPrompt />;
+
+  const maxChildren = tier === "freemium" || tier === "starter" ? 1 : tier === "plus" ? 2 : 4;
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#f8faff", fontFamily: "'Fredoka One', cursive" }}>
+      <div style={{ background: BG, padding: "24px 20px 48px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "480px", margin: "0 auto" }}>
+          <div>
+            <div style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.75rem", letterSpacing: "1px", textTransform: "uppercase" }}>Morning Mate</div>
+            <div style={{ color: "white", fontSize: "1.6rem" }}>Hi, {user.name?.split(" ")[0] ?? "Parent"} 👋</div>
+            <div style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.85rem" }}>{TIER_LABELS[tier]} · {children.length}/{maxChildren} kids</div>
+          </div>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button onClick={() => navigate("/app")} style={{ background: "rgba(255,255,255,0.2)", color: "white", border: "none", borderRadius: "12px", padding: "8px 14px", cursor: "pointer", fontSize: "0.85rem" }}>🚀 App</button>
+            <button onClick={handleLogout} style={{ background: "rgba(255,255,255,0.15)", color: "white", border: "none", borderRadius: "12px", padding: "8px 14px", cursor: "pointer", fontSize: "0.85rem" }}>Sign Out</button>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: "480px", margin: "-20px auto 0", padding: "0 16px 80px" }}>
+        <UpgradeCard tier={tier} />
+
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+          <div style={{ fontSize: "1.2rem", color: "#1a1a2e" }}>👧 My Kids</div>
+          {children.length < maxChildren && (
+            <button onClick={() => setEditingChild("new")} style={{ background: "linear-gradient(135deg, #4facfe, #00f2fe)", color: "white", border: "none", borderRadius: "12px", padding: "10px 16px", cursor: "pointer", fontSize: "0.9rem" }}>+ Add Kid</button>
+          )}
+        </div>
+
+        {childrenLoading ? (
+          <div style={{ textAlign: "center", padding: "40px", color: "#aaa" }}>Loading…</div>
+        ) : children.length === 0 ? (
+          <div style={{ background: "white", borderRadius: "20px", padding: "40px 24px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
+            <div style={{ fontSize: "48px", marginBottom: "12px" }}>👶</div>
+            <div style={{ fontSize: "1.1rem", color: "#333", marginBottom: "8px" }}>No kids yet!</div>
+            <div style={{ fontSize: "0.9rem", color: "#aaa", marginBottom: "20px" }}>Add your first child to get started</div>
+            <button onClick={() => setEditingChild("new")} style={{ background: "linear-gradient(135deg, #4facfe, #00f2fe)", color: "white", border: "none", borderRadius: "14px", padding: "14px 28px", cursor: "pointer", fontSize: "1rem", fontFamily: "'Fredoka One', cursive" }}>➕ Add First Child</button>
+          </div>
+        ) : (
+          (children as Child[]).map(c => (
+            <ChildCard key={c.id} child={c} onEdit={setEditingChild} onDelete={handleDelete} canDelete={children.length > 1} />
+          ))
+        )}
+
+        <div style={{ background: "white", borderRadius: "20px", padding: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginTop: "8px" }}>
+          <div style={{ fontSize: "1.1rem", color: "#1a1a2e", marginBottom: "14px" }}>⚙️ Account</div>
+          <div style={{ fontSize: "0.9rem", color: "#666", marginBottom: "6px" }}>📧 {user.email ?? "No email on file"}</div>
+          <div style={{ fontSize: "0.9rem", color: "#666" }}>🏷️ Plan: {TIER_LABELS[tier]}</div>
+        </div>
+      </div>
+
+      {editingChild !== null && (
+        <EditChildModal child={editingChild === "new" ? null : editingChild} onSave={handleSave} onClose={() => setEditingChild(null)} />
+      )}
     </div>
   );
 }

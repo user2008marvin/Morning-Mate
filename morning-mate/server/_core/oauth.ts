@@ -74,7 +74,7 @@ export function registerOAuthRoutes(app: Express) {
       });
 
       // Set secure session cookie
-      setSessionCookie(res, sessionToken);
+      setSessionCookie(res, sessionToken, req);
 
       res.redirect(302, "/");
     } catch (error) {

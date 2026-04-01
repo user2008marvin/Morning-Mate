@@ -1,5 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import type { Request, Response } from "express";
+import { COOKIE_NAME } from "../../shared/const";
+import { getSessionCookieOptions } from "./cookies";
 
 /**
  * JWT-based session management
@@ -7,7 +9,6 @@ import type { Request, Response } from "express";
  */
 
 const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-const COOKIE_NAME = "session";
 
 export interface SessionUser {
   id: number;
@@ -64,15 +65,10 @@ export async function verifySessionToken(token: string): Promise<SessionUser | n
 /**
  * Set secure session cookie
  */
-export function setSessionCookie(res: Response, token: string): void {
-  const isProduction = process.env.NODE_ENV === "production";
-
+export function setSessionCookie(res: Response, token: string, req: import("express").Request): void {
   res.cookie(COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: "strict",
+    ...getSessionCookieOptions(req),
     maxAge: SESSION_DURATION,
-    path: "/",
   });
 }
 

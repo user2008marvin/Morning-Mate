@@ -9,14 +9,15 @@ import Home from "./pages/Home";
 import AppPage from "./pages/AppPage";
 import Onboarding from "./pages/Onboarding";
 import ParentDashboard from "./pages/ParentDashboard";
+import Success from "./pages/Success";
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/onboarding"} component={Onboarding} />
       <Route path={"/app"} component={AppPage} />
       <Route path={"/parent"} component={ParentDashboard} />
+      <Route path={"/success"} component={Success} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
