@@ -17,6 +17,27 @@ env = { "CI" = "true" }
 [workflows]
 runButton = "Project"
 
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "morning-mate: GlowJo"
+
+[[workflows.workflow]]
+name = "morning-mate: GlowJo"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd morning-mate && NODE_ENV=development node_modules/.bin/tsx watch server/_core/index.ts"
+waitForPort = 3000
+
 [agent]
 stack = "PNPM_WORKSPACE"
 expertMode = true
