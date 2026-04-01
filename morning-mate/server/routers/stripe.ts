@@ -28,23 +28,34 @@ export const stripeRouter = router({
         throw new Error("Stripe not configured");
       }
 
-      // Map tier + period to Stripe price ID
-      const priceMap: Record<string, Record<string, string>> = {
-        starter: {
-          month: process.env.STRIPE_STARTER_MONTHLY_PRICE_ID || "price_starter_monthly",
-          year: process.env.STRIPE_STARTER_YEARLY_PRICE_ID || "price_starter_yearly",
-        },
-        plus: {
-          month: process.env.STRIPE_PLUS_MONTHLY_PRICE_ID || "price_plus_monthly",
-          year: process.env.STRIPE_PLUS_YEARLY_PRICE_ID || "price_plus_yearly",
-        },
-        gold: {
-          month: process.env.STRIPE_GOLD_MONTHLY_PRICE_ID || "price_gold_monthly",
-          year: process.env.STRIPE_GOLD_YEARLY_PRICE_ID || "price_gold_yearly",
-        },
+      // Product IDs are hardcoded (stable) — price IDs are looked up dynamically from Stripe
+      const TIER_TO_PRODUCT: Record<string, string> = {
+        starter: "prod_UFv1lk6xTeRu0r",
+        plus:    "prod_UFv7wwXLIFTBhw",
+        gold:    "prod_UFvCIa9o0bg0Ei",
       };
 
-      const priceId = priceMap[input.tier][input.billingPeriod];
+      const productId = TIER_TO_PRODUCT[input.tier];
+      if (!productId) throw new Error(`Unknown tier: ${input.tier}`);
+
+      // Look up the active recurring price for this product from Stripe
+      const allPrices = await stripe.prices.list({
+        product: productId,
+        active: true,
+        type: "recurring",
+        limit: 10,
+      });
+
+      // Filter by billing interval (month/year)
+      const matchingPrice = allPrices.data.find(
+        p => p.recurring?.interval === input.billingPeriod
+      ) ?? allPrices.data[0]; // fallback to first price if no interval match
+
+      const priceId = matchingPrice?.id;
+      if (!priceId) {
+        throw new Error(`No active price found for ${input.tier} (${productId}). Ensure the product has an active recurring price in Stripe.`);
+      }
+
       const baseUrl = process.env.VITE_FRONTEND_URL || "https://myglowjo.fit";
 
       try {

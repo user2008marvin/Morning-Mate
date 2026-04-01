@@ -13,17 +13,15 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { getUserByStripeCustomerId, getUserByStripeSubscriptionId, updateSubscription, cancelSubscription } from "../db";
 
-const PRICE_TO_TIER: Record<string, "starter" | "plus" | "gold"> = {
-  [process.env.STRIPE_STARTER_MONTHLY_PRICE_ID || ""]: "starter",
-  [process.env.STRIPE_STARTER_YEARLY_PRICE_ID || ""]: "starter",
-  [process.env.STRIPE_PLUS_MONTHLY_PRICE_ID || ""]: "plus",
-  [process.env.STRIPE_PLUS_YEARLY_PRICE_ID || ""]: "plus",
-  [process.env.STRIPE_GOLD_MONTHLY_PRICE_ID || ""]: "gold",
-  [process.env.STRIPE_GOLD_YEARLY_PRICE_ID || ""]: "gold",
+// Map Stripe product IDs → subscription tiers (product IDs are stable, unlike price IDs)
+const PRODUCT_TO_TIER: Record<string, "starter" | "plus" | "gold"> = {
+  "prod_UFv1lk6xTeRu0r": "starter", // GlowJo Starter — $4.99
+  "prod_UFv7wwXLIFTBhw": "plus",    // GlowJo Plus   — $9.99
+  "prod_UFvCIa9o0bg0Ei": "gold",    // GlowJo Gold   — $14.99
 };
 
-function tierFromPriceId(priceId: string): "starter" | "plus" | "gold" {
-  return PRICE_TO_TIER[priceId] ?? "starter";
+function tierFromProductId(productId: string): "starter" | "plus" | "gold" {
+  return PRODUCT_TO_TIER[productId] ?? "starter";
 }
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -98,8 +96,8 @@ async function startServer() {
           event.type === "customer.subscription.updated"
         ) {
           const sub = event.data.object as any;
-          const priceId = sub.items?.data?.[0]?.price?.id as string | undefined;
-          const tier = priceId ? tierFromPriceId(priceId) : undefined;
+          const productId = sub.items?.data?.[0]?.price?.product as string | undefined;
+          const tier = productId ? tierFromProductId(productId) : undefined;
           const user = await getUserByStripeCustomerId(sub.customer);
           if (user && tier) {
             await updateSubscription(user.id, {
