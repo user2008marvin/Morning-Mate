@@ -252,9 +252,10 @@ export default function Home() {
       } else {
         toast.error("Failed to create checkout session");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Checkout error:", error);
-      toast.error("Failed to start checkout. Please try again.");
+      const msg = error?.message || error?.data?.message || "Failed to start checkout";
+      toast.error(msg);
     }
   };
 
