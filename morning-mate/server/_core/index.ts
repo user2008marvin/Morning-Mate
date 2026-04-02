@@ -236,9 +236,30 @@ async function startServer() {
     res.json({ success: true });
   });
 
-  // Health check endpoint (for monitoring)
-  app.get("/health", (req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  // Health check endpoint — also shows DB status for diagnostics
+  app.get("/health", async (req, res) => {
+    const dbUrl = process.env.GLOWJO_DATABASE_URL || process.env.DATABASE_URL || "";
+    let dbStatus = "no_url";
+    let dbHost = "";
+    if (dbUrl) {
+      try {
+        const u = new URL(dbUrl);
+        dbHost = u.hostname;
+        const { getDb } = await import("../db");
+        const db = await getDb();
+        dbStatus = db ? "connected" : "failed";
+      } catch (e: any) {
+        dbStatus = "error: " + e.message;
+      }
+    }
+    res.json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      db: dbStatus,
+      dbHost,
+      urlFound: !!dbUrl,
+      urlVar: process.env.GLOWJO_DATABASE_URL ? "GLOWJO_DATABASE_URL" : process.env.DATABASE_URL ? "DATABASE_URL" : "none",
+    });
   });
 
   // ==================== STATIC FILES ====================
