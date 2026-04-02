@@ -27,17 +27,25 @@ async function runStartupMigrations(dbUrl: string) {
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
-  // GLOWJO_DATABASE_URL is always the TiDB/MySQL URL.
-  // Fall back to DATABASE_URL only if it looks like a MySQL URL (not Postgres).
-  const rawGlowjo = process.env.GLOWJO_DATABASE_URL;
-  const rawDefault = process.env.DATABASE_URL;
-  const rawUrl = rawGlowjo
-    ?? (rawDefault?.startsWith("mysql") ? rawDefault : undefined);
+  // Check all possible variable names (user may have used a slight variation)
+  const rawUrl =
+    process.env.GLOWJO_DATABASE_URL ||
+    process.env.GLOW_DATABASE_URL ||
+    process.env.GLOWDATABASE_URL ||
+    process.env.GLOWJO_DB_URL ||
+    (process.env.DATABASE_URL?.startsWith("mysql") ? process.env.DATABASE_URL : undefined);
 
   // Strip leading `=` if the secret was stored incorrectly (e.g. "=mysql://...")
   const dbUrl = rawUrl?.startsWith("=") ? rawUrl.slice(1) : rawUrl;
 
-  console.log(`[DB] URL source: ${rawGlowjo ? "GLOWJO_DATABASE_URL" : rawDefault ? "DATABASE_URL("+rawDefault.slice(0,8)+"...)" : "NONE"}`);
+  // Log which variable was found (first 20 chars only, no password exposed)
+  const foundVar = process.env.GLOWJO_DATABASE_URL ? "GLOWJO_DATABASE_URL"
+    : process.env.GLOW_DATABASE_URL ? "GLOW_DATABASE_URL"
+    : process.env.GLOWDATABASE_URL ? "GLOWDATABASE_URL"
+    : process.env.GLOWJO_DB_URL ? "GLOWJO_DB_URL"
+    : process.env.DATABASE_URL ? `DATABASE_URL(${process.env.DATABASE_URL.slice(0,10)}...)`
+    : "NONE";
+  console.log(`[DB] URL source: ${foundVar}`);
 
   if (!_db && dbUrl) {
     try {
