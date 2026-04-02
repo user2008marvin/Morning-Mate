@@ -206,7 +206,7 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
             animation: pulsing ? "pulse 1s ease-in-out infinite" : "none",
           }}
         >
-          <img src="/thumbsup_single.png" alt="thumbs up" style={{ width: 82, height: 82, objectFit: "contain" }} />
+          <img src="/thumbsup_single.png" alt="thumbs up" style={{ width: 82, height: 82, objectFit: "contain", filter: "sepia(1) saturate(4) hue-rotate(5deg) brightness(1.1)" }} />
         </div>
         <div style={{ fontSize: 12, color: "white", fontWeight: 700, marginTop: 8 }}>{hint}</div>
         {lang === "es" && (
@@ -322,9 +322,9 @@ export default function Home() {
       {/* NAV */}
       <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,248,238,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,154,60,0.2)" }}>
         <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, color: "var(--coral)", display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontSize: 13, color: "var(--mid)", fontWeight: 900, letterSpacing: 0.5 }}>Hagg Get</span>
+          <span style={{ fontSize: 13, color: "var(--mid)", fontWeight: 900, letterSpacing: 0.5 }}>Get</span>
           Glow<span style={{ color: "var(--dark)" }}>Jo</span>
-          <img src="/thumbsup_double.png" alt="" style={{ height: 30, width: "auto", objectFit: "contain" }} />
+          <img src="/thumbsup_double.png" alt="" style={{ height: 30, width: "auto", objectFit: "contain", filter: "sepia(1) saturate(4) hue-rotate(5deg) brightness(1.1)" }} />
         </div>
         <button onClick={() => navigate("/onboarding")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 15, padding: "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", textDecoration: "none", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
           Get Started
