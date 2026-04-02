@@ -123,9 +123,20 @@ async function speak(text: string, lang: Language = "en") {
     new Audio(audioUrl).play().catch(() => {});
   } catch {
     // Browser fallback — always pick a FEMALE voice
+    // Voices load asynchronously — wait for them if not ready yet
+    const getVoicesAsync = (): Promise<SpeechSynthesisVoice[]> => {
+      return new Promise(resolve => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) { resolve(voices); return; }
+        const handler = () => { resolve(window.speechSynthesis.getVoices()); };
+        window.speechSynthesis.addEventListener("voiceschanged", handler, { once: true });
+        setTimeout(() => { resolve(window.speechSynthesis.getVoices()); }, 1000);
+      });
+    };
+
     try {
       const utterance = new SpeechSynthesisUtterance(clean);
-      const voices = window.speechSynthesis.getVoices();
+      const voices = await getVoicesAsync();
 
       // Known female voice names across platforms (ordered by preference)
       const FEMALE_EN = [
@@ -138,6 +149,7 @@ async function speak(text: string, lang: Language = "en") {
         "Google US English",          // Chrome (female) ✓
         "Microsoft Zira",             // Windows Edge female ✓
         "Microsoft Hazel",            // Windows British female ✓
+        "Zira",                       // Windows short name ✓
       ];
       const FEMALE_ES = [
         "Google español",             // Chrome Spanish female ✓
@@ -147,7 +159,7 @@ async function speak(text: string, lang: Language = "en") {
         "Microsoft Helena",           // Windows Spanish female ✓
       ];
       // Male voices to explicitly skip for English
-      const MALE_EN_SKIP = ["Daniel", "Google UK English Male", "Alex", "Fred", "Microsoft David", "Microsoft Mark", "Arthur"];
+      const MALE_EN_SKIP = ["Daniel", "Google UK English Male", "Alex", "Fred", "Microsoft David", "Microsoft Mark", "Arthur", "David", "Mark"];
 
       if (lang === "es") {
         utterance.voice =
@@ -166,8 +178,8 @@ async function speak(text: string, lang: Language = "en") {
         utterance.lang = "en-GB";
       }
 
-      utterance.pitch = 1.1;
-      utterance.rate = 0.9;
+      utterance.pitch = 1.15;
+      utterance.rate = 0.88;
       window.speechSynthesis.speak(utterance);
     } catch {}
   }

@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
-import { getLoginUrl } from "@/const";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import { toast } from "sonner";
 
 const BG = "linear-gradient(180deg, #4facfe 0%, #ff9a3c 60%, #ff6b35 100%)";
@@ -13,6 +13,7 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 function LoginPrompt() {
+  const { openAuthModal } = useAuthModal();
   return (
     <div style={{
       minHeight: "100vh", background: BG,
@@ -24,17 +25,16 @@ function LoginPrompt() {
       <p style={{ color: "rgba(255,255,255,0.85)", marginBottom: "32px" }}>
         Sign in to manage your kids' morning routines
       </p>
-      <a
-        href={getLoginUrl()}
+      <button
+        onClick={() => openAuthModal()}
         style={{
           background: "white", color: "#4facfe", border: "none", borderRadius: "16px",
           padding: "16px 32px", fontSize: "1.1rem", cursor: "pointer",
-          fontFamily: "'Fredoka One', cursive", textDecoration: "none",
-          display: "inline-block", fontWeight: "bold",
+          fontFamily: "'Fredoka One', cursive", fontWeight: "bold",
         }}
       >
-        🔐 Sign In with Google / Apple
-      </a>
+        🔐 Sign In / Create Account
+      </button>
       <a href="/" style={{ color: "rgba(255,255,255,0.7)", marginTop: "16px", fontSize: "0.9rem", display: "block" }}>
         ← Back to Home
       </a>

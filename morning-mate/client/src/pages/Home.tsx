@@ -118,31 +118,31 @@ function DemoPhone() {
       console.error(`\u274c TTS error:`, error);
     }
     
-    // Fallback to browser speech synthesis
-    console.log(`\u21a9\ufe0f Falling back to browser speech synthesis`);
+    // Fallback to browser speech synthesis — always pick FEMALE
     try {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(clean);
-      const voices = window.speechSynthesis.getVoices();
-      
-      // Select appropriate voice based on language (English only)
-      const englishVoice = voices.find(v => 
-        v.name.includes("Google US English") || 
-        v.name.includes("Samantha") ||
-        v.lang.startsWith("en")
-      ) || voices[0];
-      if (englishVoice) {
-        utterance.voice = englishVoice;
-        console.log(`\ud83c\uddfa\ud83c\uddf8 Using voice: ${englishVoice.name}`);
-      }
-      
-      utterance.pitch = 0.95; // Softer, warmer pitch
-      utterance.rate = 0.95; // Slightly slower for clarity
-      utterance.lang = "en-US";
-      
+      const getVoicesAsync = (): Promise<SpeechSynthesisVoice[]> =>
+        new Promise(resolve => {
+          const v = window.speechSynthesis.getVoices();
+          if (v.length > 0) { resolve(v); return; }
+          window.speechSynthesis.addEventListener('voiceschanged', () => resolve(window.speechSynthesis.getVoices()), { once: true });
+          setTimeout(() => resolve(window.speechSynthesis.getVoices()), 1000);
+        });
+      const voices = await getVoicesAsync();
+      const FEMALE_EN = ['Google UK English Female', 'Samantha', 'Karen', 'Tessa', 'Moira', 'Fiona', 'Google US English', 'Microsoft Zira', 'Microsoft Hazel', 'Zira'];
+      const MALE_SKIP = ['Daniel', 'Google UK English Male', 'Alex', 'Fred', 'Microsoft David', 'Microsoft Mark', 'Arthur', 'David', 'Mark'];
+      const female = voices.find(v => FEMALE_EN.includes(v.name))
+        ?? voices.find(v => v.lang.startsWith('en') && !MALE_SKIP.includes(v.name) && v.name.toLowerCase().includes('female'))
+        ?? voices.find(v => v.lang.startsWith('en') && !MALE_SKIP.includes(v.name))
+        ?? voices.find(v => v.lang.startsWith('en')) ?? null;
+      if (female) utterance.voice = female;
+      utterance.pitch = 1.1;
+      utterance.rate = 0.92;
+      utterance.lang = 'en-GB';
       window.speechSynthesis.speak(utterance);
     } catch (fallbackErr) {
-      console.error("Fallback speech synthesis failed:", fallbackErr);
+      console.error('Fallback speech synthesis failed:', fallbackErr);
     }
   }
 

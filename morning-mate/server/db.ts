@@ -1,9 +1,26 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 import { InsertUser, users, subscriptions, childProfiles, emails, Subscription, ChildProfile } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _migrationRun = false;
+
+async function runStartupMigrations(dbUrl: string) {
+  if (_migrationRun) return;
+  _migrationRun = true;
+  try {
+    const conn = await mysql.createConnection(dbUrl);
+    await conn.execute(
+      `ALTER TABLE users ADD COLUMN passwordHash VARCHAR(255) NULL`
+    ).catch(() => {});
+    await conn.end();
+    console.log("[DB] Startup migration complete");
+  } catch (err) {
+    console.warn("[DB] Migration warning:", err);
+  }
+}
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
@@ -11,6 +28,7 @@ export async function getDb() {
   if (!_db && dbUrl) {
     try {
       _db = drizzle(dbUrl);
+      await runStartupMigrations(dbUrl);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -88,6 +106,38 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createUserWithPassword(data: {
+  email: string;
+  name: string;
+  passwordHash: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const openId = `email:${data.email}`;
+  await db.insert(users).values({
+    openId,
+    email: data.email,
+    name: data.name,
+    passwordHash: data.passwordHash,
+    loginMethod: "email",
+    lastSignedIn: new Date(),
+  });
+  return getUserByEmail(data.email);
+}
+
+export async function updateUserPassword(userId: number, passwordHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(users).set({ passwordHash }).where(eq(users.id, userId));
 }
 
 // ── SUBSCRIPTION QUERIES ──

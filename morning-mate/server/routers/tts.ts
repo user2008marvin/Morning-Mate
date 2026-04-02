@@ -99,7 +99,7 @@ export const ttsRouter = router({
           },
           body: JSON.stringify({
             text: cleanedText,
-            language: input.language,
+            language: voice.languageCode,
             voiceId: voice.voiceId,
             pitch: voice.pitch,
             speakingRate: voice.speakingRate,

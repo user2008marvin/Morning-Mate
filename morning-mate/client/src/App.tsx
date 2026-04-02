@@ -4,6 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AuthModalProvider } from "./contexts/AuthModalContext";
 import { LiveChat } from "./components/LiveChat";
 import Home from "./pages/Home";
 import AppPage from "./pages/AppPage";
@@ -29,9 +30,11 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <Toaster />
-          <LiveChat />
-          <Router />
+          <AuthModalProvider>
+            <Toaster />
+            <LiveChat />
+            <Router />
+          </AuthModalProvider>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
