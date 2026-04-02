@@ -11,10 +11,7 @@ async function runStartupMigrations(dbUrl: string) {
   if (_migrationRun) return;
   _migrationRun = true;
   try {
-    const conn = await mysql.createConnection({
-      uri: dbUrl,
-      ssl: { rejectUnauthorized: false },
-    });
+    const conn = await mysql.createConnection(dbUrl);
     await conn.execute(
       `ALTER TABLE users ADD COLUMN passwordHash VARCHAR(255) NULL`
     ).catch(() => {});
@@ -53,20 +50,14 @@ export async function getDb() {
 
   if (!_db && dbUrl) {
     try {
-      const pool = mysql.createPool({
-        uri: dbUrl,
-        ssl: { rejectUnauthorized: false },
-        waitForConnections: true,
-        connectionLimit: 5,
-      });
-      _db = drizzle(pool);
+      _db = drizzle(dbUrl);
       await runStartupMigrations(dbUrl);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
     }
   } else if (!dbUrl) {
-    console.error("[DB] No valid MySQL database URL found. Set GLOWJO_DATABASE_URL in Railway.");
+    console.error("[DB] No valid MySQL database URL found. Set GLOWJO_DATABASE_URL or DATABASE_URL in Railway.");
   }
   return _db;
 }
