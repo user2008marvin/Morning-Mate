@@ -199,14 +199,14 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
         <div
           style={{
             width: 100, height: 100, borderRadius: "50%",
-            background: "rgba(255,95,31,0.3)", border: "4px solid #ff5f1f",
-            boxShadow: "0 0 20px rgba(255,95,31,0.5)",
+            background: "rgba(255,215,0,0.25)", border: "4px solid #ffd700",
+            boxShadow: "0 0 20px rgba(255,215,0,0.6)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            overflow: "hidden",
+            fontSize: 38,
             animation: pulsing ? "pulse 1s ease-in-out infinite" : "none",
           }}
         >
-          <img src="/thumbsup_single.png" alt="thumbs up" style={{ width: 82, height: 82, objectFit: "contain", filter: "sepia(1) saturate(4) hue-rotate(5deg) brightness(1.1)" }} />
+          👍👍
         </div>
         <div style={{ fontSize: 12, color: "white", fontWeight: 700, marginTop: 8 }}>{hint}</div>
         {lang === "es" && (
@@ -324,7 +324,7 @@ export default function Home() {
         <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, color: "var(--coral)", display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 13, color: "var(--mid)", fontWeight: 900, letterSpacing: 0.5 }}>Get</span>
           Glow<span style={{ color: "var(--dark)" }}>Jo</span>
-          <img src="/thumbsup_double.png" alt="" style={{ height: 30, width: "auto", objectFit: "contain", filter: "sepia(1) saturate(4) hue-rotate(5deg) brightness(1.1)" }} />
+          <span style={{ fontSize: 22 }}>👍👍</span>
         </div>
         <button onClick={() => navigate("/onboarding")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 15, padding: "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", textDecoration: "none", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
           Get Started
@@ -346,11 +346,7 @@ export default function Home() {
           Brush teeth?<em style={{ fontStyle: "normal", color: "var(--yellow)", display: "block" }}>Kids beg to.</em>
         </h1>
 
-        <div style={{ animation: "fadein 0.8s ease-out 0.6s both", marginTop: 16 }}>
-          <img src="/thumbsup_double.png" alt="double thumbs up" style={{ height: 140, width: "auto", objectFit: "contain", filter: "sepia(1) saturate(4) hue-rotate(5deg) brightness(1.15)", dropShadow: "0 8px 24px rgba(0,0,0,0.3)" }} />
-        </div>
-
-        <div style={{ fontSize: "clamp(18px,4vw,24px)", color: "rgba(255,255,255,0.92)", fontWeight: 700, marginTop: 16, maxWidth: 560, lineHeight: 1.5, animation: "fadein 0.8s ease-out 0.7s both" }}>
+        <div style={{ fontSize: "clamp(18px,4vw,24px)", color: "rgba(255,255,255,0.92)", fontWeight: 700, marginTop: 20, maxWidth: 560, lineHeight: 1.5, animation: "fadein 0.8s ease-out 0.7s both" }}>
           Stop being the alarm clock. GlowJo turns chaotic school mornings into a game kids actually want to play.
         </div>
 
