@@ -206,7 +206,10 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
             animation: pulsing ? "pulse 1s ease-in-out infinite" : "none",
           }}
         >
-          👍👍
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1, gap: 0 }}>
+            <span style={{ fontSize: 30 }}>👍</span>
+            <span style={{ fontSize: 30 }}>👍</span>
+          </div>
         </div>
         <div style={{ fontSize: 12, color: "white", fontWeight: 700, marginTop: 8 }}>{hint}</div>
         {lang === "es" && (
@@ -324,7 +327,10 @@ export default function Home() {
         <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, color: "var(--coral)", display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 13, color: "var(--mid)", fontWeight: 900, letterSpacing: 0.5 }}>Get</span>
           Glow<span style={{ color: "var(--dark)" }}>Jo</span>
-          <span style={{ fontSize: 22 }}>👍👍</span>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1, gap: 0 }}>
+            <span style={{ fontSize: 16 }}>👍</span>
+            <span style={{ fontSize: 16 }}>👍</span>
+          </div>
         </div>
         <button onClick={() => navigate("/onboarding")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 15, padding: "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", textDecoration: "none", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
           Get Started
