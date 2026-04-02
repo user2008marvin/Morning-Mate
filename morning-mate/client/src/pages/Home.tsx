@@ -326,7 +326,7 @@ export default function Home() {
       <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,248,238,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,154,60,0.2)" }}>
         <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, color: "var(--coral)", display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 13, color: "var(--mid)", fontWeight: 900, letterSpacing: 0.5 }}>Get</span>
-          Glow<span style={{ color: "var(--dark)" }}>Jo</span>
+          <span>Glow<span style={{ color: "var(--dark)" }}>Jo</span></span>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1, gap: 0 }}>
             <span style={{ fontSize: 16 }}>👍</span>
             <span style={{ fontSize: 16 }}>👍</span>
