@@ -9,7 +9,8 @@ import * as db from "../db";
  * Syncs subscription data to database and sends email notifications
  */
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+const rawStripeKey = (process.env.STRIPE_SECRET_KEY || "").replace(/^=+/, "");
+const stripe = new Stripe(rawStripeKey);
 
 export const stripeRouter = router({
   /**
