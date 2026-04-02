@@ -33,11 +33,71 @@ async function runStartupMigrations(dbUrl: string) {
     const conn = cfg
       ? await mysql.createConnection(cfg)
       : await mysql.createConnection(dbUrl);
+
+    await conn.execute(`CREATE TABLE IF NOT EXISTS \`users\` (
+      \`id\` int AUTO_INCREMENT NOT NULL,
+      \`openId\` varchar(64) NOT NULL,
+      \`name\` text,
+      \`email\` varchar(320),
+      \`passwordHash\` varchar(255),
+      \`loginMethod\` varchar(64),
+      \`role\` enum('user','admin') NOT NULL DEFAULT 'user',
+      \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+      \`updatedAt\` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+      \`lastSignedIn\` timestamp NOT NULL DEFAULT (now()),
+      CONSTRAINT \`users_id\` PRIMARY KEY(\`id\`),
+      CONSTRAINT \`users_openId_unique\` UNIQUE(\`openId\`)
+    )`);
+
+    await conn.execute(`CREATE TABLE IF NOT EXISTS \`childProfiles\` (
+      \`id\` int AUTO_INCREMENT NOT NULL,
+      \`userId\` int NOT NULL,
+      \`name\` varchar(100) NOT NULL,
+      \`age\` int,
+      \`schoolTime\` varchar(5),
+      \`reward\` varchar(100),
+      \`language\` enum('en','es') NOT NULL DEFAULT 'en',
+      \`enabledTasks\` text,
+      \`stars\` int DEFAULT 0,
+      \`streak\` int DEFAULT 0,
+      \`completedDays\` text,
+      \`lastCompletedDate\` timestamp,
+      \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+      \`updatedAt\` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+      CONSTRAINT \`childProfiles_id\` PRIMARY KEY(\`id\`)
+    )`);
+
+    await conn.execute(`CREATE TABLE IF NOT EXISTS \`subscriptions\` (
+      \`id\` int AUTO_INCREMENT NOT NULL,
+      \`userId\` int NOT NULL,
+      \`tier\` enum('freemium','starter','plus','gold') NOT NULL DEFAULT 'freemium',
+      \`stripeCustomerId\` varchar(128),
+      \`stripeSubscriptionId\` varchar(128),
+      \`status\` enum('active','canceled','past_due','trialing') NOT NULL DEFAULT 'active',
+      \`currentPeriodStart\` timestamp,
+      \`currentPeriodEnd\` timestamp,
+      \`cancelAtPeriodEnd\` int DEFAULT 0,
+      \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+      \`updatedAt\` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+      CONSTRAINT \`subscriptions_id\` PRIMARY KEY(\`id\`)
+    )`);
+
+    await conn.execute(`CREATE TABLE IF NOT EXISTS \`emails\` (
+      \`id\` int AUTO_INCREMENT NOT NULL,
+      \`email\` varchar(320) NOT NULL,
+      \`source\` varchar(50) DEFAULT 'landing_page',
+      \`subscribedAt\` timestamp NOT NULL DEFAULT (now()),
+      \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+      CONSTRAINT \`emails_id\` PRIMARY KEY(\`id\`),
+      CONSTRAINT \`emails_email_unique\` UNIQUE(\`email\`)
+    )`);
+
     await conn.execute(
       `ALTER TABLE users ADD COLUMN passwordHash VARCHAR(255) NULL`
     ).catch(() => {});
+
     await conn.end();
-    console.log("[DB] Startup migration complete");
+    console.log("[DB] Startup migrations complete — all tables ready");
   } catch (err) {
     console.warn("[DB] Migration warning:", err);
   }
