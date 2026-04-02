@@ -131,11 +131,12 @@ function DemoPhone() {
         });
       const voices = await getVoicesAsync();
       const FEMALE_EN = ['Google UK English Female', 'Samantha', 'Karen', 'Tessa', 'Moira', 'Fiona', 'Google US English', 'Microsoft Zira', 'Microsoft Hazel', 'Zira'];
-      const MALE_SKIP = ['Daniel', 'Google UK English Male', 'Alex', 'Fred', 'Microsoft David', 'Microsoft Mark', 'Arthur', 'David', 'Mark'];
+      const MALE_SKIP = ['Daniel', 'Google UK English Male', 'Alex', 'Fred', 'Microsoft David', 'Microsoft Mark', 'Arthur', 'David', 'Mark', 'George', 'Ryan', 'Microsoft Ryan', 'Microsoft George', 'Rishi', 'Aaron', 'Thomas', 'Reed', 'Eddy', 'Grandpa'];
+      const isMale = (v: SpeechSynthesisVoice) => MALE_SKIP.includes(v.name) || v.name.toLowerCase().includes('male');
       const female = voices.find(v => FEMALE_EN.includes(v.name))
-        ?? voices.find(v => v.lang.startsWith('en') && !MALE_SKIP.includes(v.name) && v.name.toLowerCase().includes('female'))
-        ?? voices.find(v => v.lang.startsWith('en') && !MALE_SKIP.includes(v.name))
-        ?? voices.find(v => v.lang.startsWith('en')) ?? null;
+        ?? voices.find(v => v.lang.startsWith('en') && !isMale(v) && v.name.toLowerCase().includes('female'))
+        ?? voices.find(v => v.lang.startsWith('en') && !isMale(v))
+        ?? voices.find(v => !isMale(v)) ?? null;
       if (female) utterance.voice = female;
       utterance.pitch = 1.1;
       utterance.rate = 0.92;

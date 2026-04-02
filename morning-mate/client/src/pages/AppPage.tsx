@@ -159,21 +159,23 @@ async function speak(text: string, lang: Language = "en") {
         "Microsoft Helena",           // Windows Spanish female ✓
       ];
       // Male voices to explicitly skip for English
-      const MALE_EN_SKIP = ["Daniel", "Google UK English Male", "Alex", "Fred", "Microsoft David", "Microsoft Mark", "Arthur", "David", "Mark"];
+      const MALE_EN_SKIP = ["Daniel", "Google UK English Male", "Alex", "Fred", "Microsoft David", "Microsoft Mark", "Arthur", "David", "Mark", "George", "Ryan", "Microsoft Ryan", "Microsoft George", "Rishi", "Aaron", "Thomas", "Reed", "Eddy", "Grandpa"];
+      const isMale = (v: SpeechSynthesisVoice) =>
+        MALE_EN_SKIP.includes(v.name) || v.name.toLowerCase().includes("male");
 
       if (lang === "es") {
         utterance.voice =
           voices.find(v => FEMALE_ES.includes(v.name)) ??
-          voices.find(v => v.lang.startsWith("es") && v.name.toLowerCase().includes("female")) ??
-          voices.find(v => v.lang.startsWith("es")) ?? null;
+          voices.find(v => v.lang.startsWith("es") && !v.name.toLowerCase().includes("male") && v.name.toLowerCase().includes("female")) ??
+          voices.find(v => v.lang.startsWith("es") && !v.name.toLowerCase().includes("male")) ?? null;
         utterance.lang = "es-ES";
       } else {
         const female = voices.find(v => FEMALE_EN.includes(v.name))
-          ?? voices.find(v => v.lang === "en-GB" && !MALE_EN_SKIP.includes(v.name) && v.name.toLowerCase().includes("female"))
-          ?? voices.find(v => v.lang === "en-GB" && !MALE_EN_SKIP.includes(v.name))
-          ?? voices.find(v => v.lang.startsWith("en") && !MALE_EN_SKIP.includes(v.name) && v.name.toLowerCase().includes("female"))
-          ?? voices.find(v => v.lang.startsWith("en") && !MALE_EN_SKIP.includes(v.name))
-          ?? voices.find(v => v.lang.startsWith("en")) ?? null;
+          ?? voices.find(v => v.lang === "en-GB" && !isMale(v) && v.name.toLowerCase().includes("female"))
+          ?? voices.find(v => v.lang === "en-GB" && !isMale(v))
+          ?? voices.find(v => v.lang.startsWith("en") && !isMale(v) && v.name.toLowerCase().includes("female"))
+          ?? voices.find(v => v.lang.startsWith("en") && !isMale(v))
+          ?? voices.find(v => !isMale(v)) ?? null;
         utterance.voice = female;
         utterance.lang = "en-GB";
       }

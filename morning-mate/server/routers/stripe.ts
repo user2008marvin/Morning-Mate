@@ -56,7 +56,7 @@ export const stripeRouter = router({
         throw new Error(`No active price found for ${input.tier} (${productId}). Ensure the product has an active recurring price in Stripe.`);
       }
 
-      const baseUrl = process.env.VITE_FRONTEND_URL || "https://myglowjo.fit";
+      const baseUrl = process.env.VITE_FRONTEND_URL || "https://getglowjo.com";
 
       try {
         // Create real Stripe checkout session
