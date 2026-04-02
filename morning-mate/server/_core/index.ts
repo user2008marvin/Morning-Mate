@@ -60,6 +60,9 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
+  // Railway sits behind a proxy — trust the X-Forwarded-For header
+  app.set("trust proxy", 1);
+
   // ==================== PUBLIC STATIC ASSET BYPASS ====================
   // MUST be first — before Helmet, CORS, auth, everything.
   // Serves manifest.json and other static assets with open CORS headers so

@@ -1,0 +1,30 @@
+[Security] Helmet enabled, CORS configured, Rate limiting active
+[OAuth] Initialized with baseURL:
+[OAuth] ERROR: OAUTH_SERVER_URL is not configured! Set OAUTH_SERVER_URL environment variable.
+[Server] Running on http://localhost:8080/
+[Environment] NODE_ENV=undefined
+Starting Container
+ValidationError: The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false (default). This could indicate a misconfiguration which would prevent express-rate-limit from accurately identifying users. See https://express-rate-limit.github.io/ERR_ERL_UNEXPECTED_X_FORWARDED_FOR/ for more information.
+at Object.xForwardedForHeader (file:///app/node_modules/.pnpm/express-rate-limit@8.3.1_express@4.21.2/node_modules/express-rate-limit/dist/index.mjs:342:13)
+at wrappedValidations.<computed> [as xForwardedForHeader] (file:///app/node_modules/.pnpm/express-rate-limit@8.3.1_express@4.21.2/node_modules/express-rate-limit/dist/index.mjs:656:22)
+at Object.keyGenerator (file:///app/node_modules/.pnpm/express-rate-limit@8.3.1_express@4.21.2/node_modules/express-rate-limit/dist/index.mjs:759:20)
+at file:///app/node_modules/.pnpm/express-rate-limit@8.3.1_express@4.21.2/node_modules/express-rate-limit/dist/index.mjs:820:32
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+at async file:///app/node_modules/.pnpm/express-rate-limit@8.3.1_express@4.21.2/node_modules/express-rate-limit/dist/index.mjs:801:5 {
+code: 'ERR_ERL_UNEXPECTED_X_FORWARDED_FOR',
+help: 'https://express-rate-limit.github.io/ERR_ERL_UNEXPECTED_X_FORWARDED_FOR/'
+}
+[DB] URL source: NONE
+[DB] No valid MySQL database URL found. Set GLOWJO_DATABASE_URL in Railway.
+[DB] URL source: NONE
+[DB] No valid MySQL database URL found. Set GLOWJO_DATABASE_URL in Railway.
+[DB] URL source: NONE
+[DB] No valid MySQL database URL found. Set GLOWJO_DATABASE_URL in Railway.
+[DB] URL source: NONE
+[DB] No valid MySQL database URL found. Set GLOWJO_DATABASE_URL in Railway.
+[DB] URL source: NONE
+[DB] No valid MySQL database URL found. Set GLOWJO_DATABASE_URL in Railway.
+
+
+
+Reply
