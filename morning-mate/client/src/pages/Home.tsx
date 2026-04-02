@@ -346,7 +346,11 @@ export default function Home() {
           Brush teeth?<em style={{ fontStyle: "normal", color: "var(--yellow)", display: "block" }}>Kids beg to.</em>
         </h1>
 
-        <div style={{ fontSize: "clamp(18px,4vw,24px)", color: "rgba(255,255,255,0.92)", fontWeight: 700, marginTop: 20, maxWidth: 560, lineHeight: 1.5, animation: "fadein 0.8s ease-out 0.7s both" }}>
+        <div style={{ animation: "fadein 0.8s ease-out 0.6s both", marginTop: 16 }}>
+          <img src="/thumbsup_double.png" alt="double thumbs up" style={{ height: 140, width: "auto", objectFit: "contain", filter: "sepia(1) saturate(4) hue-rotate(5deg) brightness(1.15)", dropShadow: "0 8px 24px rgba(0,0,0,0.3)" }} />
+        </div>
+
+        <div style={{ fontSize: "clamp(18px,4vw,24px)", color: "rgba(255,255,255,0.92)", fontWeight: 700, marginTop: 16, maxWidth: 560, lineHeight: 1.5, animation: "fadein 0.8s ease-out 0.7s both" }}>
           Stop being the alarm clock. GlowJo turns chaotic school mornings into a game kids actually want to play.
         </div>
 
@@ -466,6 +470,7 @@ export default function Home() {
               { text: "The parent dashboard is so helpful. I can see exactly what my kids completed.", author: "David L., Dad · Austin, TX", stars: 5 },
               { text: "My ADHD kid finally has a system that works. No more battles.", author: "Jennifer P., Mom · Denver, CO", stars: 5 },
               { text: "Worth every penny. Our mornings are peaceful for the first time in years.", author: "Robert T., Dad · Boston, MA", stars: 5 },
+              { text: "I love when my child gives me the double thumbs up — he is so pleased with himself. It melts my heart every single morning.", author: "Proud Mum · London, UK", stars: 5 },
             ].map((testi, i) => (
               <div key={i} className="reveal" style={{ background: "white", border: "1px solid rgba(255,154,60,0.2)", borderRadius: 20, padding: 24, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", textAlign: "left" }}>
                 <div style={{ fontSize: 14, color: "var(--yellow)", marginBottom: 12, letterSpacing: 2 }}>{"⭐".repeat(testi.stars)}</div>
