@@ -7,11 +7,32 @@ import { ENV } from './_core/env';
 let _db: ReturnType<typeof drizzle> | null = null;
 let _migrationRun = false;
 
+function parsePoolConfig(dbUrl: string) {
+  try {
+    const u = new URL(dbUrl);
+    return {
+      host: u.hostname,
+      port: parseInt(u.port || "3306"),
+      user: decodeURIComponent(u.username),
+      password: decodeURIComponent(u.password),
+      database: u.pathname.replace(/^\//, ""),
+      ssl: { rejectUnauthorized: false },
+      waitForConnections: true,
+      connectionLimit: 5,
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function runStartupMigrations(dbUrl: string) {
   if (_migrationRun) return;
   _migrationRun = true;
   try {
-    const conn = await mysql.createConnection(dbUrl);
+    const cfg = parsePoolConfig(dbUrl);
+    const conn = cfg
+      ? await mysql.createConnection(cfg)
+      : await mysql.createConnection(dbUrl);
     await conn.execute(
       `ALTER TABLE users ADD COLUMN passwordHash VARCHAR(255) NULL`
     ).catch(() => {});
@@ -50,7 +71,15 @@ export async function getDb() {
 
   if (!_db && dbUrl) {
     try {
-      _db = drizzle(dbUrl);
+      const cfg = parsePoolConfig(dbUrl);
+      if (cfg) {
+        console.log(`[DB] Connecting with pool to ${cfg.host}:${cfg.port}/${cfg.database} (SSL enabled)`);
+        const pool = mysql.createPool(cfg);
+        _db = drizzle(pool);
+      } else {
+        console.log("[DB] Falling back to URL string connection");
+        _db = drizzle(dbUrl);
+      }
       await runStartupMigrations(dbUrl);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);

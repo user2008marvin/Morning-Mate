@@ -28,6 +28,15 @@ const DEMO_TASKS = [
   { emoji: "🚀", label: "LET'S GO!", mascot: "🏆", speech: "You are LEGENDARY!", voice: "Daily winner! You are absolutely LEGENDARY!", stars: 6 },
 ];
 
+const DEMO_TASKS_ES = [
+  { emoji: "☀️", label: "¡LEVÁNTATE!", mascot: "😄", speech: "¡Buenos días, estrella!", voice: "¡Buenos días, pequeño! ¡Levántate, estrella brillante!", stars: 1 },
+  { emoji: "🛁", label: "¡HORA DEL BAÑO!", mascot: "😊", speech: "¡Súper limpio!", voice: "¡Limpio como un campeón! ¡Muy bien hecho!", stars: 2 },
+  { emoji: "🥛", label: "¡DESAYUNO!", mascot: "🤩", speech: "¡Superpoderes!", voice: "¡Carga energía! ¡Hoy eres un cohete!", stars: 3 },
+  { emoji: "🪥", label: "¡CEPILLA DIENTES!", mascot: "😁", speech: "¡Sonrisa brillante!", voice: "¡La sonrisa más brillante del mundo! ¡Muy bien!", stars: 4 },
+  { emoji: "🎒", label: "¡MOCHILA LISTA!", mascot: "🚀", speech: "¡Listo para volar!", voice: "¡Ciérrala! ¡Estás listo para volar!", stars: 5 },
+  { emoji: "🚀", label: "¡VAMOS!", mascot: "🏆", speech: "¡Eres una LEYENDA!", voice: "¡Ganador del día! ¡Eres absolutamente INCREÍBLE!", stars: 6 },
+];
+
 // ── CONFETTI ──
 function spawnConfetti(container: HTMLElement, timerRef: React.MutableRefObject<ReturnType<typeof setTimeout>[]>) {
   const colors = ["#ff5f1f", "#ffd700", "#4facfe", "#ff9a3c", "#ff6b35", "#fff"];
@@ -49,6 +58,7 @@ function spawnConfetti(container: HTMLElement, timerRef: React.MutableRefObject<
 
 // ── DEMO COMPONENT ──
 function DemoPhone() {
+  const [demoLang, setDemoLang] = useState<"en" | "es">("en");
   const [demoIdx, setDemoIdx] = useState(0);
   const [demoDone, setDemoDone] = useState(false);
   const [currentTask, setCurrentTask] = useState(DEMO_TASKS[0]);
@@ -73,51 +83,45 @@ function DemoPhone() {
     };
   }, []);
 
-  async function speak(text: string) {
-    // Clean text - remove emojis
+  function resetDemo(lang: "en" | "es") {
+    const tasks = lang === "es" ? DEMO_TASKS_ES : DEMO_TASKS;
+    setDemoIdx(0);
+    setDemoDone(false);
+    setCurrentTask(tasks[0]);
+    setMascot("😴");
+    setSpeech(lang === "es" ? "¡Tócame para despertar!" : "Tap to wake me up!");
+    setStars("☆☆☆☆☆☆");
+    setHint(lang === "es" ? "¡TÓCAME! 👆" : "TAP ME! 👆");
+    setPulsing(true);
+    setShowVoice(false);
+  }
+
+  function switchLang(lang: "en" | "es") {
+    setDemoLang(lang);
+    resetDemo(lang);
+  }
+
+  async function speak(text: string, lang: "en" | "es") {
     const clean = text
       .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, "")
       .trim();
-    
-    if (!clean) {
-      console.warn("\u26a0\ufe0f No text to speak after cleanup");
-      return;
-    }
+    if (!clean) return;
 
-    // Create cache key
-    const cacheKey = clean;
-    
-    // Check cache first
+    const cacheKey = `${lang}:${clean}`;
     if (audioCache.current[cacheKey]) {
-      console.log(`\ud83d\udce6 Playing from cache`);
-      try {
-        const audio = new Audio(audioCache.current[cacheKey]);
-        audio.play().catch(err => console.warn("Cache playback failed:", err));
-      } catch (err) {
-        console.error("Error playing cached audio:", err);
-      }
+      new Audio(audioCache.current[cacheKey]).play().catch(() => {});
       return;
     }
 
     try {
-      console.log(`\ud83d\udd0a Requesting TTS: text="${clean}"`);
-
-      // Call backend TTS endpoint
-      const ttsResult = await ttsMutation.mutateAsync({ text: clean, language: "en" }).catch(() => null);
+      const ttsResult = await ttsMutation.mutateAsync({ text: clean, language: lang }).catch(() => null);
       if (ttsResult?.success && ttsResult.audioUrl) {
         audioCache.current[cacheKey] = ttsResult.audioUrl;
-        console.log(`\u2705 TTS generated, playing now...`);
-        try {
-          new Audio(ttsResult.audioUrl).play().catch(err => console.warn("Playback failed:", err));
-          return;
-        } catch (e) {
-          console.warn("[TTS] Backend audio failed to play");
-        }
+        new Audio(ttsResult.audioUrl).play().catch(() => {});
+        return;
       }
-    } catch (error) {
-      console.error(`\u274c TTS error:`, error);
-    }
-    
+    } catch {}
+
     // Fallback to browser speech synthesis — always pick FEMALE
     try {
       window.speechSynthesis.cancel();
@@ -130,43 +134,44 @@ function DemoPhone() {
           setTimeout(() => resolve(window.speechSynthesis.getVoices()), 1000);
         });
       const voices = await getVoicesAsync();
-      const FEMALE_EN = ['Google UK English Female', 'Samantha', 'Karen', 'Tessa', 'Moira', 'Fiona', 'Google US English', 'Microsoft Zira', 'Microsoft Hazel', 'Zira'];
-      const MALE_SKIP = ['Daniel', 'Google UK English Male', 'Alex', 'Fred', 'Microsoft David', 'Microsoft Mark', 'Arthur', 'David', 'Mark', 'George', 'Ryan', 'Microsoft Ryan', 'Microsoft George', 'Rishi', 'Aaron', 'Thomas', 'Reed', 'Eddy', 'Grandpa'];
+      const MALE_SKIP = ['Daniel', 'Google UK English Male', 'Alex', 'Fred', 'Microsoft David', 'Microsoft Mark', 'Arthur', 'David', 'Mark', 'George', 'Ryan', 'Microsoft Ryan', 'Microsoft George', 'Rishi', 'Aaron', 'Thomas', 'Reed', 'Eddy', 'Grandpa', 'Albert', 'Bad News', 'Bahh', 'Bells', 'Boing', 'Bubbles', 'Cellos', 'Wobble', 'Zarvox'];
       const isMale = (v: SpeechSynthesisVoice) => MALE_SKIP.includes(v.name) || v.name.toLowerCase().includes('male');
-      const female = voices.find(v => FEMALE_EN.includes(v.name))
-        ?? voices.find(v => v.lang.startsWith('en') && !isMale(v) && v.name.toLowerCase().includes('female'))
-        ?? voices.find(v => v.lang.startsWith('en') && !isMale(v))
-        ?? voices.find(v => !isMale(v)) ?? null;
-      if (female) utterance.voice = female;
+      let chosen: SpeechSynthesisVoice | null = null;
+      if (lang === "es") {
+        const FEMALE_ES = ['Google español', 'Paulina', 'Monica', 'Google español de Estados Unidos', 'Microsoft Helena', 'Mónica'];
+        chosen = voices.find(v => FEMALE_ES.includes(v.name))
+          ?? voices.find(v => v.lang.startsWith('es') && !isMale(v))
+          ?? null;
+        utterance.lang = 'es-ES';
+      } else {
+        const FEMALE_EN = ['Google UK English Female', 'Samantha', 'Karen', 'Tessa', 'Moira', 'Fiona', 'Google US English', 'Microsoft Zira', 'Microsoft Hazel', 'Zira'];
+        chosen = voices.find(v => FEMALE_EN.includes(v.name))
+          ?? voices.find(v => v.lang.startsWith('en') && !isMale(v) && v.name.toLowerCase().includes('female'))
+          ?? voices.find(v => v.lang.startsWith('en') && !isMale(v))
+          ?? voices.find(v => !isMale(v)) ?? null;
+        utterance.lang = 'en-GB';
+      }
+      if (chosen) utterance.voice = chosen;
       utterance.pitch = 1.1;
       utterance.rate = 0.92;
-      utterance.lang = 'en-GB';
       window.speechSynthesis.speak(utterance);
-    } catch (fallbackErr) {
-      console.error('Fallback speech synthesis failed:', fallbackErr);
-    }
+    } catch {}
   }
 
   function handleTap() {
+    const tasks = demoLang === "es" ? DEMO_TASKS_ES : DEMO_TASKS;
     if (demoDone) {
-      setDemoIdx(0);
-      setDemoDone(false);
-      setCurrentTask(DEMO_TASKS[0]);
-      setMascot("😴");
-      setSpeech("Tap to wake me up!");
-      setStars("☆☆☆☆☆☆");
-      setHint("TAP ME! 👆");
-      setPulsing(true);
+      resetDemo(demoLang);
       return;
     }
 
-    const task = DEMO_TASKS[demoIdx];
+    const task = tasks[demoIdx];
     setCurrentTask(task);
     setMascot(task.mascot);
     setSpeech(task.speech);
     setVoiceMsg(task.voice);
     setShowVoice(true);
-    speak(task.voice);
+    speak(task.voice, demoLang);
 
     if (voiceTimer.current) clearTimeout(voiceTimer.current);
     voiceTimer.current = setTimeout(() => setShowVoice(false), 3000);
@@ -174,19 +179,25 @@ function DemoPhone() {
     const newStars = "⭐".repeat(task.stars) + "☆".repeat(6 - task.stars);
     setStars(newStars);
 
-    if (demoIdx < DEMO_TASKS.length - 1) {
+    if (demoIdx < tasks.length - 1) {
       setDemoIdx(demoIdx + 1);
-      setHint("TAP AGAIN! 👆");
-    
+      setHint(demoLang === "es" ? "¡OTRA VEZ! 👆" : "TAP AGAIN! 👆");
+    }
+    if (demoIdx === tasks.length - 1) {
       setDemoDone(true);
-      setHint("YOU DID IT! 🏆");
+      setHint(demoLang === "es" ? "¡LO LOGRASTE! 🏆" : "YOU DID IT! 🏆");
       setPulsing(false);
       if (confettiRef.current) spawnConfetti(confettiRef.current, confettiTimers);
     }
   }
 
   return (
-    <div style={{ marginTop: 48, animation: "float 4s ease-in-out infinite, fadein 1s ease-out 1s both", position: "relative" }}>
+    <div style={{ marginTop: 48, animation: "float 4s ease-in-out infinite, fadein 1s ease-out 1s both", position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      {/* Language toggle */}
+      <div style={{ display: "flex", gap: 8 }}>
+        <button onClick={() => switchLang("en")} style={{ padding: "6px 18px", borderRadius: 20, border: `2px solid ${demoLang === "en" ? "white" : "rgba(255,255,255,0.3)"}`, background: demoLang === "en" ? "rgba(255,255,255,0.25)" : "transparent", color: "white", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>🇬🇧 English</button>
+        <button onClick={() => switchLang("es")} style={{ padding: "6px 18px", borderRadius: 20, border: `2px solid ${demoLang === "es" ? "white" : "rgba(255,255,255,0.3)"}`, background: demoLang === "es" ? "rgba(255,255,255,0.25)" : "transparent", color: "white", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>🇪🇸 Español</button>
+      </div>
       <div
         ref={confettiRef}
         style={{

@@ -533,7 +533,7 @@ function MainScreen({
             fontSize: 12, fontWeight: 800, cursor: "pointer"
           }}>🇪🇸 ES</button>
         ) : (
-          <button onClick={onParent} title="Upgrade to Plus for bilingual mode" style={{
+          <button onClick={() => alert("🌍 Bilingual mode is available on Plus & Gold plans!\n\nGo to getglowjo.com and upgrade to unlock English + Spanish.")} title="Upgrade to Plus for bilingual mode" style={{
             padding: "6px 14px", borderRadius: 20,
             border: "2px solid rgba(255,255,255,0.15)",
             background: "transparent",
