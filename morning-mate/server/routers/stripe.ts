@@ -28,19 +28,24 @@ export const stripeRouter = router({
         throw new Error("Stripe not configured");
       }
 
-      // Product IDs are hardcoded (stable) — price IDs are looked up dynamically from Stripe
-      const TIER_TO_PRODUCT: Record<string, string> = {
-        starter: "prod_UFv1lk6xTeRu0r",
-        plus:    "prod_UFv7wwXLIFTBhw",
-        gold:    "prod_UFvCIa9o0bg0Ei",
+      // Look up product by name (works across any Stripe account)
+      const TIER_NAMES: Record<string, string> = {
+        starter: "GlowJo Starter",
+        plus:    "GlowJo Plus",
+        gold:    "GlowJo Gold",
       };
+      const tierName = TIER_NAMES[input.tier];
+      if (!tierName) throw new Error(`Unknown tier: ${input.tier}`);
 
-      const productId = TIER_TO_PRODUCT[input.tier];
-      if (!productId) throw new Error(`Unknown tier: ${input.tier}`);
+      const allProducts = await stripe.products.list({ active: true, limit: 20 });
+      const product = allProducts.data.find(p => p.name === tierName);
+      if (!product) {
+        throw new Error(`Product "${tierName}" not found in Stripe. Visit /setup-stripe to create it.`);
+      }
 
       // Look up the active recurring price for this product from Stripe
       const allPrices = await stripe.prices.list({
-        product: productId,
+        product: product.id,
         active: true,
         type: "recurring",
         limit: 10,
@@ -53,7 +58,7 @@ export const stripeRouter = router({
 
       const priceId = matchingPrice?.id;
       if (!priceId) {
-        throw new Error(`No active price found for ${input.tier} (${productId}). Ensure the product has an active recurring price in Stripe.`);
+        throw new Error(`No active price found for ${input.tier}. Visit /setup-stripe to create prices.`);
       }
 
       const baseUrl = process.env.VITE_FRONTEND_URL || "https://getglowjo.com";

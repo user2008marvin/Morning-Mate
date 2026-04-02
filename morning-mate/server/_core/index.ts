@@ -262,6 +262,44 @@ async function startServer() {
     });
   });
 
+  // One-time Stripe setup — creates GlowJo products and prices in your Stripe account
+  app.get("/setup-stripe", async (req, res) => {
+    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeKey) return res.json({ success: false, error: "STRIPE_SECRET_KEY not set" });
+    const Stripe = (await import("stripe")).default;
+    const stripe = new Stripe(stripeKey);
+    const results: Record<string, any> = {};
+    try {
+      const tiers = [
+        { key: "starter", name: "GlowJo Starter", monthlyPrice: 499, yearlyPrice: 4990 },
+        { key: "plus",    name: "GlowJo Plus",    monthlyPrice: 999, yearlyPrice: 9990 },
+        { key: "gold",    name: "GlowJo Gold",    monthlyPrice: 1499, yearlyPrice: 14990 },
+      ];
+      for (const tier of tiers) {
+        // Check if product already exists
+        const existing = await stripe.products.list({ active: true });
+        let product = existing.data.find(p => p.name === tier.name);
+        if (!product) {
+          product = await stripe.products.create({ name: tier.name, metadata: { glowjo_tier: tier.key } });
+        }
+        // Check/create monthly price
+        const prices = await stripe.prices.list({ product: product.id, active: true, type: "recurring" });
+        let monthly = prices.data.find(p => p.recurring?.interval === "month");
+        if (!monthly) {
+          monthly = await stripe.prices.create({ product: product.id, currency: "usd", unit_amount: tier.monthlyPrice, recurring: { interval: "month" } });
+        }
+        let yearly = prices.data.find(p => p.recurring?.interval === "year");
+        if (!yearly) {
+          yearly = await stripe.prices.create({ product: product.id, currency: "usd", unit_amount: tier.yearlyPrice, recurring: { interval: "year" } });
+        }
+        results[tier.key] = { productId: product.id, monthlyPriceId: monthly.id, yearlyPriceId: yearly.id };
+      }
+      res.json({ success: true, products: results, note: "Copy the productIds into stripe.ts TIER_TO_PRODUCT" });
+    } catch (e: any) {
+      res.json({ success: false, error: e.message, partial: results });
+    }
+  });
+
   // One-time DB setup endpoint — visits this URL to create all tables
   app.get("/setup-db", async (req, res) => {
     const dbUrl = process.env.GLOWJO_DATABASE_URL || process.env.DATABASE_URL || "";
