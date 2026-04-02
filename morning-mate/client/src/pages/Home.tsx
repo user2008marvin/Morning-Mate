@@ -74,8 +74,6 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
   const confettiRef = useRef<HTMLDivElement>(null);
   const voiceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const confettiTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const audioCache = useRef<Record<string, string>>({});
-  const ttsMutation = trpc.tts.speak.useMutation();
 
   // ✅ CLEANUP ON UNMOUNT
   useEffect(() => {
@@ -103,22 +101,7 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
       .trim();
     if (!clean) return;
 
-    const cacheKey = `${lang}:${clean}`;
-    if (audioCache.current[cacheKey]) {
-      new Audio(audioCache.current[cacheKey]).play().catch(() => {});
-      return;
-    }
-
-    try {
-      const ttsResult = await ttsMutation.mutateAsync({ text: clean, language: lang }).catch(() => null);
-      if (ttsResult?.success && ttsResult.audioUrl) {
-        audioCache.current[cacheKey] = ttsResult.audioUrl;
-        new Audio(ttsResult.audioUrl).play().catch(() => {});
-        return;
-      }
-    } catch {}
-
-    // Fallback to browser speech synthesis — always pick FEMALE
+    // Browser speech synthesis — always picks FEMALE voice
     try {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(clean);
@@ -514,7 +497,10 @@ export default function Home() {
                     <div key={j} style={{ fontSize: 14, marginBottom: 12, color: tier.highlight ? "rgba(255,255,255,0.9)" : "rgba(255,248,238,0.7)" }}>✓ {feat}</div>
                   ))}
                 </div>
-                <button onClick={() => handleCheckout(tier.name.toLowerCase() as "starter" | "plus" | "gold")} disabled={tier.name === "Freemium"} style={{ width: "100%", padding: "12px 24px", borderRadius: 30, border: "none", fontFamily: "'Fredoka One',cursive", fontSize: 15, fontWeight: 700, cursor: tier.name === "Freemium" ? "default" : "pointer", background: tier.highlight ? "white" : "rgba(255,255,255,0.2)", color: tier.highlight ? "var(--coral)" : "white", transition: "background 0.2s", opacity: tier.name === "Freemium" ? 0.6 : 1 }}>
+                <button
+                  onClick={() => tier.name === "Freemium" ? navigate("/app") : handleCheckout(tier.name.toLowerCase() as "starter" | "plus" | "gold")}
+                  style={{ width: "100%", padding: "12px 24px", borderRadius: 30, border: "none", fontFamily: "'Fredoka One',cursive", fontSize: 15, fontWeight: 700, cursor: "pointer", background: tier.highlight ? "white" : "rgba(255,255,255,0.2)", color: tier.highlight ? "var(--coral)" : "white", transition: "background 0.2s" }}
+                >
                   {tier.cta}
                 </button>
               </div>
