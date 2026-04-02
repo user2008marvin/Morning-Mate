@@ -58,15 +58,16 @@ function spawnConfetti(container: HTMLElement, timerRef: React.MutableRefObject<
 }
 
 // ── DEMO COMPONENT ──
-function DemoPhone() {
-  const [demoLang, setDemoLang] = useState<"en" | "es">("en");
+function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
+  const demoLang = lang;
   const [demoIdx, setDemoIdx] = useState(0);
+  const tasks = lang === "es" ? DEMO_TASKS_ES : DEMO_TASKS;
   const [demoDone, setDemoDone] = useState(false);
-  const [currentTask, setCurrentTask] = useState(DEMO_TASKS[0]);
+  const [currentTask, setCurrentTask] = useState(tasks[0]);
   const [mascot, setMascot] = useState("😴");
-  const [speech, setSpeech] = useState("Tap to wake me up!");
+  const [speech, setSpeech] = useState(lang === "es" ? "¡Tócame para despertar!" : "Tap to wake me up!");
   const [stars, setStars] = useState("☆☆☆☆☆☆");
-  const [hint, setHint] = useState("TAP ME! 👆");
+  const [hint, setHint] = useState(lang === "es" ? "¡TÓCAME! 👆" : "TAP ME! 👆");
   const [voiceMsg, setVoiceMsg] = useState("");
   const [showVoice, setShowVoice] = useState(false);
   const [pulsing, setPulsing] = useState(true);
@@ -84,8 +85,7 @@ function DemoPhone() {
     };
   }, []);
 
-  function resetDemo(lang: "en" | "es") {
-    const tasks = lang === "es" ? DEMO_TASKS_ES : DEMO_TASKS;
+  function resetDemo() {
     setDemoIdx(0);
     setDemoDone(false);
     setCurrentTask(tasks[0]);
@@ -95,11 +95,6 @@ function DemoPhone() {
     setHint(lang === "es" ? "¡TÓCAME! 👆" : "TAP ME! 👆");
     setPulsing(true);
     setShowVoice(false);
-  }
-
-  function switchLang(lang: "en" | "es") {
-    setDemoLang(lang);
-    resetDemo(lang);
   }
 
   async function speak(text: string, lang: "en" | "es") {
@@ -160,9 +155,8 @@ function DemoPhone() {
   }
 
   function handleTap() {
-    const tasks = demoLang === "es" ? DEMO_TASKS_ES : DEMO_TASKS;
     if (demoDone) {
-      resetDemo(demoLang);
+      resetDemo();
       return;
     }
 
@@ -172,7 +166,7 @@ function DemoPhone() {
     setSpeech(task.speech);
     setVoiceMsg(task.voice);
     setShowVoice(true);
-    speak(task.voice, demoLang);
+    speak(task.voice, lang);
 
     if (voiceTimer.current) clearTimeout(voiceTimer.current);
     voiceTimer.current = setTimeout(() => setShowVoice(false), 3000);
@@ -182,22 +176,20 @@ function DemoPhone() {
 
     if (demoIdx < tasks.length - 1) {
       setDemoIdx(demoIdx + 1);
-      setHint(demoLang === "es" ? "¡OTRA VEZ! 👆" : "TAP AGAIN! 👆");
+      setHint(lang === "es" ? "¡OTRA VEZ! 👆" : "TAP AGAIN! 👆");
     }
     if (demoIdx === tasks.length - 1) {
       setDemoDone(true);
-      setHint(demoLang === "es" ? "¡LO LOGRASTE! 🏆" : "YOU DID IT! 🏆");
+      setHint(lang === "es" ? "¡LO LOGRASTE! 🏆" : "YOU DID IT! 🏆");
       setPulsing(false);
       if (confettiRef.current) spawnConfetti(confettiRef.current, confettiTimers);
     }
   }
 
   return (
-    <div style={{ marginTop: 48, animation: "float 4s ease-in-out infinite, fadein 1s ease-out 1s both", position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-      {/* Language toggle */}
-      <div style={{ display: "flex", gap: 8 }}>
-        <button onClick={() => switchLang("en")} style={{ padding: "6px 18px", borderRadius: 20, border: `2px solid ${demoLang === "en" ? "white" : "rgba(255,255,255,0.3)"}`, background: demoLang === "en" ? "rgba(255,255,255,0.25)" : "transparent", color: "white", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>🇬🇧 English</button>
-        <button onClick={() => switchLang("es")} style={{ padding: "6px 18px", borderRadius: 20, border: `2px solid ${demoLang === "es" ? "white" : "rgba(255,255,255,0.3)"}`, background: demoLang === "es" ? "rgba(255,255,255,0.25)" : "transparent", color: "white", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>🇪🇸 Español</button>
+    <div style={{ marginTop: 32, animation: "float 4s ease-in-out infinite, fadein 1s ease-out 1s both", position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+      <div style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: 1 }}>
+        {lang === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
       </div>
       <div
         ref={confettiRef}
@@ -380,7 +372,10 @@ export default function Home() {
           <span style={{ color: "var(--yellow)", fontSize: 16, letterSpacing: 2 }}>★★★★★</span> 4.9/5 from 2,000+ reviews
         </div>
 
-        <DemoPhone />
+        <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap", marginTop: 8 }}>
+          <DemoPhone lang="en" />
+          <DemoPhone lang="es" />
+        </div>
 
       </section>
 
