@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { AuthModal } from "@/components/AuthModal";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663462837813/Q6tJTdg6w67gktwsr4Arms/morning-hero-bg-fhdC9vtNYWmWwWTUt8eFwh.webp";
 const SUNNY_MASCOT = "https://d2xsxph8kpxj0f.cloudfront.net/310519663462837813/Q6tJTdg6w67gktwsr4Arms/sunny-mascot-B2aYkz9voMHKCVjDWR9DQM.webp";
@@ -241,8 +242,11 @@ function DemoPhone() {
 export default function Home() {
   const [, navigate] = useLocation();
   const [email, setEmail] = useState("");
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [pendingTier, setPendingTier] = useState<"starter" | "plus" | "gold" | null>(null);
   const emailMutation = trpc.analytics.captureEmail.useMutation();
   const stripeCheckoutMutation = trpc.stripe.createCheckoutSession.useMutation();
+  const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
 
   const handleEmailCapture = async () => {
     if (!email.trim()) {
@@ -262,19 +266,36 @@ export default function Home() {
     }
   };
 
-  const handleCheckout = async (tier: "starter" | "plus" | "gold") => {
+  const doCheckout = async (tier: "starter" | "plus" | "gold") => {
     try {
       const session = await stripeCheckoutMutation.mutateAsync({ tier });
       if (session?.checkoutUrl) {
-        // Open Stripe checkout in new window or redirect
         window.location.href = session.checkoutUrl;
-        toast.success("Opening Stripe checkout...");
       } else {
         toast.error("Failed to create checkout session");
       }
     } catch (error) {
       console.error("Checkout error:", error);
       toast.error("Failed to start checkout. Please try again.");
+    }
+  };
+
+  const handleCheckout = (tier: "starter" | "plus" | "gold") => {
+    if (!meQuery.data) {
+      setPendingTier(tier);
+      setAuthModalOpen(true);
+    } else {
+      doCheckout(tier);
+    }
+  };
+
+  const handleAuthSuccess = async () => {
+    setAuthModalOpen(false);
+    await meQuery.refetch();
+    if (pendingTier) {
+      const tier = pendingTier;
+      setPendingTier(null);
+      await doCheckout(tier);
     }
   };
 
@@ -544,6 +565,12 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      <AuthModal
+        open={authModalOpen}
+        onOpenChange={setAuthModalOpen}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }
