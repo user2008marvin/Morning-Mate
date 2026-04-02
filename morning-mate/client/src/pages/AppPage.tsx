@@ -150,6 +150,12 @@ async function speak(text: string, lang: Language = "en") {
         "Microsoft Zira",             // Windows Edge female ✓
         "Microsoft Hazel",            // Windows British female ✓
         "Zira",                       // Windows short name ✓
+        "Microsoft Aria Online (Natural)", // Windows Edge Neural female ✓
+        "Microsoft Jenny Online (Natural)", // Windows Edge Neural female ✓
+        "Microsoft Libby Online (Natural)", // Windows Edge Neural UK female ✓
+        "Microsoft Sonia Online (Natural)", // Windows Edge Neural UK female ✓
+        "Microsoft Mia Online (Natural)",   // Windows Edge Neural UK female ✓
+        "Microsoft Susan Online (Natural)", // Windows Edge Neural female ✓
       ];
       const FEMALE_ES = [
         "Google español",             // Chrome Spanish female ✓
@@ -157,25 +163,32 @@ async function speak(text: string, lang: Language = "en") {
         "Monica",                     // iOS Spanish female ✓
         "Google español de Estados Unidos", // Chrome US Spanish ✓
         "Microsoft Helena",           // Windows Spanish female ✓
+        "Microsoft Elvira Online (Natural)", // Windows Edge Neural Spanish female ✓
       ];
-      // Male voices to explicitly skip for English
-      const MALE_EN_SKIP = ["Daniel", "Google UK English Male", "Alex", "Fred", "Microsoft David", "Microsoft Mark", "Arthur", "David", "Mark", "George", "Ryan", "Microsoft Ryan", "Microsoft George", "Rishi", "Aaron", "Thomas", "Reed", "Eddy", "Grandpa"];
+      // Female name keywords (catches Edge Neural voices with long names)
+      const FEMALE_KEYWORDS = ["aria","jenny","libby","sonia","mia","susan","zira","hazel","natasha","victoria","emma","samantha","karen","tessa","moira","fiona","helena","elvira","paulina","monica","alice","grace","isabella"];
+      // Male voices to explicitly skip
+      const MALE_EN_SKIP = ["Daniel", "Google UK English Male", "Alex", "Fred", "Microsoft David", "Microsoft Mark", "Arthur", "David", "Mark", "George", "Ryan", "Microsoft Ryan", "Microsoft George", "Rishi", "Aaron", "Thomas", "Reed", "Eddy", "Grandpa", "Guy", "Liam", "James", "Chris", "Connor", "Microsoft Guy Online (Natural)", "Microsoft Ryan Online (Natural)", "Microsoft George Online (Natural)", "Microsoft Liam Online (Natural)"];
       const isMale = (v: SpeechSynthesisVoice) =>
         MALE_EN_SKIP.includes(v.name) || v.name.toLowerCase().includes("male");
+      const isFemale = (v: SpeechSynthesisVoice) =>
+        FEMALE_EN.some(n => v.name.startsWith(n)) ||
+        FEMALE_KEYWORDS.some(k => v.name.toLowerCase().includes(k)) ||
+        v.name.toLowerCase().includes("female");
 
       if (lang === "es") {
         utterance.voice =
           voices.find(v => FEMALE_ES.includes(v.name)) ??
-          voices.find(v => v.lang.startsWith("es") && !v.name.toLowerCase().includes("male") && v.name.toLowerCase().includes("female")) ??
-          voices.find(v => v.lang.startsWith("es") && !v.name.toLowerCase().includes("male")) ?? null;
+          voices.find(v => v.lang.startsWith("es") && isFemale(v)) ??
+          voices.find(v => v.lang.startsWith("es") && !isMale(v)) ?? null;
         utterance.lang = "es-ES";
       } else {
-        const female = voices.find(v => FEMALE_EN.includes(v.name))
-          ?? voices.find(v => v.lang === "en-GB" && !isMale(v) && v.name.toLowerCase().includes("female"))
+        const female = voices.find(v => FEMALE_EN.some(n => v.name.startsWith(n)))
+          ?? voices.find(v => v.lang === "en-GB" && isFemale(v))
           ?? voices.find(v => v.lang === "en-GB" && !isMale(v))
-          ?? voices.find(v => v.lang.startsWith("en") && !isMale(v) && v.name.toLowerCase().includes("female"))
+          ?? voices.find(v => v.lang.startsWith("en") && isFemale(v))
           ?? voices.find(v => v.lang.startsWith("en") && !isMale(v))
-          ?? voices.find(v => !isMale(v)) ?? null;
+          ?? voices.find(v => isFemale(v)) ?? null;
         utterance.voice = female;
         utterance.lang = "en-GB";
       }

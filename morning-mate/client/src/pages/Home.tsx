@@ -130,21 +130,24 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
           setTimeout(() => resolve(window.speechSynthesis.getVoices()), 1000);
         });
       const voices = await getVoicesAsync();
-      const MALE_SKIP = ['Daniel', 'Google UK English Male', 'Alex', 'Fred', 'Microsoft David', 'Microsoft Mark', 'Arthur', 'David', 'Mark', 'George', 'Ryan', 'Microsoft Ryan', 'Microsoft George', 'Rishi', 'Aaron', 'Thomas', 'Reed', 'Eddy', 'Grandpa', 'Albert', 'Bad News', 'Bahh', 'Bells', 'Boing', 'Bubbles', 'Cellos', 'Wobble', 'Zarvox'];
+      const MALE_SKIP = ['Daniel', 'Google UK English Male', 'Alex', 'Fred', 'Microsoft David', 'Microsoft Mark', 'Arthur', 'David', 'Mark', 'George', 'Ryan', 'Microsoft Ryan', 'Microsoft George', 'Rishi', 'Aaron', 'Thomas', 'Reed', 'Eddy', 'Grandpa', 'Albert', 'Bad News', 'Bahh', 'Bells', 'Boing', 'Bubbles', 'Cellos', 'Wobble', 'Zarvox', 'Guy', 'Liam', 'James', 'Chris', 'Connor', 'Microsoft Guy Online (Natural)', 'Microsoft Ryan Online (Natural)', 'Microsoft George Online (Natural)', 'Microsoft Liam Online (Natural)'];
+      const FEMALE_KEYWORDS = ['aria','jenny','libby','sonia','mia','susan','zira','hazel','natasha','victoria','emma','samantha','karen','tessa','moira','fiona','helena','elvira','paulina','monica','alice','grace','isabella'];
       const isMale = (v: SpeechSynthesisVoice) => MALE_SKIP.includes(v.name) || v.name.toLowerCase().includes('male');
+      const isFemale = (v: SpeechSynthesisVoice) => FEMALE_KEYWORDS.some(k => v.name.toLowerCase().includes(k)) || v.name.toLowerCase().includes('female');
       let chosen: SpeechSynthesisVoice | null = null;
       if (lang === "es") {
-        const FEMALE_ES = ['Google español', 'Paulina', 'Monica', 'Google español de Estados Unidos', 'Microsoft Helena', 'Mónica'];
+        const FEMALE_ES = ['Google español', 'Paulina', 'Monica', 'Google español de Estados Unidos', 'Microsoft Helena', 'Mónica', 'Microsoft Elvira Online (Natural)'];
         chosen = voices.find(v => FEMALE_ES.includes(v.name))
+          ?? voices.find(v => v.lang.startsWith('es') && isFemale(v))
           ?? voices.find(v => v.lang.startsWith('es') && !isMale(v))
           ?? null;
         utterance.lang = 'es-ES';
       } else {
-        const FEMALE_EN = ['Google UK English Female', 'Samantha', 'Karen', 'Tessa', 'Moira', 'Fiona', 'Google US English', 'Microsoft Zira', 'Microsoft Hazel', 'Zira'];
-        chosen = voices.find(v => FEMALE_EN.includes(v.name))
-          ?? voices.find(v => v.lang.startsWith('en') && !isMale(v) && v.name.toLowerCase().includes('female'))
+        const FEMALE_EN = ['Google UK English Female', 'Samantha', 'Karen', 'Tessa', 'Moira', 'Fiona', 'Google US English', 'Microsoft Zira', 'Microsoft Hazel', 'Zira', 'Microsoft Aria Online (Natural)', 'Microsoft Jenny Online (Natural)', 'Microsoft Libby Online (Natural)', 'Microsoft Sonia Online (Natural)'];
+        chosen = voices.find(v => FEMALE_EN.some(n => v.name.startsWith(n)))
+          ?? voices.find(v => v.lang.startsWith('en') && isFemale(v))
           ?? voices.find(v => v.lang.startsWith('en') && !isMale(v))
-          ?? voices.find(v => !isMale(v)) ?? null;
+          ?? voices.find(v => isFemale(v)) ?? null;
         utterance.lang = 'en-GB';
       }
       if (chosen) utterance.voice = chosen;
@@ -188,9 +191,6 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
 
   return (
     <div style={{ marginTop: 32, animation: "float 4s ease-in-out infinite, fadein 1s ease-out 1s both", position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-      <div style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.85)", letterSpacing: 1 }}>
-        {lang === "es" ? "🇪🇸 Español" : "🇬🇧 English"}
-      </div>
       <div
         ref={confettiRef}
         style={{
@@ -226,6 +226,9 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
           👆
         </div>
         <div style={{ fontSize: 12, color: "white", fontWeight: 700, marginTop: 8 }}>{hint}</div>
+        {lang === "es" && (
+          <div style={{ position: "absolute", bottom: 12, right: 14, fontSize: 18, lineHeight: 1 }}>🇪🇸</div>
+        )}
       </div>
     </div>
   );
