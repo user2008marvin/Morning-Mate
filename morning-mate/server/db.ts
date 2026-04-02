@@ -11,7 +11,10 @@ async function runStartupMigrations(dbUrl: string) {
   if (_migrationRun) return;
   _migrationRun = true;
   try {
-    const conn = await mysql.createConnection(dbUrl);
+    const conn = await mysql.createConnection({
+      uri: dbUrl,
+      ssl: { rejectUnauthorized: false },
+    });
     await conn.execute(
       `ALTER TABLE users ADD COLUMN passwordHash VARCHAR(255) NULL`
     ).catch(() => {});
@@ -24,17 +27,34 @@ async function runStartupMigrations(dbUrl: string) {
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
-  const rawUrl = process.env.GLOWJO_DATABASE_URL ?? process.env.DATABASE_URL;
+  // GLOWJO_DATABASE_URL is always the TiDB/MySQL URL.
+  // Fall back to DATABASE_URL only if it looks like a MySQL URL (not Postgres).
+  const rawGlowjo = process.env.GLOWJO_DATABASE_URL;
+  const rawDefault = process.env.DATABASE_URL;
+  const rawUrl = rawGlowjo
+    ?? (rawDefault?.startsWith("mysql") ? rawDefault : undefined);
+
   // Strip leading `=` if the secret was stored incorrectly (e.g. "=mysql://...")
   const dbUrl = rawUrl?.startsWith("=") ? rawUrl.slice(1) : rawUrl;
+
+  console.log(`[DB] URL source: ${rawGlowjo ? "GLOWJO_DATABASE_URL" : rawDefault ? "DATABASE_URL("+rawDefault.slice(0,8)+"...)" : "NONE"}`);
+
   if (!_db && dbUrl) {
     try {
-      _db = drizzle(dbUrl);
+      const pool = mysql.createPool({
+        uri: dbUrl,
+        ssl: { rejectUnauthorized: false },
+        waitForConnections: true,
+        connectionLimit: 5,
+      });
+      _db = drizzle(pool);
       await runStartupMigrations(dbUrl);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
     }
+  } else if (!dbUrl) {
+    console.error("[DB] No valid MySQL database URL found. Set GLOWJO_DATABASE_URL in Railway.");
   }
   return _db;
 }
