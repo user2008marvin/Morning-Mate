@@ -254,6 +254,7 @@ async function startServer() {
     }
     res.json({
       status: "ok",
+      version: "1.3.0",
       timestamp: new Date().toISOString(),
       db: dbStatus,
       dbHost,
