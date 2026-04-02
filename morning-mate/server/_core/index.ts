@@ -262,6 +262,99 @@ async function startServer() {
     });
   });
 
+  // One-time DB setup endpoint — visits this URL to create all tables
+  app.get("/setup-db", async (req, res) => {
+    const dbUrl = process.env.GLOWJO_DATABASE_URL || process.env.DATABASE_URL || "";
+    if (!dbUrl) {
+      return res.json({ success: false, error: "No database URL found" });
+    }
+    const results: Record<string, string> = {};
+    let conn: any;
+    try {
+      const mysql = (await import("mysql2/promise")).default;
+      const u = new URL(dbUrl);
+      conn = await mysql.createConnection({
+        host: u.hostname,
+        port: parseInt(u.port || "4000"),
+        user: decodeURIComponent(u.username),
+        password: decodeURIComponent(u.password),
+        database: u.pathname.replace(/^\//, "") || "glowjo",
+        ssl: { rejectUnauthorized: false },
+      });
+
+      const tables: [string, string][] = [
+        ["users", `CREATE TABLE IF NOT EXISTS users (
+          id int AUTO_INCREMENT NOT NULL,
+          openId varchar(64) NOT NULL,
+          name text,
+          email varchar(320),
+          passwordHash varchar(255),
+          loginMethod varchar(64),
+          role enum('user','admin') NOT NULL DEFAULT 'user',
+          createdAt timestamp NOT NULL DEFAULT (now()),
+          updatedAt timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+          lastSignedIn timestamp NOT NULL DEFAULT (now()),
+          PRIMARY KEY (id),
+          UNIQUE KEY users_openId_unique (openId)
+        )`],
+        ["childProfiles", `CREATE TABLE IF NOT EXISTS childProfiles (
+          id int AUTO_INCREMENT NOT NULL,
+          userId int NOT NULL,
+          name varchar(100) NOT NULL,
+          age int,
+          schoolTime varchar(5),
+          reward varchar(100),
+          language enum('en','es') NOT NULL DEFAULT 'en',
+          enabledTasks text,
+          stars int DEFAULT 0,
+          streak int DEFAULT 0,
+          completedDays text,
+          lastCompletedDate timestamp NULL,
+          createdAt timestamp NOT NULL DEFAULT (now()),
+          updatedAt timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+          PRIMARY KEY (id)
+        )`],
+        ["subscriptions", `CREATE TABLE IF NOT EXISTS subscriptions (
+          id int AUTO_INCREMENT NOT NULL,
+          userId int NOT NULL,
+          tier enum('freemium','starter','plus','gold') NOT NULL DEFAULT 'freemium',
+          stripeCustomerId varchar(128),
+          stripeSubscriptionId varchar(128),
+          status enum('active','canceled','past_due','trialing') NOT NULL DEFAULT 'active',
+          currentPeriodStart timestamp NULL,
+          currentPeriodEnd timestamp NULL,
+          cancelAtPeriodEnd int DEFAULT 0,
+          createdAt timestamp NOT NULL DEFAULT (now()),
+          updatedAt timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+          PRIMARY KEY (id)
+        )`],
+        ["emails", `CREATE TABLE IF NOT EXISTS emails (
+          id int AUTO_INCREMENT NOT NULL,
+          email varchar(320) NOT NULL,
+          source varchar(50) DEFAULT 'landing_page',
+          subscribedAt timestamp NOT NULL DEFAULT (now()),
+          createdAt timestamp NOT NULL DEFAULT (now()),
+          PRIMARY KEY (id),
+          UNIQUE KEY emails_email_unique (email)
+        )`],
+      ];
+
+      for (const [name, sql] of tables) {
+        try {
+          await conn.execute(sql);
+          results[name] = "created";
+        } catch (e: any) {
+          results[name] = "error: " + e.message;
+        }
+      }
+      await conn.end();
+      res.json({ success: true, tables: results });
+    } catch (e: any) {
+      if (conn) try { await conn.end(); } catch {}
+      res.json({ success: false, error: e.message, tables: results });
+    }
+  });
+
   // ==================== STATIC FILES ====================
 
   // development mode uses Vite, production mode uses static files
