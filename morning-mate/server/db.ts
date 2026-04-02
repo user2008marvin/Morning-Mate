@@ -24,7 +24,9 @@ async function runStartupMigrations(dbUrl: string) {
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
-  const dbUrl = process.env.GLOWJO_DATABASE_URL ?? process.env.DATABASE_URL;
+  const rawUrl = process.env.GLOWJO_DATABASE_URL ?? process.env.DATABASE_URL;
+  // Strip leading `=` if the secret was stored incorrectly (e.g. "=mysql://...")
+  const dbUrl = rawUrl?.startsWith("=") ? rawUrl.slice(1) : rawUrl;
   if (!_db && dbUrl) {
     try {
       _db = drizzle(dbUrl);
