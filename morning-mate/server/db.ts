@@ -27,25 +27,29 @@ async function runStartupMigrations(dbUrl: string) {
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
-  // Check all possible variable names (user may have used a slight variation)
+  // Check all possible variable names — user confirmed variable starts with DATABASE
   const rawUrl =
     process.env.GLOWJO_DATABASE_URL ||
     process.env.GLOW_DATABASE_URL ||
     process.env.GLOWDATABASE_URL ||
     process.env.GLOWJO_DB_URL ||
-    (process.env.DATABASE_URL?.startsWith("mysql") ? process.env.DATABASE_URL : undefined);
+    process.env.DATABASE_URL ||
+    process.env.DATABASE_PRIVATE_URL ||
+    process.env.DATABASE_PUBLIC_URL;
 
   // Strip leading `=` if the secret was stored incorrectly (e.g. "=mysql://...")
   const dbUrl = rawUrl?.startsWith("=") ? rawUrl.slice(1) : rawUrl;
 
-  // Log which variable was found (first 20 chars only, no password exposed)
+  // Log which variable was found (first 15 chars of value, no password exposed)
   const foundVar = process.env.GLOWJO_DATABASE_URL ? "GLOWJO_DATABASE_URL"
     : process.env.GLOW_DATABASE_URL ? "GLOW_DATABASE_URL"
     : process.env.GLOWDATABASE_URL ? "GLOWDATABASE_URL"
     : process.env.GLOWJO_DB_URL ? "GLOWJO_DB_URL"
-    : process.env.DATABASE_URL ? `DATABASE_URL(${process.env.DATABASE_URL.slice(0,10)}...)`
+    : process.env.DATABASE_URL ? "DATABASE_URL"
+    : process.env.DATABASE_PRIVATE_URL ? "DATABASE_PRIVATE_URL"
+    : process.env.DATABASE_PUBLIC_URL ? "DATABASE_PUBLIC_URL"
     : "NONE";
-  console.log(`[DB] URL source: ${foundVar}`);
+  console.log(`[DB] URL source: ${foundVar}, value starts: ${dbUrl?.slice(0,15) ?? "undefined"}`);
 
   if (!_db && dbUrl) {
     try {
