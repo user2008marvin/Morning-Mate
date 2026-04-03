@@ -1,0 +1,112 @@
+Payment Link
+GlowJo Gold
+for
+US$14.99 / month
+Copy and share to start accepting payments with this link.
+https://buy.stripe.com/test_4gMcN7epw0ZOfAH1WL4ow00
+
+URL parameters
+
+Buy button
+
+
+More options
+Overview
+Products
+Name
+Quantity
+Adjustable Quantity
+GlowJo Gold
+US$14.99 / month
+1
+No
+Payment methods
+Manage
+Card,
+Apple Pay,
+Link and
+Amazon Pay
+Details
+Status
+Active
+Date created
+2 Apr, 20:07
+Limited use
+No
+Allow promotion codes
+No
+Collect addresses
+None required
+Collect phone numbers
+No
+Collect full names
+No
+Collect business names
+No
+Allow business customers to provide tax IDs
+No
+Free trial
+No
+Collect tax automatically
+No
+Collect terms of service agreement
+No
+Confirmation page
+Default
+Deactivated link page
+Default
+Call to action button
+Subscribe
+MetadataUse metadata to store custom additional information. View docs
+
+Edit metadata
+No metadata
+Events
+A payment link with ID plink_1THqaEQzOVPRlS3EI5SJG9KZ was created
+02/04/2026, 20:07:14
+Logs
+
+Load logs
+Tips for using your link
+
+Collect tax
+Calculate and collect the right sales tax, VAT, and GST on your Stripe transactions.
+Enable Stripe Tax
+Customer management
+Let customers manage their billing details by sharing a link to your customer portal.
+Activate customer portal
+Limit customers to 1 subscription
+Redirect customers with an active subscription to the customer portal or your website to manage their subscription.
+Manage test subscription behaviour
+Boost your sales
+Increase revenue by upselling to a longer billing period
+Add upsells
+Increase conversion
+Win more international customers by turning on relevant, popular payment methods.
+Manage payment methods
+Customise your brand
+Match the look and feel of your brand by adding your logo, fonts, and colours.
+Brand settings
+Add your domain
+Use your own domain for your payment links.
+Custom domain settings
+Get notified
+Get an email after every successful payment by managing your settings.
+Manage communication preferences
+
+
+
+
+
+
+
+
+
+Previous
+
+Next
+Preview
+
+Edit
+buy.stripe.com
+Use your domain
