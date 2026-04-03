@@ -248,7 +248,10 @@ export default function Home() {
     }
   };
 
+  const [loadingTier, setLoadingTier] = useState<string | null>(null);
+
   const doCheckout = async (tier: "starter" | "plus" | "gold") => {
+    setLoadingTier(tier);
     try {
       const session = await stripeCheckoutMutation.mutateAsync({ tier });
       if (session?.checkoutUrl) {
@@ -260,6 +263,8 @@ export default function Home() {
       console.error("Checkout error:", error);
       const msg = error?.message || error?.data?.message || "Failed to start checkout";
       toast.error(msg);
+    } finally {
+      setLoadingTier(null);
     }
   };
 
@@ -500,26 +505,35 @@ export default function Home() {
               Try Freemium free forever. Upgrade to unlock voice, bilingual, and more kids.
             </p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px,1fr))", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px,1fr))", gap: 24 }}>
             {[
-              { name: "Freemium", price: "Free forever", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "Email support"], cta: "Get Started", highlight: false },
-              { name: "Starter", price: "$4.99/mo", features: ["Up to 3 kids", "AI voice (English)", "Parent dashboard", "Email support"], cta: "Upgrade from free", highlight: true },
-              { name: "Plus", price: "$9.99/mo", features: ["Up to 5 kids", "AI voice + Bilingual", "Brain Power Reports", "Priority support"], cta: "Upgrade from free", highlight: false },
-              { name: "Gold", price: "$14.99/mo", features: ["Unlimited kids", "All features", "Custom rewards", "VIP support"], cta: "Upgrade from free", highlight: false },
-            ].map((tier, i) => (
-              <div key={i} style={{ background: tier.highlight ? "linear-gradient(135deg,var(--coral),var(--sunrise-mid))" : "rgba(255,255,255,0.06)", border: tier.highlight ? "none" : "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: 32, textAlign: "center", transform: tier.highlight ? "scale(1.05)" : "scale(1)", transition: "transform 0.2s" }}>
-                <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 24, marginBottom: 8, color: tier.highlight ? "white" : "var(--cream)" }}>{tier.name}</div>
-                <div style={{ fontSize: 32, fontWeight: 900, marginBottom: 24, color: tier.highlight ? "white" : "var(--yellow)" }}>{tier.price}</div>
-                <div style={{ textAlign: "left", marginBottom: 24 }}>
-                  {tier.features.map((feat, j) => (
-                    <div key={j} style={{ fontSize: 14, marginBottom: 12, color: tier.highlight ? "rgba(255,255,255,0.9)" : "rgba(255,248,238,0.7)" }}>✓ {feat}</div>
+              { name: "Freemium", price: "Free forever", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "Email support"], cta: "Get Started Free", highlight: false, badge: null, tier: null },
+              { name: "Starter", price: "$4.99/mo", features: ["Up to 3 child profiles", "AI voice guidance (English)", "Parent dashboard", "Email support"], cta: "Get Starter", highlight: false, badge: null, tier: "starter" },
+              { name: "Plus", price: "$9.99/mo", features: ["Up to 5 child profiles", "AI voice — English & Spanish", "Brain Power Reports", "Priority support"], cta: "Get Plus", highlight: true, badge: "⭐ Most Popular", tier: "plus" },
+              { name: "Gold", price: "$14.99/mo", features: ["Unlimited child profiles", "All features unlocked", "Custom rewards & stickers", "VIP support"], cta: "Get Gold", highlight: false, badge: "🏆 Best Value", tier: "gold" },
+            ].map((plan, i) => (
+              <div key={i} style={{ position: "relative", background: plan.highlight ? "linear-gradient(135deg,var(--coral),var(--sunrise-mid))" : "rgba(255,255,255,0.06)", border: plan.highlight ? "2px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: "36px 28px 28px", textAlign: "center", transform: plan.highlight ? "scale(1.05)" : "scale(1)", transition: "transform 0.2s", boxShadow: plan.highlight ? "0 12px 40px rgba(0,0,0,0.3)" : "0 4px 16px rgba(0,0,0,0.15)" }}>
+                {plan.badge && (
+                  <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: plan.highlight ? "white" : "var(--yellow)", color: plan.highlight ? "var(--coral)" : "#333", borderRadius: 30, padding: "4px 16px", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>
+                    {plan.badge}
+                  </div>
+                )}
+                <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 26, marginBottom: 6, color: plan.highlight ? "white" : "var(--cream)" }}>{plan.name}</div>
+                <div style={{ fontSize: 34, fontWeight: 900, marginBottom: 24, color: plan.highlight ? "white" : "var(--yellow)" }}>{plan.price}</div>
+                <div style={{ textAlign: "left", marginBottom: 28 }}>
+                  {plan.features.map((feat, j) => (
+                    <div key={j} style={{ fontSize: 14, marginBottom: 10, color: plan.highlight ? "rgba(255,255,255,0.95)" : "rgba(255,248,238,0.75)", display: "flex", alignItems: "flex-start", gap: 8 }}>
+                      <span style={{ color: plan.highlight ? "white" : "var(--yellow)", fontWeight: 700, flexShrink: 0 }}>✓</span>
+                      {feat}
+                    </div>
                   ))}
                 </div>
                 <button
-                  onClick={() => tier.name === "Freemium" ? navigate("/app") : handleCheckout(tier.name.toLowerCase() as "starter" | "plus" | "gold")}
-                  style={{ width: "100%", padding: "12px 24px", borderRadius: 30, border: "none", fontFamily: "'Fredoka One',cursive", fontSize: 15, fontWeight: 700, cursor: "pointer", background: tier.highlight ? "white" : "rgba(255,255,255,0.2)", color: tier.highlight ? "var(--coral)" : "white", transition: "background 0.2s" }}
+                  disabled={loadingTier !== null}
+                  onClick={() => plan.tier === null ? navigate("/app") : handleCheckout(plan.tier as "starter" | "plus" | "gold")}
+                  style={{ width: "100%", padding: "13px 24px", borderRadius: 30, border: "none", fontFamily: "'Fredoka One',cursive", fontSize: 16, fontWeight: 700, cursor: loadingTier !== null ? "wait" : "pointer", background: plan.highlight ? "white" : "rgba(255,255,255,0.18)", color: plan.highlight ? "var(--coral)" : "white", transition: "opacity 0.2s", opacity: loadingTier !== null && loadingTier !== plan.tier ? 0.5 : 1 }}
                 >
-                  {tier.cta}
+                  {loadingTier === plan.tier ? "Opening Stripe…" : plan.cta}
                 </button>
               </div>
             ))}
