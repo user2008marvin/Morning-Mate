@@ -448,6 +448,7 @@ function MainScreen({
   const [started, setStarted] = useState(false);
   const [countdown, setCountdown] = useState(getCountdown(state.schoolTime));
   const [ringProgress, setRingProgress] = useState(0);
+  const [flashSticker, setFlashSticker] = useState<string | null>(null);
   const ringTimer = useRef<ReturnType<typeof setInterval>>();
   const confettiRef = useRef<HTMLDivElement>(null);
   const halfwaySpoken = useRef(false);
@@ -491,20 +492,26 @@ function MainScreen({
       setStarted(true);
       startRing(); return;
     }
-    if (!currentTask) return;
+    if (!currentTask || flashSticker) return;
     const completion = state.language === "es" ? currentTask.voice_es : currentTask.voice_en;
     stopKidsMusic();
     if (completion) speak(completion, state.language);
     if (navigator.vibrate) navigator.vibrate([80, 30, 80]);
     if (confettiRef.current) spawnConfetti(confettiRef.current);
-    const nextIdx = taskIdx + 1;
-    if (nextIdx >= totalTasks) {
-      clearInterval(ringTimer.current);
-      setTimeout(() => onWin(totalTasks), 800);
-    } else {
-      const nextTask = activeTasks[nextIdx];
-      setTaskIdx(nextIdx); resetRing(); startRing((nextTask as any).timerSeconds ?? 180);
-    }
+
+    // Flash sticker on the circle for 1 second
+    setFlashSticker(currentTask.sticker);
+    setTimeout(() => {
+      setFlashSticker(null);
+      const nextIdx = taskIdx + 1;
+      if (nextIdx >= totalTasks) {
+        clearInterval(ringTimer.current);
+        setTimeout(() => onWin(totalTasks), 800);
+      } else {
+        const nextTask = activeTasks[nextIdx];
+        setTaskIdx(nextIdx); resetRing(); startRing((nextTask as any).timerSeconds ?? 180);
+      }
+    }, 1000);
   }
 
   function startRing(seconds = 180) {
@@ -579,17 +586,20 @@ function MainScreen({
         <button onClick={handleTap} style={{
           position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
           width: 160, height: 160, borderRadius: "50%",
-          background: "linear-gradient(135deg,#ff5f1f,#ff9a3c)", border: "none", cursor: "pointer",
-          boxShadow: "0 0 40px rgba(255,95,31,0.5),0 8px 30px rgba(255,95,31,0.4)",
-          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 64,
-          animation: !started ? "demo-pulse 2s ease-in-out infinite alternate" : undefined
+          background: flashSticker ? "linear-gradient(135deg,#7c3aed,#a855f7)" : "linear-gradient(135deg,#ff5f1f,#ff9a3c)",
+          border: "none", cursor: "pointer",
+          boxShadow: flashSticker ? "0 0 50px rgba(124,58,237,0.8)" : "0 0 40px rgba(255,95,31,0.5),0 8px 30px rgba(255,95,31,0.4)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: flashSticker ? 76 : 64,
+          transition: "background 0.15s, box-shadow 0.15s, font-size 0.15s",
+          animation: !started ? "demo-pulse 2s ease-in-out infinite alternate" : undefined,
         }}
-          onMouseDown={e => (e.currentTarget.style.transform = "translate(-50%,-50%) scale(0.93)")}
-          onMouseUp={e => (e.currentTarget.style.transform = "translate(-50%,-50%) scale(1)")}
-          onTouchStart={e => (e.currentTarget.style.transform = "translate(-50%,-50%) scale(0.93)")}
-          onTouchEnd={e => (e.currentTarget.style.transform = "translate(-50%,-50%) scale(1)")}
+          onMouseDown={e => !flashSticker && (e.currentTarget.style.transform = "translate(-50%,-50%) scale(0.93)")}
+          onMouseUp={e => !flashSticker && (e.currentTarget.style.transform = "translate(-50%,-50%) scale(1)")}
+          onTouchStart={e => !flashSticker && (e.currentTarget.style.transform = "translate(-50%,-50%) scale(0.93)")}
+          onTouchEnd={e => !flashSticker && (e.currentTarget.style.transform = "translate(-50%,-50%) scale(1)")}
         >
-          {!started ? "☀️" : currentTask ? currentTask.emoji : "🏆"}
+          {flashSticker ? flashSticker : (!started ? "☀️" : currentTask ? currentTask.emoji : "🏆")}
         </button>
         {started && currentTask && (
           <div style={{ position: "absolute", bottom: "50%", left: "50%", transform: "translate(-50%, 50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>

@@ -97,9 +97,10 @@ export const stripeRouter = router({
           checkoutUrl: session.url,
           sessionId: session.id,
         };
-      } catch (error) {
+      } catch (error: any) {
         console.error("[Stripe] Checkout session creation failed:", error);
-        throw new Error("Failed to create checkout session");
+        const detail = error?.message || String(error);
+        throw new Error(`Stripe error: ${detail}`);
       }
     }),
 
