@@ -9,12 +9,48 @@ import { useSubscription } from "@/hooks/useSubscription";
 
 // ── CONSTANTS ──
 const TASKS_EN = [
-  { emoji: "☀️", label: "WAKE UP!", voice_en: "Good morning, lovely! Rise and shine, you brilliant star!", voice_es: "¡Buenos días, pequeño! ¡Levántate, estrella brillante!", sticker: "⭐" },
-  { emoji: "🪥", label: "BRUSH TEETH!", voice_en: "Brilliant brushing! You've got the most sparkling smile in the whole world!", voice_es: "¡Cepillado brillante! ¡Tienes la sonrisa más deslumbrante del mundo!", sticker: "✨" },
-  { emoji: "🛁", label: "SHOWER TIME!", voice_en: "Super squeaky clean! Well done, you wonderful thing!", voice_es: "¡Súper limpio! ¡Muy bien hecho, pequeño maravilloso!", sticker: "🌟" },
-  { emoji: "🥛", label: "EAT BREAKFAST!", voice_en: "Breakfast time! You're fuelling up like an absolute champion!", voice_es: "¡Hora del desayuno! ¡Estás cargando energía como un campeón!", sticker: "💫" },
-  { emoji: "👕", label: "GET DRESSED!", voice_en: "You look absolutely wonderful! Have a truly brilliant day!", voice_es: "¡Te ves absolutamente genial! ¡Que tengas un día maravilloso!", sticker: "🌈" },
-  { emoji: "🚀", label: "LET'S GO!", voice_en: "You've done it! You are absolutely brilliant and we are so incredibly proud of you!", voice_es: "¡Lo lograste! ¡Eres absolutamente increíble y estamos muy orgullosos de ti!", sticker: "🏆" },
+  {
+    emoji: "☀️", label: "WAKE UP!", sticker: "⭐",
+    prompt_en: "Good morning, lovely! I hope you slept well. Let's get ready for an exciting day — are you ready to start winning those stars? Come on, let's go!",
+    prompt_es: "¡Buenos días, pequeño! Espero que hayas dormido bien. ¡Vamos a prepararnos para un día emocionante! ¿Estás listo para ganar esas estrellas?",
+    voice_en: "Amazing! You're up and ready! Now let's get this brilliant morning started — one task at a time!",
+    voice_es: "¡Increíble! ¡Estás despierto! ¡Vamos a empezar esta mañana brillante!",
+  },
+  {
+    emoji: "🪥", label: "BRUSH TEETH!", sticker: "✨",
+    prompt_en: "Time to brush those teeth and get that sparkling smile shining!",
+    prompt_es: "¡Hora de cepillar esos dientes y mostrar esa sonrisa brillante!",
+    voice_en: "",
+    voice_es: "",
+  },
+  {
+    emoji: "🛁", label: "SHOWER TIME!", sticker: "🌟",
+    prompt_en: "Now let's get super squeaky clean in the shower — you've got this!",
+    prompt_es: "¡Ahora vamos a ponernos súper limpios en la ducha! ¡Tú puedes!",
+    voice_en: "Super squeaky clean! Well done, you wonderful thing!",
+    voice_es: "¡Súper limpio! ¡Muy bien hecho, pequeño maravilloso!",
+  },
+  {
+    emoji: "👕", label: "GET DRESSED!", sticker: "🌈",
+    prompt_en: "Now let's get dressed for school — pick something brilliant!",
+    prompt_es: "¡Ahora vistámonos para la escuela! ¡Elige algo brillante!",
+    voice_en: "You look absolutely wonderful today! To complete your tasks and win your prizes before leaving, make sure you press the Let's Go button!",
+    voice_es: "¡Te ves absolutamente maravilloso hoy! Para completar tus tareas y ganar tus premios, asegúrate de presionar el botón Vamos antes de salir.",
+  },
+  {
+    emoji: "🥛", label: "EAT BREAKFAST!", sticker: "💫",
+    prompt_en: "Time for breakfast — every champion needs their fuel to power through the day!",
+    prompt_es: "¡Hora del desayuno! ¡Todo campeón necesita su combustible para el día!",
+    voice_en: "Brilliant! Breakfast eaten like a true champion! You are absolutely fuelled up and ready to take on the world!",
+    voice_es: "¡Brillante! ¡Desayuno comido como un verdadero campeón! ¡Estás listo para conquistar el mundo!",
+  },
+  {
+    emoji: "🚀", label: "LET'S GO!", sticker: "🏆",
+    prompt_en: "You have completed everything! You are an absolute superstar! Now press Let's Go and have the most brilliant day ever!",
+    prompt_es: "¡Lo has completado todo! ¡Eres una superestrella absoluta! ¡Presiona Vamos y ten el día más brillante!",
+    voice_en: "You've done it! You are absolutely brilliant and we are so incredibly proud of you!",
+    voice_es: "¡Lo lograste! ¡Eres absolutamente increíble y estamos muy orgullosos de ti!",
+  },
 ];
 
 const REWARDS = [
@@ -344,9 +380,7 @@ function MainScreen({
   const [started, setStarted] = useState(false);
   const [countdown, setCountdown] = useState(getCountdown(state.schoolTime));
   const [ringProgress, setRingProgress] = useState(0);
-  const [skipTapped, setSkipTapped] = useState(false);
   const ringTimer = useRef<ReturnType<typeof setInterval>>();
-  const skipTimer = useRef<ReturnType<typeof setTimeout>>();
   const confettiRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -357,14 +391,24 @@ function MainScreen({
   const currentTask = activeTasks[taskIdx];
   const totalTasks = activeTasks.length;
 
+  // Play encouraging prompt whenever a new task appears
+  useEffect(() => {
+    if (!started || !currentTask) return;
+    const prompt = state.language === "es" ? currentTask.prompt_es : currentTask.prompt_en;
+    if (prompt) {
+      const t = setTimeout(() => speak(prompt, state.language), 400);
+      return () => clearTimeout(t);
+    }
+  }, [taskIdx, started]);
+
   function handleTap() {
     if (!started) {
       setStarted(true);
-      speak("Good morning, lovely! Let's have a brilliant day!", state.language);
       startRing(); return;
     }
     if (!currentTask) return;
-    speak(state.language === "es" ? currentTask.voice_es : currentTask.voice_en, state.language);
+    const completion = state.language === "es" ? currentTask.voice_es : currentTask.voice_en;
+    if (completion) speak(completion, state.language);
     if (navigator.vibrate) navigator.vibrate([80, 30, 80]);
     if (confettiRef.current) spawnConfetti(confettiRef.current);
     const nextIdx = taskIdx + 1;
@@ -387,12 +431,6 @@ function MainScreen({
 
   function handleSkipTask() {
     if (!currentTask) return;
-    if (!skipTapped) {
-      setSkipTapped(true);
-      clearTimeout(skipTimer.current);
-      skipTimer.current = setTimeout(() => setSkipTapped(false), 2000);
-      return;
-    }
     const nextIdx = taskIdx + 1;
     if (nextIdx >= totalTasks) {
       clearInterval(ringTimer.current);
@@ -400,7 +438,6 @@ function MainScreen({
     } else {
       setTaskIdx(nextIdx); resetRing(); startRing();
     }
-    setSkipTapped(false);
   }
 
   useEffect(() => () => clearInterval(ringTimer.current), []);
@@ -467,19 +504,12 @@ function MainScreen({
           {!started ? "☀️" : currentTask ? currentTask.emoji : "🏆"}
         </button>
         {started && currentTask && (
-          <>
-            <button onClick={handleSkipTask} style={{
-              position: "absolute", bottom: "50%", left: "50%", transform: "translate(-50%, 50%)",
-              padding: "8px 16px", borderRadius: 20,
-              background: skipTapped ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.15)",
-              border: "1px solid rgba(255,255,255,0.3)", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 700,
-            }}>Skip</button>
-            {skipTapped && (
-              <div style={{ position: "absolute", bottom: "calc(50% - 60px)", left: "50%", transform: "translate(-50%, -50%)", fontSize: 11, color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>
-                Press again to skip
-              </div>
-            )}
-          </>
+          <button onClick={handleSkipTask} style={{
+            position: "absolute", bottom: "50%", left: "50%", transform: "translate(-50%, 50%)",
+            padding: "8px 16px", borderRadius: 20,
+            background: "rgba(255,255,255,0.15)",
+            border: "1px solid rgba(255,255,255,0.3)", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 700,
+          }}>Skip</button>
         )}
       </div>
 
