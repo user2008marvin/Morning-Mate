@@ -199,8 +199,8 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
         <div
           style={{
             width: 100, height: 100, borderRadius: "50%",
-            background: "rgba(255,215,0,0.25)", border: "4px solid #ffd700",
-            boxShadow: "0 0 20px rgba(255,215,0,0.6)",
+            background: "rgba(139,92,246,0.25)", border: "4px solid #8b5cf6",
+            boxShadow: "0 0 20px rgba(139,92,246,0.6)",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 38,
             animation: pulsing ? "pulse 1s ease-in-out infinite" : "none",
@@ -225,6 +225,7 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [pendingTier, setPendingTier] = useState<"starter" | "plus" | "gold" | null>(null);
+  const [pendingNav, setPendingNav] = useState<string | null>(null);
   const emailMutation = trpc.analytics.captureEmail.useMutation();
   const stripeCheckoutMutation = trpc.stripe.createCheckoutSession.useMutation();
   const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
@@ -278,6 +279,10 @@ export default function Home() {
       const tier = pendingTier;
       setPendingTier(null);
       await doCheckout(tier);
+    } else if (pendingNav) {
+      const dest = pendingNav;
+      setPendingNav(null);
+      navigate(dest);
     }
   };
 
@@ -332,7 +337,10 @@ export default function Home() {
             <span style={{ fontSize: 16 }}>👍</span>
           </div>
         </div>
-        <button onClick={() => navigate("/onboarding")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 15, padding: "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", textDecoration: "none", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
+        <button onClick={() => {
+          if (meQuery.data) { navigate("/app"); }
+          else { setPendingNav("/app"); setAuthModalOpen(true); }
+        }} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 15, padding: "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", textDecoration: "none", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
           Get Started
         </button>
       </nav>
@@ -357,9 +365,6 @@ export default function Home() {
         </div>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center", marginTop: 36, animation: "fadein 0.8s ease-out 0.9s both" }}>
-          <button onClick={() => navigate("/onboarding")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 20, padding: "16px 36px", borderRadius: 50, border: "none", cursor: "pointer", background: "white", color: "var(--coral)", boxShadow: "0 6px 24px rgba(0,0,0,0.2)", transition: "transform 0.15s, box-shadow 0.15s", textDecoration: "none", display: "inline-block" }}>
-            Try Free
-          </button>
           <button onClick={() => navigate("/app")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "16px 36px", borderRadius: 50, cursor: "pointer", background: "rgba(255,255,255,0.2)", color: "white", border: "2px solid rgba(255,255,255,0.6)", transition: "background 0.15s", textDecoration: "none", display: "inline-block" }}>
             See Demo
           </button>
@@ -371,7 +376,6 @@ export default function Home() {
 
         <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap", marginTop: 8 }}>
           <DemoPhone lang="en" />
-          <DemoPhone lang="es" />
         </div>
 
       </section>
