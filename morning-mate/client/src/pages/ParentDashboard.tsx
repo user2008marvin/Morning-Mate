@@ -167,9 +167,9 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
 }
 
 const PLANS = [
-  { tier: "starter" as const, label: "Starter", emoji: "⭐", monthly: 4.99, yearly: 49.90, features: "1 child · Voice encouragement" },
-  { tier: "plus"    as const, label: "Plus",    emoji: "🌟", monthly: 9.99, yearly: 99.90, features: "3 children · Bilingual mode" },
-  { tier: "gold"    as const, label: "Gold",    emoji: "🏆", monthly: 14.99, yearly: 149.90, features: "Unlimited · All features" },
+  { tier: "starter" as const, label: "Starter", emoji: "⭐", monthly: 4.99, yearly: 49.90, features: "1 child · English voice guidance" },
+  { tier: "plus"    as const, label: "Plus",    emoji: "🌟", monthly: 9.99, yearly: 99.90, features: "3 children · AI voice English & Spanish" },
+  { tier: "gold"    as const, label: "Gold",    emoji: "🏆", monthly: 14.99, yearly: 149.90, features: "Unlimited · Custom rewards & stickers · VIP support" },
 ];
 
 function UpgradeCard({ tier }: { tier: string }) {
@@ -202,23 +202,26 @@ function UpgradeCard({ tier }: { tier: string }) {
       </div>
 
       {/* Plan buttons */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         {PLANS.map(plan => (
           <button key={plan.tier}
             onClick={() => createCheckout.mutate({ tier: plan.tier, billingPeriod: period })}
             disabled={createCheckout.isPending}
             style={{
-              background: "rgba(255,255,255,0.15)", color: "white",
-              border: "2px solid rgba(255,255,255,0.35)", borderRadius: "12px",
-              padding: "10px 14px", cursor: "pointer", textAlign: "left",
-              display: "flex", justifyContent: "space-between", alignItems: "center",
+              background: "rgba(255,255,255,0.18)", color: "white",
+              border: "2px solid rgba(255,255,255,0.5)", borderRadius: "14px",
+              padding: "12px 16px", cursor: "pointer", textAlign: "left",
+              display: "flex", justifyContent: "space-between", alignItems: "flex-start",
               opacity: createCheckout.isPending ? 0.6 : 1,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
             }}>
-            <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: "0.95rem" }}>
-              {plan.emoji} {plan.label}
-              <span style={{ fontWeight: 400, fontSize: "0.75rem", opacity: 0.8, marginLeft: 8 }}>{plan.features}</span>
+            <span style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+              <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: "1rem" }}>
+                {plan.emoji} {plan.label}
+              </span>
+              <span style={{ fontWeight: 400, fontSize: "0.72rem", opacity: 0.85 }}>{plan.features}</span>
             </span>
-            <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: "0.9rem", whiteSpace: "nowrap" }}>
+            <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: "0.95rem", whiteSpace: "nowrap", marginLeft: 12 }}>
               {period === "month"
                 ? `$${plan.monthly.toFixed(2)}/mo`
                 : `$${plan.yearly.toFixed(2)}/yr`}
