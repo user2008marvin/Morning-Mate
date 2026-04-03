@@ -13,6 +13,8 @@ const TASKS_EN = [
     emoji: "☀️", label: "WAKE UP!", sticker: "⭐",
     prompt_en: "Good morning, lovely! I hope you slept well. Let's get ready for an exciting day — are you ready to start winning those stars? Come on, let's go!",
     prompt_es: "¡Buenos días, pequeño! Espero que hayas dormido bien. ¡Vamos a prepararnos para un día emocionante! ¿Estás listo para ganar esas estrellas?",
+    halfway_en: "Come on, you're halfway there — you are doing brilliantly!",
+    halfway_es: "¡Vamos, ya estás a la mitad! ¡Lo estás haciendo de maravilla!",
     voice_en: "Amazing! You're up and ready! Now let's get this brilliant morning started — one task at a time!",
     voice_es: "¡Increíble! ¡Estás despierto! ¡Vamos a empezar esta mañana brillante!",
   },
@@ -20,6 +22,8 @@ const TASKS_EN = [
     emoji: "🪥", label: "BRUSH TEETH!", sticker: "✨",
     prompt_en: "Time to brush those teeth and get that sparkling smile shining!",
     prompt_es: "¡Hora de cepillar esos dientes y mostrar esa sonrisa brillante!",
+    halfway_en: "Keep going — you are on your way to your gold star!",
+    halfway_es: "¡Sigue así! ¡Estás en camino a tu estrella de oro!",
     voice_en: "",
     voice_es: "",
   },
@@ -27,6 +31,8 @@ const TASKS_EN = [
     emoji: "🛁", label: "SHOWER TIME!", sticker: "🌟",
     prompt_en: "Now let's get super squeaky clean in the shower — you've got this!",
     prompt_es: "¡Ahora vamos a ponernos súper limpios en la ducha! ¡Tú puedes!",
+    halfway_en: "Almost done — you are doing absolutely brilliantly!",
+    halfway_es: "¡Casi terminas! ¡Lo estás haciendo de maravilla!",
     voice_en: "Super squeaky clean! Well done, you wonderful thing!",
     voice_es: "¡Súper limpio! ¡Muy bien hecho, pequeño maravilloso!",
   },
@@ -34,6 +40,8 @@ const TASKS_EN = [
     emoji: "👕", label: "GET DRESSED!", sticker: "🌈",
     prompt_en: "Now let's get dressed for school — pick something brilliant!",
     prompt_es: "¡Ahora vistámonos para la escuela! ¡Elige algo brillante!",
+    halfway_en: "Keep going — looking absolutely amazing already!",
+    halfway_es: "¡Sigue así! ¡Ya te ves absolutamente increíble!",
     voice_en: "You look absolutely wonderful today! Now it's time to take a picture for mummy. Almost time for brekkie!",
     voice_es: "¡Te ves absolutamente maravilloso hoy! Ahora es hora de tomarle una foto a mamá. ¡Casi es hora del desayuno!",
   },
@@ -42,6 +50,8 @@ const TASKS_EN = [
     timerSeconds: 600,
     prompt_en: "Time for breakfast — every champion needs their fuel to power through the day!",
     prompt_es: "¡Hora del desayuno! ¡Todo campeón necesita su combustible para el día!",
+    halfway_en: "Enjoying your brekkie? You are doing brilliantly — keep going, superstar!",
+    halfway_es: "¿Disfrutando el desayuno? ¡Lo estás haciendo de maravilla! ¡Sigue así, superestrella!",
     voice_en: "Brilliant! Breakfast eaten like a true champion! You are absolutely fuelled up and ready to take on the world! When you are ready to leave, press the Let's Go button.",
     voice_es: "¡Brillante! ¡Desayuno comido como un verdadero campeón! ¡Estás listo para conquistar el mundo! Cuando estés listo para salir, presiona el botón Vamos.",
   },
@@ -49,6 +59,8 @@ const TASKS_EN = [
     emoji: "🚀", label: "LET'S GO!", sticker: "🏆",
     prompt_en: "You have completed everything! You are an absolute superstar! Now press Let's Go and have the most brilliant day ever!",
     prompt_es: "¡Lo has completado todo! ¡Eres una superestrella absoluta! ¡Presiona Vamos y ten el día más brillante!",
+    halfway_en: "You are an absolute champion — almost time to head off and have the best day!",
+    halfway_es: "¡Eres un campeón absoluto! ¡Casi es hora de salir y tener el mejor día!",
     voice_en: "You've done it! You are absolutely brilliant and we are so incredibly proud of you!",
     voice_es: "¡Lo lograste! ¡Eres absolutamente increíble y estamos muy orgullosos de ti!",
   },
@@ -237,6 +249,61 @@ async function speak(text: string, lang: Language = "en") {
   }
 }
 
+// ── HAPPY KIDS BACKGROUND MUSIC (Web Audio API — Twinkle Twinkle) ──
+let _musicCtx: AudioContext | null = null;
+let _musicStopped = false;
+
+function startKidsMusic() {
+  if (_musicCtx) return;
+  _musicStopped = false;
+  try {
+    const ctx = new AudioContext();
+    _musicCtx = ctx;
+    // C major Twinkle Twinkle: C C G G A A G | F F E E D D C (×2)
+    const C4=261.63, D4=293.66, E4=329.63, F4=349.23, G4=392.00, A4=440.00, C5=523.25;
+    const melody = [
+      C4,C4,G4,G4,A4,A4,G4,
+      F4,F4,E4,E4,D4,D4,C4,
+      G4,G4,F4,F4,E4,E4,D4,
+      G4,G4,F4,F4,E4,E4,D4,
+      C4,C4,G4,G4,A4,A4,G4,
+      F4,F4,E4,E4,D4,D4,C4,
+      // Harmony octave up snippet
+      C5,C5,G4,A4,C5,G4,F4,E4,D4,C4,
+    ];
+    const beat = 0.38;
+    const master = ctx.createGain();
+    master.gain.value = 0.18;
+    master.connect(ctx.destination);
+
+    function scheduleLoop(startAt: number) {
+      if (_musicStopped) return;
+      melody.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const env = ctx.createGain();
+        osc.connect(env); env.connect(master);
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        const t = startAt + i * beat;
+        env.gain.setValueAtTime(0, t);
+        env.gain.linearRampToValueAtTime(0.8, t + 0.03);
+        env.gain.setValueAtTime(0.6, t + beat * 0.65);
+        env.gain.linearRampToValueAtTime(0, t + beat * 0.92);
+        osc.start(t); osc.stop(t + beat);
+      });
+      const loopEnd = startAt + melody.length * beat;
+      const delay = (loopEnd - ctx.currentTime - 0.8) * 1000;
+      setTimeout(() => { if (!_musicStopped && _musicCtx) scheduleLoop(loopEnd); }, Math.max(0, delay));
+    }
+    scheduleLoop(ctx.currentTime + 0.1);
+  } catch { /* audio not supported */ }
+}
+
+function stopKidsMusic() {
+  _musicStopped = true;
+  if (_musicCtx) { try { _musicCtx.close(); } catch {} _musicCtx = null; }
+}
+
 // ── COUNTDOWN ──
 function getCountdown(schoolTime: string): string {
   const now = new Date();
@@ -383,11 +450,15 @@ function MainScreen({
   const [ringProgress, setRingProgress] = useState(0);
   const ringTimer = useRef<ReturnType<typeof setInterval>>();
   const confettiRef = useRef<HTMLDivElement>(null);
+  const halfwaySpoken = useRef(false);
 
   useEffect(() => {
     const t = setInterval(() => setCountdown(getCountdown(state.schoolTime)), 30000);
     return () => clearInterval(t);
   }, [state.schoolTime]);
+
+  // Stop music when component unmounts
+  useEffect(() => () => { stopKidsMusic(); clearInterval(ringTimer.current); }, []);
 
   const currentTask = activeTasks[taskIdx];
   const totalTasks = activeTasks.length;
@@ -395,12 +466,25 @@ function MainScreen({
   // Play encouraging prompt whenever a new task appears
   useEffect(() => {
     if (!started || !currentTask) return;
+    halfwaySpoken.current = false;
     const prompt = state.language === "es" ? currentTask.prompt_es : currentTask.prompt_en;
     if (prompt) {
       const t = setTimeout(() => speak(prompt, state.language), 400);
       return () => clearTimeout(t);
     }
   }, [taskIdx, started]);
+
+  // Halfway motivational message
+  useEffect(() => {
+    if (!started || !currentTask || halfwaySpoken.current) return;
+    if (ringProgress >= 50) {
+      halfwaySpoken.current = true;
+      const halfway = state.language === "es"
+        ? (currentTask as any).halfway_es
+        : (currentTask as any).halfway_en;
+      if (halfway) setTimeout(() => speak(halfway, state.language), 200);
+    }
+  }, [ringProgress]);
 
   function handleTap() {
     if (!started) {
@@ -409,6 +493,7 @@ function MainScreen({
     }
     if (!currentTask) return;
     const completion = state.language === "es" ? currentTask.voice_es : currentTask.voice_en;
+    stopKidsMusic();
     if (completion) speak(completion, state.language);
     if (navigator.vibrate) navigator.vibrate([80, 30, 80]);
     if (confettiRef.current) spawnConfetti(confettiRef.current);
@@ -424,15 +509,17 @@ function MainScreen({
 
   function startRing(seconds = 180) {
     clearInterval(ringTimer.current); setRingProgress(0);
+    startKidsMusic();
     let p = 0;
     ringTimer.current = setInterval(() => {
       p += 100 / seconds; setRingProgress(Math.min(p, 100));
     }, 1000);
   }
-  function resetRing() { clearInterval(ringTimer.current); setRingProgress(0); }
+  function resetRing() { clearInterval(ringTimer.current); setRingProgress(0); stopKidsMusic(); }
 
   function handleSkipTask() {
     if (!currentTask) return;
+    stopKidsMusic();
     const nextIdx = taskIdx + 1;
     if (nextIdx >= totalTasks) {
       clearInterval(ringTimer.current);
@@ -442,8 +529,6 @@ function MainScreen({
       setTaskIdx(nextIdx); resetRing(); startRing((nextTask as any).timerSeconds ?? 180);
     }
   }
-
-  useEffect(() => () => clearInterval(ringTimer.current), []);
 
   const circumference = 2 * Math.PI * 90;
   const strokeDashoffset = circumference - (ringProgress / 100) * circumference;
