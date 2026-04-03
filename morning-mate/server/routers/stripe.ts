@@ -77,7 +77,6 @@ export const stripeRouter = router({
           ],
           mode: "subscription",
           payment_method_types: ["card"],
-          automatic_tax: { enabled: true },
           success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${baseUrl}/app`,
           customer_email: ctx.user.email || undefined,
