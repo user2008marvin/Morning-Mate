@@ -34,15 +34,16 @@ const TASKS_EN = [
     emoji: "👕", label: "GET DRESSED!", sticker: "🌈",
     prompt_en: "Now let's get dressed for school — pick something brilliant!",
     prompt_es: "¡Ahora vistámonos para la escuela! ¡Elige algo brillante!",
-    voice_en: "You look absolutely wonderful today! To complete your tasks and win your prizes before leaving, make sure you press the Let's Go button!",
-    voice_es: "¡Te ves absolutamente maravilloso hoy! Para completar tus tareas y ganar tus premios, asegúrate de presionar el botón Vamos antes de salir.",
+    voice_en: "You look absolutely wonderful today! Now it's time to take a picture for mummy. Almost time for brekkie!",
+    voice_es: "¡Te ves absolutamente maravilloso hoy! Ahora es hora de tomarle una foto a mamá. ¡Casi es hora del desayuno!",
   },
   {
     emoji: "🥛", label: "EAT BREAKFAST!", sticker: "💫",
+    timerSeconds: 600,
     prompt_en: "Time for breakfast — every champion needs their fuel to power through the day!",
     prompt_es: "¡Hora del desayuno! ¡Todo campeón necesita su combustible para el día!",
-    voice_en: "Brilliant! Breakfast eaten like a true champion! You are absolutely fuelled up and ready to take on the world!",
-    voice_es: "¡Brillante! ¡Desayuno comido como un verdadero campeón! ¡Estás listo para conquistar el mundo!",
+    voice_en: "Brilliant! Breakfast eaten like a true champion! You are absolutely fuelled up and ready to take on the world! When you are ready to leave, press the Let's Go button.",
+    voice_es: "¡Brillante! ¡Desayuno comido como un verdadero campeón! ¡Estás listo para conquistar el mundo! Cuando estés listo para salir, presiona el botón Vamos.",
   },
   {
     emoji: "🚀", label: "LET'S GO!", sticker: "🏆",
@@ -416,15 +417,16 @@ function MainScreen({
       clearInterval(ringTimer.current);
       setTimeout(() => onWin(totalTasks), 800);
     } else {
-      setTaskIdx(nextIdx); resetRing(); startRing();
+      const nextTask = activeTasks[nextIdx];
+      setTaskIdx(nextIdx); resetRing(); startRing((nextTask as any).timerSeconds ?? 180);
     }
   }
 
-  function startRing() {
+  function startRing(seconds = 180) {
     clearInterval(ringTimer.current); setRingProgress(0);
     let p = 0;
     ringTimer.current = setInterval(() => {
-      p += 100 / 180; setRingProgress(Math.min(p, 100));
+      p += 100 / seconds; setRingProgress(Math.min(p, 100));
     }, 1000);
   }
   function resetRing() { clearInterval(ringTimer.current); setRingProgress(0); }
@@ -436,7 +438,8 @@ function MainScreen({
       clearInterval(ringTimer.current);
       setTimeout(() => onWin(totalTasks), 800);
     } else {
-      setTaskIdx(nextIdx); resetRing(); startRing();
+      const nextTask = activeTasks[nextIdx];
+      setTaskIdx(nextIdx); resetRing(); startRing((nextTask as any).timerSeconds ?? 180);
     }
   }
 
