@@ -1,0 +1,130 @@
+Workbench
+glowjo
+
+
+Filter by resource ID...
+DateStatus
+HTTP method
+POST, DELETE
+API endpointIP address
+More filters
++2 more
+Clear filtersReset filters
+Edit columns
+200 OK
+POST
+/v1/prices/price_1THqZuQzOVPRlS3EjfkfmriC
+21:46:24
+200 OK
+POST
+/v1/products/prod_UGNKl2MdxxroEp
+21:46:24
+200 OK
+POST
+/v1/products/prod_UGkXPTYL6O3AKa
+21:00:27
+200 OK
+POST
+/v1/prices/price_1TID2JQzOVPRlS3EGxcYj63j
+21:00:27
+200 OK
+POST
+/v1/products/prod_UGkXPTYL6O3AKa
+21:00:27
+200 OK
+POST
+/v1/subscription_schedules
+20:20:32
+200 OK
+POST
+/v1/products/prod_UGkYzS9HRBC41c
+20:06:53
+200 OK
+POST
+/v1/prices
+20:06:52
+200 OK
+POST
+/v1/products
+20:06:50
+200 OK
+POST
+/v1/products/prod_UGkXPTYL6O3AKa
+20:05:44
+200 OK
+POST
+/v1/prices
+20:05:43
+200 OK
+POST
+/v1/products
+20:05:43
+200 OK
+POST
+/v1/products/prod_UGkOisXUTsGsK8
+19:57:04
+200 OK
+POST
+/v1/prices
+19:57:03
+200 OK
+POST
+/v1/products
+19:57:02
+Yesterday
+200 OK
+POST
+/v1/subscriptions
+20:42:27
+200 OK
+POST
+/v1/invoices
+20:40:28
+200 OK
+POST
+/v1/customers/cus_UGNnVzkDrUBUP5
+20:37:53
+200 OK
+POST
+/v1/customers
+20:35:31
+Show more
+API request
+POST/v1/products/prod_UGNKl2MdxxroEp
+Status
+200 OK
+Request ID
+req_xfAHD2eH9NvK6b
+Time
+3 Apr 2026, 21:46:25 BST
+IP address
+82.16.251.36
+API version
+2025-06-30.basil
+Source
+Dashboard
+User
+scoobye66@yahoo.co.uk
+Origin
+https://dashboard.stripe.com/
+Idempotency key
+Key – f437a50b-2915-4d84-bde4-509baf42e8b0
+User agent
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36
+Response body
+{
+"id": "prod_UGNKl2MdxxroEp","object": "product","active": true,"created": 1775156814,"description": "GlowJo Gold","images":[],"livemode": false,"metadata":{},"name": "GlowJo Gold","statement_descriptor": null,"tax_code": null,"type": "service","updated": 1775249185,
+}
+Request query parameters
+{
+"include_only": [
+"id,tax_code,active,created,images,name,description,statement_descriptor,livemode,metadata,type,object,updated",
+],
+}
+Request POST body
+{
+"default_price": "price_1THqZuQzOVPRlS3EjfkfmriC",
+}
+$
+Enter a shell command...
+Developers
