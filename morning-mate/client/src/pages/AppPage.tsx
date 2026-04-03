@@ -13,8 +13,8 @@ const TASKS_EN = [
     emoji: "☀️", label: "WAKE UP!", sticker: "⭐",
     prompt_en: "Good morning, lovely! I hope you slept well. Let's get ready for an exciting day — are you ready to start winning those stars? Come on, let's go!",
     prompt_es: "¡Buenos días, pequeño! Espero que hayas dormido bien. ¡Vamos a prepararnos para un día emocionante! ¿Estás listo para ganar esas estrellas?",
-    halfway_en: "Come on, you're halfway there — you are doing brilliantly!",
-    halfway_es: "¡Vamos, ya estás a la mitad! ¡Lo estás haciendo de maravilla!",
+    halfway_en: "What a brilliant start — you are already doing so well, keep it up superstar!",
+    halfway_es: "¡Qué comienzo tan brillante! ¡Ya lo estás haciendo tan bien, sigue así superestrella!",
     voice_en: "Amazing! You're up and ready! Now let's get this brilliant morning started — one task at a time!",
     voice_es: "¡Increíble! ¡Estás despierto! ¡Vamos a empezar esta mañana brillante!",
   },
@@ -592,12 +592,16 @@ function MainScreen({
           {!started ? "☀️" : currentTask ? currentTask.emoji : "🏆"}
         </button>
         {started && currentTask && (
-          <button onClick={handleSkipTask} style={{
-            position: "absolute", bottom: "50%", left: "50%", transform: "translate(-50%, 50%)",
-            padding: "8px 16px", borderRadius: 20,
-            background: "rgba(255,255,255,0.15)",
-            border: "1px solid rgba(255,255,255,0.3)", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 700,
-          }}>Skip</button>
+          <div style={{ position: "absolute", bottom: "50%", left: "50%", transform: "translate(-50%, 50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 700, whiteSpace: "nowrap" }}>
+              Not doing this today? Press once ↓
+            </div>
+            <button onClick={handleSkipTask} style={{
+              padding: "8px 16px", borderRadius: 20,
+              background: "rgba(255,255,255,0.15)",
+              border: "1px solid rgba(255,255,255,0.3)", color: "white", cursor: "pointer", fontSize: 12, fontWeight: 700,
+            }}>Skip</button>
+          </div>
         )}
       </div>
 
