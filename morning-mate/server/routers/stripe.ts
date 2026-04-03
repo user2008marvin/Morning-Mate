@@ -39,7 +39,9 @@ export const stripeRouter = router({
       if (!tierName) throw new Error(`Unknown tier: ${input.tier}`);
 
       const allProducts = await stripe.products.list({ active: true, limit: 20 });
-      const product = allProducts.data.find(p => p.name === tierName);
+      const product = allProducts.data.find(
+        p => p.name.toLowerCase() === tierName.toLowerCase()
+      );
       if (!product) {
         throw new Error(`Product "${tierName}" not found in Stripe. Visit /setup-stripe to create it.`);
       }
