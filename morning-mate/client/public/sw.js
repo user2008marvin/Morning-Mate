@@ -3,7 +3,7 @@
  * Enables offline functionality and app caching
  */
 
-const CACHE_NAME = "morning-mate-v2";
+const CACHE_NAME = "morning-mate-v3";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
