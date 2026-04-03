@@ -187,24 +187,23 @@ async function speak(text: string, lang: Language = "en") {
       const utterance = new SpeechSynthesisUtterance(clean);
       const voices = await getVoicesAsync();
 
-      // Known female voice names across platforms (ordered by preference)
+      // Known female voice names across platforms (ordered by preference — warmest first)
       const FEMALE_EN = [
-        "Google UK English Female",   // Chrome Windows/Linux ✓
-        "Samantha",                   // macOS/iOS US female ✓
-        "Karen",                      // iOS Australian female ✓
+        "Microsoft Libby",            // Edge Neural UK female — warmest on Windows ✓
+        "Microsoft Sonia",            // Edge Neural UK female ✓
+        "Microsoft Mia",              // Edge Neural UK female ✓
+        "Microsoft Aria",             // Edge Neural US female ✓
+        "Microsoft Jenny",            // Edge Neural US female ✓
+        "Karen",                      // iOS/macOS Australian female ✓
+        "Moira",                      // iOS/macOS Irish female ✓
         "Tessa",                      // iOS South African female ✓
-        "Moira",                      // iOS Irish female ✓
         "Fiona",                      // macOS Scottish female ✓
+        "Samantha",                   // macOS/iOS US female ✓
+        "Google UK English Female",   // Chrome Windows/Linux ✓
         "Google US English",          // Chrome (female) ✓
-        "Microsoft Zira",             // Windows Edge female ✓
         "Microsoft Hazel",            // Windows British female ✓
+        "Microsoft Zira",             // Windows Edge female ✓
         "Zira",                       // Windows short name ✓
-        "Microsoft Aria Online (Natural)", // Windows Edge Neural female ✓
-        "Microsoft Jenny Online (Natural)", // Windows Edge Neural female ✓
-        "Microsoft Libby Online (Natural)", // Windows Edge Neural UK female ✓
-        "Microsoft Sonia Online (Natural)", // Windows Edge Neural UK female ✓
-        "Microsoft Mia Online (Natural)",   // Windows Edge Neural UK female ✓
-        "Microsoft Susan Online (Natural)", // Windows Edge Neural female ✓
       ];
       const FEMALE_ES = [
         "Google español",             // Chrome Spanish female ✓
@@ -227,23 +226,25 @@ async function speak(text: string, lang: Language = "en") {
 
       if (lang === "es") {
         utterance.voice =
-          voices.find(v => FEMALE_ES.includes(v.name)) ??
+          voices.find(v => FEMALE_ES.some(n => v.name.includes(n))) ??
           voices.find(v => v.lang.startsWith("es") && isFemale(v)) ??
           voices.find(v => v.lang.startsWith("es") && !isMale(v)) ?? null;
         utterance.lang = "es-ES";
       } else {
-        const female = voices.find(v => FEMALE_EN.some(n => v.name.startsWith(n)))
-          ?? voices.find(v => v.lang === "en-GB" && isFemale(v))
-          ?? voices.find(v => v.lang === "en-GB" && !isMale(v))
-          ?? voices.find(v => v.lang.startsWith("en") && isFemale(v))
-          ?? voices.find(v => v.lang.startsWith("en") && !isMale(v))
-          ?? voices.find(v => isFemale(v)) ?? null;
+        const female =
+          voices.find(v => FEMALE_EN.some(n => v.name.includes(n))) ??
+          voices.find(v => v.lang === "en-GB" && isFemale(v)) ??
+          voices.find(v => v.lang === "en-GB" && !isMale(v)) ??
+          voices.find(v => v.lang.startsWith("en") && isFemale(v)) ??
+          voices.find(v => v.lang.startsWith("en") && !isMale(v)) ??
+          voices.find(v => isFemale(v)) ?? null;
         utterance.voice = female;
         utterance.lang = "en-GB";
       }
 
-      utterance.pitch = 1.15;
-      utterance.rate = 0.88;
+      // Warmer, more natural settings — neural voices ignore pitch/rate so this mainly affects older voices
+      utterance.pitch = 1.05;
+      utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
     } catch {}
   }
