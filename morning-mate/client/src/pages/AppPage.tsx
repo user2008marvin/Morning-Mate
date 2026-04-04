@@ -865,11 +865,14 @@ export default function AppPage() {
 
   // Auth + child profile from DB
   const { data: user, refetch: refetchUser, isFetched: userFetched } = trpc.auth.me.useQuery(undefined, { retry: false, staleTime: 5 * 60 * 1000 });
-  const { data: children } = trpc.app.getChildren.useQuery(undefined, {
+  const { data: children, refetch: refetchChildren } = trpc.app.getChildren.useQuery(undefined, {
     enabled: !!user,
     staleTime: 60 * 1000,
   });
   const syncProgress = trpc.app.updateChild.useMutation();
+
+  // Server-side completion date — the only tamper-proof "done today" source
+  const [serverLastCompleted, setServerLastCompleted] = useState<string | null>(null);
 
   // Require sign-in — redirect to home if not authenticated
   useEffect(() => {
@@ -895,10 +898,14 @@ export default function AppPage() {
       streak: child.streak ?? prev.streak,
       completedDays: child.completedDays ? JSON.parse(child.completedDays) : prev.completedDays,
     }));
+    // Store server-side last completed date — tamper-proof source of truth
+    const serverDate = child.lastCompletedDate ? new Date(child.lastCompletedDate).toDateString() : null;
+    setServerLastCompleted(serverDate);
+    const todayStr = new Date().toDateString();
     if (child.name && screen === "onboarding") {
-      const todayStr = new Date().toDateString();
-      const lastDate = child.lastCompletedDate ? new Date(child.lastCompletedDate).toDateString() : "";
-      setScreen(lastDate === todayStr ? "done-today" : "main");
+      setScreen(serverDate === todayStr ? "done-today" : "main");
+    } else if (serverDate === todayStr && screen === "main") {
+      setScreen("done-today");
     }
   }, [children]);
 
@@ -938,12 +945,14 @@ export default function AppPage() {
       stickersUnlocked: [...appState.stickersUnlocked, WIN_STICKERS[Math.min(appState.stars, WIN_STICKERS.length - 1)]]
     };
     updateState(updates);
-    // Sync to DB if authenticated
+    // Sync to DB if authenticated — markCompletedToday stamps lastCompletedDate server-side
     if (childId) {
-      syncProgress.mutate({ childId, stars: newStars, streak: newStreak, completedDays: newCompletedDays });
+      const todayStr2 = new Date().toDateString();
+      syncProgress.mutate(
+        { childId, stars: newStars, streak: newStreak, completedDays: newCompletedDays, markCompletedToday: true },
+        { onSuccess: () => { setServerLastCompleted(todayStr2); refetchChildren(); } }
+      );
     }
-    // Count free uses for unauthenticated users
-    if (!user) incrementFreeMornings();
     setScreen("win");
   }
 
@@ -953,7 +962,11 @@ export default function AppPage() {
 
   function handleNewMorning() {
     const todayStr = new Date().toDateString();
-    if (appState.lastDate === todayStr) {
+    // Use server date if available (tamper-proof), fall back to local
+    const alreadyDone = serverLastCompleted
+      ? serverLastCompleted === todayStr
+      : appState.lastDate === todayStr;
+    if (alreadyDone) {
       setScreen("done-today");
     } else {
       setScreen("main");

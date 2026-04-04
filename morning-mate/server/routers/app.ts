@@ -66,6 +66,7 @@ export const appRouter = router({
         stars: z.number().optional(),
         streak: z.number().optional(),
         completedDays: z.array(z.number()).optional(),
+        markCompletedToday: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -87,6 +88,7 @@ export const appRouter = router({
       if (input.stars !== undefined) updates.stars = input.stars;
       if (input.streak !== undefined) updates.streak = input.streak;
       if (input.completedDays !== undefined) updates.completedDays = JSON.stringify(input.completedDays);
+      if (input.markCompletedToday) updates.lastCompletedDate = new Date();
 
       await updateChildProfile(input.childId, updates as any);
       return { success: true };
