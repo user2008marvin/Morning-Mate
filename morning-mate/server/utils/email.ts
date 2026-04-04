@@ -23,6 +23,33 @@ export async function sendEmail({ to, subject, template, data }: EmailOptions) {
     return { success: false };
   }
   const emailTemplates: Record<string, (data: any) => string> = {
+    "welcome": (data) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff8ee; padding: 24px; border-radius: 12px;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <div style="font-size: 56px;">☀️</div>
+          <h1 style="font-family: Georgia, serif; color: #ff5f1f; margin: 8px 0; font-size: 28px;">Welcome to GlowJo, ${data.userName}!</h1>
+          <p style="color: #7a5c3a; font-size: 16px; margin: 0;">Peaceful mornings start here.</p>
+        </div>
+        <p style="color: #5a3e28; font-size: 15px; line-height: 1.7;">
+          You've just taken the first step to turning chaotic school mornings into something your child actually looks forward to. 🎉
+        </p>
+        <p style="color: #5a3e28; font-size: 15px; line-height: 1.7;">
+          Here's what to do next:
+        </p>
+        <ol style="color: #5a3e28; font-size: 15px; line-height: 2;">
+          <li>Set up your child's profile (name, age, wake-up time)</li>
+          <li>Choose their morning tasks</li>
+          <li>Let Sunny the sun guide them through their first routine!</li>
+        </ol>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${data.appUrl}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #ff9a3c, #ff5f1f); color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 17px;">Start Your First Morning →</a>
+        </div>
+        <p style="color: #a07850; font-size: 13px; line-height: 1.6;">
+          If you have any questions, just reply to this email — we're a small team and we read every message. 💛
+        </p>
+        <p style="color: #a07850; font-size: 13px;">The GlowJo Team</p>
+      </div>
+    `,
     "signup-verification": (data) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f5f5f5; padding: 20px; border-radius: 10px;">
         <h2 style="color: #ff5f1f;">🎉 Verify Your Email</h2>
