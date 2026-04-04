@@ -250,17 +250,18 @@ async function speak(text: string, lang: Language = "en") {
   }
 }
 
-// ── PUMPING KIDS BACKGROUND MUSIC (real MP3 tracks, per task) ──
-// All tracks by AShamaluevMusic — free for non-commercial use (ashamaluevmusic.com)
+// ── KIDS BACKGROUND MUSIC (real MP3 tracks, per task) ──
+// Fesliyan Studios tracks — free for use (fesliyanstudios.com)
+// AShamaluevMusic tracks — free for non-commercial use (ashamaluevmusic.com)
 const TASK_MUSIC: Record<string, string> = {
-  "WAKE UP!":       "/music/fun-day.mp3",      // 175 BPM — bouncy Children's track, jumpy & alive!
-  "BRUSH TEETH!":   "/music/happy-upbeat.mp3", // 188 BPM — FASTEST, pumping Pop Rock!
-  "SHOWER TIME!":   "/music/adventure.mp3",    // 180 BPM — exciting & energetic!
-  "GET DRESSED!":   "/music/energetic.mp3",    // 180 BPM — driving pumping rock!
-  "EAT BREAKFAST!": "/music/fun-day.mp3",      // 175 BPM — cheerful kids energy
-  "LET'S GO!":      "/music/winner.mp3",       // 134 BPM — triumphant finish!
+  "WAKE UP!":       "/music/clap-and-sing.mp3",   // upbeat & playful, clap-along energy
+  "BRUSH TEETH!":   "/music/dancing-silly.mp3",   // silly dance fun — kids love it
+  "SHOWER TIME!":   "/music/chicken-chase.mp3",   // fast banjo chase — super giggly!
+  "GET DRESSED!":   "/music/duck-duck-goose.mp3", // bouncy kids game music
+  "EAT BREAKFAST!": "/music/clap-and-sing.mp3",   // warm & happy, clap along
+  "LET'S GO!":      "/music/winner.mp3",           // triumphant finish!
 };
-const DEFAULT_MUSIC = "/music/fun-day.mp3";
+const DEFAULT_MUSIC = "/music/duck-duck-goose.mp3";
 
 let _musicAudio: HTMLAudioElement | null = null;
 
