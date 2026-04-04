@@ -509,10 +509,8 @@ export default function Home() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px,1fr))", gap: 24 }}>
             {[
-              { name: "Freemium", price: "Free forever", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "Email support"], cta: "Get Started Free", highlight: false, badge: null, tier: null },
-              { name: "Starter", price: "$4.99/mo", features: ["Up to 3 child profiles", "AI voice guidance (English)", "Parent dashboard", "Email support"], cta: "Get Starter", highlight: false, badge: null, tier: "starter" },
-              { name: "Plus", price: "$9.99/mo", features: ["Up to 5 child profiles", "AI voice — English & Spanish", "Brain Power Reports", "Priority support"], cta: "Get Plus", highlight: true, badge: "⭐ Most Popular", tier: "plus" },
-              { name: "Gold", price: "$14.99/mo", features: ["Unlimited child profiles", "All features unlocked", "Custom rewards & stickers", "VIP support"], cta: "Get Gold", highlight: false, badge: "🏆 Best Value", tier: "gold" },
+              { name: "Freemium", price: "Free forever", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", highlight: false, badge: null, tier: null },
+              { name: "GlowJo", price: "$4.99/mo", features: ["Up to 3 child profiles", "AI voice guidance (English)", "Happy music during every task", "Parent dashboard", "Priority support"], cta: "Get GlowJo", highlight: true, badge: "⭐ Full Access", tier: "starter" },
             ].map((plan, i) => (
               <div key={i} style={{ position: "relative", background: plan.highlight ? "linear-gradient(135deg,var(--coral),var(--sunrise-mid))" : "rgba(255,255,255,0.06)", border: plan.highlight ? "2px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: "36px 28px 28px", textAlign: "center", transform: plan.highlight ? "scale(1.05)" : "scale(1)", transition: "transform 0.2s", boxShadow: plan.highlight ? "0 12px 40px rgba(0,0,0,0.3)" : "0 4px 16px rgba(0,0,0,0.15)" }}>
                 {plan.badge && (
@@ -532,7 +530,7 @@ export default function Home() {
                 </div>
                 <button
                   disabled={loadingTier !== null}
-                  onClick={() => plan.tier === null ? navigate("/app") : handleCheckout(plan.tier as "starter" | "plus" | "gold")}
+                  onClick={() => plan.tier === null ? navigate("/app") : handleCheckout(plan.tier as "starter")}
                   style={{ width: "100%", padding: "13px 24px", borderRadius: 30, border: "none", fontFamily: "'Fredoka One',cursive", fontSize: 16, fontWeight: 700, cursor: loadingTier !== null ? "wait" : "pointer", background: plan.highlight ? "white" : "rgba(255,255,255,0.18)", color: plan.highlight ? "var(--coral)" : "white", transition: "opacity 0.2s", opacity: loadingTier !== null && loadingTier !== plan.tier ? 0.5 : 1 }}
                 >
                   {loadingTier === plan.tier ? "Opening Stripe…" : plan.cta}

@@ -442,6 +442,27 @@ function Onboarding({ onComplete }: { onComplete: (state: Partial<AppState>) => 
 }
 
 // ── MAIN KID SCREEN ──
+// ── FREEMIUM MUSIC GATE ──
+// Freemium users get 2 free calendar days of music.
+// Each unique calendar day counts once — replaying the same day doesn't add a new day.
+// After 2 days, music is locked until they upgrade.
+function canFreemiumPlayMusic(): boolean {
+  try {
+    const key = "gj_free_music_days";
+    const stored = localStorage.getItem(key);
+    const days: string[] = stored ? JSON.parse(stored) : [];
+    const today = new Date().toISOString().split("T")[0];
+    if (days.includes(today)) return true; // already used today — still within trial
+    if (days.length < 2) {
+      localStorage.setItem(key, JSON.stringify([...days, today]));
+      return true; // first or second day — grant access & record it
+    }
+    return false; // 2 days already used, today is a new (3rd) day — locked
+  } catch {
+    return true; // fallback: allow if localStorage unavailable
+  }
+}
+
 function MainScreen({
   state, onWin, onParent, onUpdateState, bilingualEnabled
 }: {
@@ -449,6 +470,8 @@ function MainScreen({
   onParent: () => void; onUpdateState: (updates: Partial<AppState>) => void;
   bilingualEnabled: boolean;
 }) {
+  const { tier } = useSubscription();
+  const musicEnabled = tier !== "freemium" || canFreemiumPlayMusic();
   const activeTasks = TASKS_EN.filter((_, i) => state.enabledTasks[i]);
   const [taskIdx, setTaskIdx] = useState(0);
   const [started, setStarted] = useState(false);
@@ -527,7 +550,7 @@ function MainScreen({
 
   function startRing(seconds = 180, taskLabel?: string) {
     clearInterval(ringTimer.current); setRingProgress(0);
-    startKidsMusic(taskLabel);
+    if (musicEnabled) startKidsMusic(taskLabel);
     let p = 0;
     ringTimer.current = setInterval(() => {
       p += 100 / seconds; setRingProgress(Math.min(p, 100));
@@ -689,7 +712,7 @@ function MainScreen({
             fontSize: 12, fontWeight: 800, cursor: "pointer"
           }}>🇪🇸 ES</button>
         ) : (
-          <button onClick={() => alert("🌍 Bilingual mode is available on Plus & Gold plans!\n\nGo to getglowjo.com and upgrade to unlock English + Spanish.")} title="Upgrade to Plus for bilingual mode" style={{
+          <button onClick={() => alert("🌍 Bilingual mode is available on the GlowJo plan!\n\nGo to getglowjo.com and upgrade for just $4.99/mo to unlock English + Spanish.")} title="Upgrade to unlock bilingual mode" style={{
             padding: "6px 14px", borderRadius: 20,
             border: "2px solid rgba(255,255,255,0.15)",
             background: "transparent",
@@ -783,7 +806,7 @@ export default function AppPage() {
   });
   const [childId, setChildId] = useState<number | null>(null);
   const { tier } = useSubscription();
-  const bilingualEnabled = tier === "plus" || tier === "gold";
+  const bilingualEnabled = tier !== "freemium";
 
   // Auth + child profile from DB
   const { data: user } = trpc.auth.me.useQuery(undefined, { retry: false, staleTime: 5 * 60 * 1000 });

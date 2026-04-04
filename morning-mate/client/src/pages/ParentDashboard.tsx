@@ -9,7 +9,7 @@ import { toast } from "sonner";
 const BG = "linear-gradient(180deg, #4facfe 0%, #ff9a3c 60%, #ff6b35 100%)";
 
 const TIER_LABELS: Record<string, string> = {
-  freemium: "Free", starter: "Starter ⭐", plus: "Plus 🌟", gold: "Gold 🏆",
+  freemium: "Free", starter: "GlowJo ⭐", plus: "GlowJo ⭐", gold: "GlowJo ⭐",
 };
 
 function LoginPrompt() {
@@ -167,9 +167,7 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
 }
 
 const PLANS = [
-  { tier: "starter" as const, label: "Starter", emoji: "⭐", monthly: 4.99, yearly: 49.90, features: "1 child · English voice guidance", color: "rgba(79,172,254,0.35)", border: "rgba(79,172,254,0.7)", badge: null },
-  { tier: "plus"    as const, label: "Plus",    emoji: "🌟", monthly: 9.99, yearly: 99.90, features: "3 children · AI voice English & Spanish", color: "rgba(255,255,255,0.3)", border: "white", badge: "POPULAR" },
-  { tier: "gold"    as const, label: "Gold",    emoji: "🏆", monthly: 14.99, yearly: 149.90, features: "Unlimited · Custom rewards & stickers · VIP support", color: "rgba(255,215,0,0.3)", border: "#ffd700", badge: null },
+  { tier: "starter" as const, label: "GlowJo", emoji: "⭐", monthly: 4.99, yearly: 49.90, features: "3 children · AI voice · Happy music every task · Priority support", color: "rgba(79,172,254,0.35)", border: "rgba(79,172,254,0.7)", badge: "FULL ACCESS" },
 ];
 
 function UpgradeCard({ tier }: { tier: string }) {
@@ -285,7 +283,7 @@ export default function ParentDashboard() {
 
   if (!user) return <LoginPrompt />;
 
-  const maxChildren = tier === "freemium" || tier === "starter" ? 1 : tier === "plus" ? 3 : 99;
+  const maxChildren = tier === "freemium" ? 1 : 3;
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8faff", fontFamily: "'Fredoka One', cursive" }}>
