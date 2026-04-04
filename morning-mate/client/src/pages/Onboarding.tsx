@@ -33,6 +33,7 @@ export default function Onboarding() {
   const [selectedReward, setSelectedReward] = useState(REWARDS[0]);
   const [selectedTasks, setSelectedTasks] = useState(["wake", "breakfast", "teeth", "dress", "bag"]);
   const [pin, setPin] = useState("1234");
+  const [language, setLanguage] = useState<"en" | "es">("en");
 
   const createChildMutation = trpc.app.createChild.useMutation({
     onSuccess: () => {
@@ -56,12 +57,14 @@ export default function Onboarding() {
     } else if (step === 3) {
       setStep(4);
     } else if (step === 4) {
+      setStep(5);
+    } else if (step === 5) {
       createChildMutation.mutate({
         name: childName,
         age,
         schoolTime,
         reward: selectedReward,
-        language: "en",
+        language,
         enabledTasks: TASKS.map((t) => selectedTasks.includes(t.id)),
       });
     }
@@ -253,8 +256,69 @@ export default function Onboarding() {
           </div>
         )}
 
-        {/* Step 4: Parent PIN */}
+        {/* Step 4: Language */}
         {step === 4 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>🌍</div>
+              <h2 style={{ fontSize: 24, fontWeight: 900, color: "#2d1a00", marginBottom: 8 }}>
+                Choose Language
+              </h2>
+              <p style={{ fontSize: 14, color: "#6b3a00" }}>
+                What language should Sunny speak?
+              </p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <button
+                onClick={() => setLanguage("en")}
+                style={{
+                  padding: "16px 20px", borderRadius: 14,
+                  border: language === "en" ? "3px solid #ff5f1f" : "2px solid #ddd",
+                  background: language === "en" ? "#fff3e0" : "white",
+                  cursor: "pointer", fontSize: 16, fontWeight: 700,
+                  textAlign: "left", display: "flex", alignItems: "center", gap: 14,
+                  transition: "all 0.2s",
+                }}
+              >
+                <span style={{ fontSize: 28 }}>🇬🇧</span>
+                <div>
+                  <div>English</div>
+                  <div style={{ fontSize: 12, fontWeight: 400, color: "#888", marginTop: 2 }}>Free — included with all plans</div>
+                </div>
+                {language === "en" && <span style={{ marginLeft: "auto", color: "#ff5f1f", fontSize: 20 }}>✓</span>}
+              </button>
+              <button
+                onClick={() => {
+                  setLanguage("es");
+                  toast("🌍 Spanish unlocks with the GlowJo plan! You can still set it now and upgrade later.", { duration: 4000 });
+                }}
+                style={{
+                  padding: "16px 20px", borderRadius: 14,
+                  border: language === "es" ? "3px solid #ff5f1f" : "2px solid #ddd",
+                  background: language === "es" ? "#fff3e0" : "white",
+                  cursor: "pointer", fontSize: 16, fontWeight: 700,
+                  textAlign: "left", display: "flex", alignItems: "center", gap: 14,
+                  transition: "all 0.2s",
+                }}
+              >
+                <span style={{ fontSize: 28 }}>🇪🇸</span>
+                <div>
+                  <div>Español</div>
+                  <div style={{ fontSize: 12, fontWeight: 400, color: "#888", marginTop: 2 }}>GlowJo plan — $4.99/mo</div>
+                </div>
+                <span style={{ marginLeft: "auto", fontSize: 13, fontWeight: 800, padding: "3px 8px", borderRadius: 8, background: "#ff5f1f", color: "white" }}>PRO</span>
+                {language === "es" && <span style={{ color: "#ff5f1f", fontSize: 20 }}>✓</span>}
+              </button>
+            </div>
+            <div style={{ display: "flex", gap: 12 }}>
+              <Button onClick={() => setStep(3)} variant="outline" style={{ flex: 1 }}>Back</Button>
+              <Button onClick={handleNext} style={{ flex: 1 }}>Next</Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 5: Parent PIN */}
+        {step === 5 && (  
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
@@ -289,7 +353,7 @@ export default function Onboarding() {
               <strong>💡 Tip:</strong> Use a PIN only you know. You'll need it to access parent settings.
             </div>
             <div style={{ display: "flex", gap: 12 }}>
-              <Button onClick={() => setStep(3)} variant="outline" style={{ flex: 1 }}>
+              <Button onClick={() => setStep(4)} variant="outline" style={{ flex: 1 }}>
                 Back
               </Button>
               <Button
