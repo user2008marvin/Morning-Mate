@@ -228,6 +228,12 @@ export default function Home() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [pendingTier, setPendingTier] = useState<"starter" | "plus" | "gold" | null>(null);
   const [pendingNav, setPendingNav] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 520);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth <= 520);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
   const emailMutation = trpc.analytics.captureEmail.useMutation();
   const stripeCheckoutMutation = trpc.stripe.createCheckoutSession.useMutation();
   const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
@@ -342,16 +348,10 @@ export default function Home() {
         @keyframes drift { from{transform:translateX(-100px)} to{transform:translateX(110vw)} }
         .reveal { opacity:0; }
         .reveal.visible { animation:fadein 0.6s ease-out forwards; }
-        .nav-bar { padding: 14px 28px; }
-        @media (max-width: 520px) {
-          .nav-help { display: none !important; }
-          .nav-bar { padding: 12px 12px; }
-          .nav-get-started { padding: 8px 14px !important; font-size: 13px !important; }
-        }
       `}</style>
 
       {/* NAV */}
-      <nav className="nav-bar" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,248,238,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,154,60,0.2)" }}>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: isMobile ? "12px 12px" : "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,248,238,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,154,60,0.2)" }}>
         <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, color: "var(--coral)", display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 13, color: "var(--mid)", fontWeight: 900, letterSpacing: 0.5 }}>Get</span>
           <span>Glow<span style={{ color: "var(--dark)" }}>Jo</span></span>
@@ -361,9 +361,11 @@ export default function Home() {
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button className="nav-help" onClick={() => navigate("/help")} style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, padding: "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)" }}>
-            Help
-          </button>
+          {!isMobile && (
+            <button onClick={() => navigate("/help")} style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, padding: "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)" }}>
+              Help
+            </button>
+          )}
           {meQuery.data ? (
             <button onClick={() => navigate("/app")} style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, padding: "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)" }}>
               My App ☀️
@@ -373,10 +375,10 @@ export default function Home() {
               Sign In
             </button>
           )}
-          <button className="nav-get-started" onClick={() => {
+          <button onClick={() => {
             if (meQuery.data) { navigate("/app"); }
             else { setPendingNav("/app"); setAuthModalOpen(true); }
-          }} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 15, padding: "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
+          }} style={{ fontFamily: "'Fredoka One',cursive", fontSize: isMobile ? 13 : 15, padding: isMobile ? "8px 14px" : "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
             Get Started
           </button>
         </div>
