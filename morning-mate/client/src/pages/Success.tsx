@@ -1,18 +1,37 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Success() {
   const [, navigate] = useLocation();
+  const search = useSearch();
   const { user, isLoading } = useAuth();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const sessionId = new URLSearchParams(search).get("session_id");
 
-  const { data: subscription } = trpc.subscription.getSubscription.useQuery(undefined, {
+  const utils = trpc.useUtils();
+
+  const { data: subscription, refetch } = trpc.subscription.getSubscription.useQuery(undefined, {
     enabled: !!user,
     refetchInterval: 2000,
     refetchIntervalInBackground: true,
   });
+
+  const verifyAndActivate = trpc.stripe.verifyAndActivate.useMutation({
+    onSuccess: async (result) => {
+      if (result.success) {
+        await utils.subscription.getSubscription.invalidate();
+        await refetch();
+        setStatus("success");
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (!user || !sessionId || verifyAndActivate.isPending || verifyAndActivate.isSuccess) return;
+    verifyAndActivate.mutate({ sessionId });
+  }, [user, sessionId]);
 
   useEffect(() => {
     if (!subscription) return;
@@ -24,7 +43,7 @@ export default function Success() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (status === "loading") setStatus("success");
-    }, 5000);
+    }, 6000);
     return () => clearTimeout(timer);
   }, [status]);
 
@@ -36,7 +55,7 @@ export default function Success() {
   };
 
   const tierLabel: Record<string, string> = {
-    starter: "Starter",
+    starter: "GlowJo",
     plus: "Plus",
     gold: "Gold",
     freemium: "Free",
@@ -51,7 +70,7 @@ export default function Success() {
         fontFamily: "'Fredoka One', cursive", padding: "24px", textAlign: "center",
       }}>
         <div style={{ fontSize: "64px", marginBottom: "16px", animation: "spin 1s linear infinite" }}>⭐</div>
-        <h1 style={{ color: "white", fontSize: "2rem", marginBottom: "8px" }}>Setting up your account…</h1>
+        <h1 style={{ color: "white", fontSize: "2rem", marginBottom: "8px" }}>Activating your plan…</h1>
         <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "1rem" }}>Just a moment while we confirm your subscription!</p>
         <style>{`@keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>
       </div>
@@ -76,11 +95,16 @@ export default function Success() {
           You're in! 🎉
         </h1>
         <p style={{ fontSize: "1.1rem", color: "#666", marginBottom: "8px" }}>
-          Welcome to Morning Mate <strong>{tierLabel[tier]}</strong>
+          Welcome to <strong>GlowJo {tierLabel[tier]}</strong>
         </p>
-        <p style={{ fontSize: "0.9rem", color: "#999", marginBottom: "32px" }}>
+        <p style={{ fontSize: "0.9rem", color: "#999", marginBottom: "8px" }}>
           Your kids are going to love their new morning routine!
         </p>
+        {tier !== "freemium" && (
+          <p style={{ fontSize: "0.85rem", color: "#ff9a3c", fontWeight: 700, marginBottom: "24px" }}>
+            🌍 Bilingual English + Spanish is now unlocked!
+          </p>
+        )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <button

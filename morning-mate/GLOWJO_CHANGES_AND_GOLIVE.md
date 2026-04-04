@@ -70,7 +70,7 @@ When you're ready to switch from test to production, complete every item below i
 - [ ] Add the **monthly price**: $4.99 / month / recurring (if not already there)
 - [ ] Add the **yearly price**: $39.99 / year / recurring
 - [ ] Go to **Developers → Webhooks** → Add a new live webhook pointing to:
-  `https://getglowjo.com/api/stripe/webhook`
+  `https://getglowjo.com/api/webhooks/stripe`
   Events to listen for: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`
 - [ ] Copy the **live Webhook Signing Secret** (starts with `whsec_`)
 

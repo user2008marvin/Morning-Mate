@@ -126,6 +126,45 @@ export const stripeRouter = router({
     }),
 
   /**
+   * Verify a completed checkout session and activate the subscription directly.
+   * Used as a reliable backup in case the Stripe webhook hasn't fired yet.
+   */
+  verifyAndActivate: protectedProcedure
+    .input(z.object({ sessionId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const session = await stripe.checkout.sessions.retrieve(input.sessionId, {
+          expand: ["subscription"],
+        });
+
+        if (session.payment_status !== "paid") {
+          return { success: false, reason: "Payment not completed" };
+        }
+
+        const metaUserId = session.metadata?.userId ? parseInt(session.metadata.userId) : null;
+        const tier = session.metadata?.tier as "starter" | "plus" | "gold" | undefined;
+
+        if (!tier || metaUserId !== ctx.user.id) {
+          return { success: false, reason: "Session does not belong to this user" };
+        }
+
+        const sub = session.subscription as Stripe.Subscription | null;
+        await db.updateSubscription(ctx.user.id, {
+          tier,
+          stripeCustomerId: (session.customer as string) ?? undefined,
+          stripeSubscriptionId: sub?.id ?? undefined,
+          status: "active",
+        });
+
+        console.log(`[Stripe] verifyAndActivate: activated ${tier} for user ${ctx.user.id}`);
+        return { success: true, tier };
+      } catch (err: any) {
+        console.error("[Stripe] verifyAndActivate error:", err.message);
+        return { success: false, reason: err.message };
+      }
+    }),
+
+  /**
    * Handle Stripe webhook for subscription events
    * Syncs subscription data to database and sends email notifications
    */
