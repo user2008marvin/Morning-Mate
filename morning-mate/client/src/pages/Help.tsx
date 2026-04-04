@@ -2,6 +2,45 @@
  * GlowJo — User Manual / Help Page
  * Accessible at /help
  */
+import React from "react";
+import { useLocation } from "wouter";
+
+// ── SMALL HELPERS ──
+function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", gap: 14, marginBottom: 18 }}>
+      <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Fredoka One',cursive", fontSize: 16, flexShrink: 0 }}>{n}</div>
+      <div><div style={{ fontWeight: 700, color: "#1a1a2e", marginBottom: 4 }}>{title}</div><div style={{ color: "#555", fontSize: 15, lineHeight: 1.6 }}>{children}</div></div>
+    </div>
+  );
+}
+
+function Sub({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontWeight: 700, color: "#ff5f1f", fontSize: 15, marginBottom: 6 }}>{title}</div>
+      <div style={{ color: "#555", fontSize: 15, lineHeight: 1.6 }}>{children}</div>
+    </div>
+  );
+}
+
+function Note({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ background: "#fff8e1", border: "1px solid #ffe082", borderRadius: 10, padding: "10px 14px", marginTop: 12, fontSize: 14, color: "#5d4037" }}>
+      💡 {children}
+    </div>
+  );
+}
+
+const tableStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse", fontSize: 14, marginBottom: 8, borderRadius: 10, overflow: "hidden" };
+function Th({ children }: { children: React.ReactNode }) {
+  return <th style={{ background: "#ff5f1f", color: "white", padding: "8px 12px", textAlign: "left", fontWeight: 700 }}>{children}</th>;
+}
+function Td({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return <td style={{ padding: "8px 12px", borderBottom: "1px solid #eee", ...style }}>{children}</td>;
+}
+
+// ── SECTIONS DATA ──
 const SECTIONS = [
   {
     id: "what",
@@ -258,45 +297,7 @@ const SECTIONS = [
   },
 ];
 
-// ── SMALL HELPERS ──
-function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", gap: 14, marginBottom: 18 }}>
-      <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Fredoka One',cursive", fontSize: 16, flexShrink: 0 }}>{n}</div>
-      <div><div style={{ fontWeight: 700, color: "#1a1a2e", marginBottom: 4 }}>{title}</div><div style={{ color: "#555", fontSize: 15, lineHeight: 1.6 }}>{children}</div></div>
-    </div>
-  );
-}
-
-function Sub({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginBottom: 16 }}>
-      <div style={{ fontWeight: 700, color: "#ff5f1f", fontSize: 15, marginBottom: 6 }}>{title}</div>
-      <div style={{ color: "#555", fontSize: 15, lineHeight: 1.6 }}>{children}</div>
-    </div>
-  );
-}
-
-function Note({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ background: "#fff8e1", border: "1px solid #ffe082", borderRadius: 10, padding: "10px 14px", marginTop: 12, fontSize: 14, color: "#5d4037" }}>
-      💡 {children}
-    </div>
-  );
-}
-
-const tableStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse", fontSize: 14, marginBottom: 8, borderRadius: 10, overflow: "hidden" };
-function Th({ children }: { children: React.ReactNode }) {
-  return <th style={{ background: "#ff5f1f", color: "white", padding: "8px 12px", textAlign: "left", fontWeight: 700 }}>{children}</th>;
-}
-function Td({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return <td style={{ padding: "8px 12px", borderBottom: "1px solid #eee", ...style }}>{children}</td>;
-}
-
 // ── PAGE ──
-import React from "react";
-import { useLocation } from "wouter";
-
 export default function Help() {
   const [, navigate] = useLocation();
 
