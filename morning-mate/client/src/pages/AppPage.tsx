@@ -250,18 +250,24 @@ async function speak(text: string, lang: Language = "en") {
   }
 }
 
-// ── KIDS BACKGROUND MUSIC (real MP3 tracks, per task) ──
-// Fesliyan Studios tracks — free for use (fesliyanstudios.com)
-// MaxKoMusic tracks — CC BY-SA 3.0 (maxkomusic.com)
-const TASK_MUSIC: Record<string, string> = {
-  "WAKE UP!":       "/music/good-morning.mp3",    // "Good Morning" — MaxKoMusic, bright upbeat morning track
-  "BRUSH TEETH!":   "/music/dancing-silly.mp3",   // silly dance fun — kids love it
-  "SHOWER TIME!":   "/music/duck-duck-goose.mp3", // bouncy kids game music
-  "GET DRESSED!":   "/music/clap-and-sing.mp3",   // warm & happy, clap along
-  "EAT BREAKFAST!": "/music/clap-and-sing.mp3",   // warm & happy, clap along
-  "LET'S GO!":      "/music/chicken-chase.mp3",   // fast banjo chase — exciting send-off!
+// ── KIDS BACKGROUND MUSIC — DAY-ROTATION POOL ──
+// Each task has a pool of songs. The track rotates daily so it sounds fresh each day.
+// Sources: Fesliyan Studios (fesliyanstudios.com) · AShamaluevMusic (ashamaluevmusic.com) · MaxKoMusic
+const TASK_MUSIC_POOL: Record<string, string[]> = {
+  "WAKE UP!":       ["/music/jump-time.mp3",     "/music/play-date.mp3",     "/music/vacation.mp3"],
+  "BRUSH TEETH!":   ["/music/dancing-silly.mp3", "/music/curious-kiddo.mp3", "/music/comedy.mp3"],
+  "SHOWER TIME!":   ["/music/duck-duck-goose.mp3","/music/cute.mp3",         "/music/cookie.mp3"],
+  "GET DRESSED!":   ["/music/clap-and-sing.mp3", "/music/sweet.mp3",         "/music/happy-story.mp3"],
+  "EAT BREAKFAST!": ["/music/sweet.mp3",          "/music/clap-and-sing.mp3", "/music/vacation.mp3"],
+  "LET'S GO!":      ["/music/chicken-chase.mp3", "/music/winner.mp3",        "/music/comedy.mp3"],
 };
-const DEFAULT_MUSIC = "/music/duck-duck-goose.mp3";
+const DEFAULT_MUSIC_POOL = ["/music/jump-time.mp3", "/music/play-date.mp3", "/music/duck-duck-goose.mp3"];
+
+// Pick today's track from a pool (rotates by day-of-week)
+function pickDailyTrack(pool: string[]): string {
+  const dayIndex = new Date().getDay(); // 0=Sun … 6=Sat
+  return pool[dayIndex % pool.length];
+}
 
 let _musicAudio: HTMLAudioElement | null = null;
 
@@ -276,7 +282,8 @@ function playTaskCompleteSound() {
 
 function startKidsMusic(taskLabel?: string) {
   try {
-    const src = (taskLabel && TASK_MUSIC[taskLabel]) || DEFAULT_MUSIC;
+    const pool = (taskLabel && TASK_MUSIC_POOL[taskLabel]) || DEFAULT_MUSIC_POOL;
+    const src = pickDailyTrack(pool);
     if (_musicAudio) {
       if (!_musicAudio.paused && _musicAudio.getAttribute("data-src") === src) return; // already playing right track
       _musicAudio.pause();
