@@ -251,11 +251,12 @@ export default function Home() {
   };
 
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
+  const [billingPeriod, setBillingPeriod] = useState<"month" | "year">("month");
 
   const doCheckout = async (tier: "starter" | "plus" | "gold") => {
     setLoadingTier(tier);
     try {
-      const session = await stripeCheckoutMutation.mutateAsync({ tier });
+      const session = await stripeCheckoutMutation.mutateAsync({ tier, billingPeriod });
       if (session?.checkoutUrl) {
         window.location.href = session.checkoutUrl;
       } else {
@@ -535,20 +536,51 @@ export default function Home() {
       {/* PRICING */}
       <section style={{ background: "var(--dark)", color: "var(--cream)", padding: "80px 24px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 60 }}>
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
             <div style={{ display: "inline-block", fontSize: 12, fontWeight: 900, letterSpacing: 2, textTransform: "uppercase", color: "var(--coral)", marginBottom: 12 }}>Pricing</div>
             <h2 style={{ fontFamily: "'Fredoka One',cursive", fontSize: "clamp(30px,6vw,52px)", color: "var(--cream)", lineHeight: 1.2, marginBottom: 16 }}>
               Start free. Upgrade anytime.
             </h2>
-            <p style={{ fontSize: 18, color: "rgba(255,248,238,0.7)", maxWidth: 600, margin: "0 auto" }}>
+            <p style={{ fontSize: 18, color: "rgba(255,248,238,0.7)", maxWidth: 600, margin: "0 auto 28px" }}>
               Try Freemium free forever. Upgrade to unlock voice, bilingual, and more kids.
             </p>
+
+            {/* Billing toggle */}
+            <div style={{ display: "inline-flex", alignItems: "center", background: "rgba(255,255,255,0.08)", borderRadius: 50, padding: 4, gap: 4 }}>
+              <button
+                onClick={() => setBillingPeriod("month")}
+                style={{ padding: "8px 22px", borderRadius: 50, border: "none", cursor: "pointer", fontFamily: "'Nunito',sans-serif", fontWeight: 800, fontSize: 14, transition: "all 0.2s", background: billingPeriod === "month" ? "white" : "transparent", color: billingPeriod === "month" ? "var(--coral)" : "rgba(255,248,238,0.6)" }}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingPeriod("year")}
+                style={{ padding: "8px 22px", borderRadius: 50, border: "none", cursor: "pointer", fontFamily: "'Nunito',sans-serif", fontWeight: 800, fontSize: 14, transition: "all 0.2s", background: billingPeriod === "year" ? "white" : "transparent", color: billingPeriod === "year" ? "var(--coral)" : "rgba(255,248,238,0.6)", display: "flex", alignItems: "center", gap: 6 }}
+              >
+                Yearly
+                <span style={{ background: "#4ade80", color: "#14532d", fontSize: 10, fontWeight: 900, padding: "2px 8px", borderRadius: 20 }}>SAVE 33%</span>
+              </button>
+            </div>
           </div>
+
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px,1fr))", gap: 24 }}>
             {[
-              { name: "Freemium", price: "Free forever", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", highlight: false, badge: null, tier: null },
-              { name: "GlowJo", price: "$4.99/mo", features: ["Everything in Free", "Up to 3 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning (7 days)", "🎙️ Mum's Voice — record your own", "⭐ Stars, streaks & weekly rewards", "Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", highlight: true, badge: "⭐ Full Access", tier: "starter" },
-            ].map((plan, i) => (
+              { name: "Freemium", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", highlight: false, badge: null, tier: null },
+              { name: "GlowJo", features: ["Everything in Free", "Up to 3 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning (7 days)", "🎙️ Mum's Voice — record your own", "⭐ Stars, streaks & weekly rewards", "Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", highlight: true, badge: "⭐ Full Access", tier: "starter" },
+            ].map((plan, i) => {
+              const isGlowJo = plan.tier === "starter";
+              const priceDisplay = !isGlowJo
+                ? "Free forever"
+                : billingPeriod === "month"
+                ? "$4.99/month"
+                : "$39.99/year";
+              const subText = isGlowJo && billingPeriod === "year"
+                ? "Just $3.33/month — 2 months free! 🎉"
+                : isGlowJo
+                ? "Billed monthly, cancel anytime"
+                : null;
+
+              return (
               <div key={i} style={{ position: "relative", background: plan.highlight ? "linear-gradient(135deg,var(--coral),var(--sunrise-mid))" : "rgba(255,255,255,0.06)", border: plan.highlight ? "2px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: "36px 28px 28px", textAlign: "center", transform: plan.highlight ? "scale(1.05)" : "scale(1)", transition: "transform 0.2s", boxShadow: plan.highlight ? "0 12px 40px rgba(0,0,0,0.3)" : "0 4px 16px rgba(0,0,0,0.15)" }}>
                 {plan.badge && (
                   <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: plan.highlight ? "white" : "var(--yellow)", color: plan.highlight ? "var(--coral)" : "#333", borderRadius: 30, padding: "4px 16px", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>
@@ -556,7 +588,13 @@ export default function Home() {
                   </div>
                 )}
                 <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 26, marginBottom: 6, color: plan.highlight ? "white" : "var(--cream)" }}>{plan.name}</div>
-                <div style={{ fontSize: 34, fontWeight: 900, marginBottom: 24, color: plan.highlight ? "white" : "var(--yellow)" }}>{plan.price}</div>
+                <div style={{ fontSize: 34, fontWeight: 900, color: plan.highlight ? "white" : "var(--yellow)" }}>{priceDisplay}</div>
+                {subText && (
+                  <div style={{ fontSize: 12, fontWeight: 700, color: billingPeriod === "year" ? "#a7f3d0" : "rgba(255,255,255,0.7)", marginTop: 4, marginBottom: 20 }}>
+                    {subText}
+                  </div>
+                )}
+                <div style={{ height: subText ? 0 : 24 }} />
                 <div style={{ textAlign: "left", marginBottom: 28 }}>
                   {plan.features.map((feat, j) => (
                     <div key={j} style={{ fontSize: 14, marginBottom: 10, color: plan.highlight ? "rgba(255,255,255,0.95)" : "rgba(255,248,238,0.75)", display: "flex", alignItems: "flex-start", gap: 8 }}>
@@ -573,7 +611,8 @@ export default function Home() {
                   {plan.tier !== null && loadingTier === plan.tier ? "Opening Stripe…" : plan.cta}
                 </button>
               </div>
-            ))}
+              );
+            })}
           </div>
           <div style={{ marginTop: 32, fontSize: 14, color: "var(--mid)" }}>
             No credit card required • Cancel anytime • 7-day free trial
