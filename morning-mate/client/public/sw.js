@@ -3,7 +3,7 @@
  * Enables offline functionality and app caching
  */
 
-const CACHE_NAME = "morning-mate-v3";
+const CACHE_NAME = "morning-mate-v4";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
@@ -64,7 +64,28 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // For static assets, use cache-first strategy
+  // For JS/CSS/image assets (hashed filenames) — network first, no HTML fallback
+  const url = new URL(request.url);
+  const isAsset = url.pathname.startsWith("/assets/") || url.pathname.startsWith("/music/") || url.pathname.startsWith("/icons/");
+
+  if (isAsset) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        });
+        // No catch/fallback — let asset failures surface naturally
+      })
+    );
+    return;
+  }
+
+  // For HTML navigation requests — cache first, fall back to index.html
   event.respondWith(
     caches.match(request).then((response) => {
       if (response) {
@@ -73,7 +94,6 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(request)
         .then((response) => {
-          // Cache successful responses
           if (response && response.status === 200) {
             const responseToCache = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
@@ -83,7 +103,7 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() => {
-          // Return offline page if available
+          // Only fall back to index.html for navigation requests, not assets
           return caches.match("/index.html");
         });
     })
