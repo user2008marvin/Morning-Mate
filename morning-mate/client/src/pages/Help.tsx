@@ -114,15 +114,32 @@ const SECTIONS = [
           </div>
         </Sub>
         <Sub title="🎙️ Mum's Voice (GlowJo subscribers)">
-          Record your own voice for each task. When the child reaches that task, they hear YOU instead of the
-          built-in voice.
-          <ol style={{ paddingLeft: 20, marginTop: 8, lineHeight: 1.8 }}>
+          <p style={{ marginBottom: 10 }}>
+            Mum's Voice <strong>replaces Sunny's voice</strong> during the morning routine. The app checks for your
+            recording first — if one exists for that task, it plays yours. If not, it falls back to Sunny.
+          </p>
+          <table style={tableStyle}>
+            <thead><tr><Th>What Mum records</Th><Th>What the child hears</Th></tr></thead>
+            <tbody>
+              <tr style={{ background: "#f9f9f9" }}><Td>Nothing (default)</Td><Td>Sunny's voice ☀️</Td></tr>
+              <tr><Td>A recording for "Wake Up!"</Td><Td>Mum's voice 🎙️</Td></tr>
+              <tr style={{ background: "#f9f9f9" }}><Td>Recordings for all 6 tasks</Td><Td>Mum's voice throughout 💛</Td></tr>
+            </tbody>
+          </table>
+          <Note>
+            The win screen celebration at the very end ("You've done it! Brilliant!") always uses Sunny's voice
+            as it's a general celebration. Everything during the actual routine can be your voice.
+          </Note>
+          <p style={{ marginTop: 12, marginBottom: 6 }}>How to record:</p>
+          <ol style={{ paddingLeft: 20, lineHeight: 1.8 }}>
+            <li>Go to the <strong>Parent Dashboard</strong></li>
             <li>Tap <strong>🎙️ Record</strong> next to any task</li>
-            <li>Speak your message</li>
+            <li>Speak your message (e.g. "Come on sweetheart, time to brush those teeth!")</li>
             <li>Tap <strong>Stop</strong> — saves automatically</li>
             <li>Tap <strong>▶ Play</strong> to hear it back</li>
             <li>Tap <strong>Delete</strong> to re-record</li>
           </ol>
+          <Note>To fully replace Sunny, record a clip for each of the 6 tasks.</Note>
         </Sub>
         <Sub title="🌙 Tonight's Prep Checklist">
           A nightly checklist for parents. Ticks reset each morning so it's fresh every night. Default tasks:
