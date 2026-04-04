@@ -89,8 +89,22 @@ async function startServer() {
 
   // ==================== SECURITY MIDDLEWARE ====================
 
-  // Security: Helmet for HTTP headers (CSP, X-Frame-Options, etc.)
-  app.use(helmet());
+  // Security: Helmet for HTTP headers
+  // CSP is configured explicitly to allow fonts, images, and the app bundle.
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'"],
+        mediaSrc: ["'self'"],
+        workerSrc: ["'self'"],
+      },
+    },
+  }));
 
   // ==================== STRIPE WEBHOOK (BEFORE CORS & BODY PARSERS) ====================
   // CRITICAL: Stripe webhook MUST be registered BEFORE express.json() and CORS
