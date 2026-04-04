@@ -250,69 +250,43 @@ async function speak(text: string, lang: Language = "en") {
   }
 }
 
-// ── CHEERFUL KIDS BACKGROUND MUSIC (Web Audio API — Ode to Joy, upbeat) ──
-let _musicCtx: AudioContext | null = null;
-let _musicStopped = false;
+// ── UPBEAT KIDS BACKGROUND MUSIC (real MP3 tracks, per task) ──
+// Tracks by Kevin MacLeod — CC BY 4.0 (incompetech.com)
+const TASK_MUSIC: Record<string, string> = {
+  "WAKE UP!":       "/music/carefree.mp3",
+  "BRUSH TEETH!":   "/music/monkeys.mp3",
+  "SHOWER TIME!":   "/music/monkeys.mp3",
+  "GET DRESSED!":   "/music/chipper.mp3",
+  "EAT BREAKFAST!": "/music/quirky.mp3",
+  "LET'S GO!":      "/music/carefree.mp3",
+};
+const DEFAULT_MUSIC = "/music/carefree.mp3";
 
-function startKidsMusic() {
-  if (_musicCtx) return;
-  _musicStopped = false;
+let _musicAudio: HTMLAudioElement | null = null;
+
+function startKidsMusic(taskLabel?: string) {
   try {
-    const ctx = new AudioContext();
-    _musicCtx = ctx;
-
-    const G3=196.00;
-    const C4=261.63, D4=293.66, E4=329.63, F4=349.23, G4=392.00, A4=440.00, B4=493.88;
-    const C5=523.25, D5=587.33, E5=659.25;
-
-    // Ode to Joy — bright, fast, cheerful. [freq, beat-multiplier]
-    const notes: [number, number][] = [
-      [E4,1],[E4,1],[F4,1],[G4,1],[G4,1],[F4,1],[E4,1],[D4,1],
-      [C4,1],[C4,1],[D4,1],[E4,1],[E4,1.5],[D4,0.5],[D4,2],
-      [E4,1],[E4,1],[F4,1],[G4,1],[G4,1],[F4,1],[E4,1],[D4,1],
-      [C4,1],[C4,1],[D4,1],[E4,1],[D4,1.5],[C4,0.5],[C4,2],
-      [D4,1],[D4,1],[E4,1],[C4,1],[D4,1],[E4,0.5],[F4,0.5],[E4,1],[C4,1],
-      [D4,1],[E4,0.5],[F4,0.5],[E4,1],[D4,1],[C4,1],[D4,1],[G3,2],
-      [E4,1],[E4,1],[F4,1],[G4,1],[G4,1],[F4,1],[E4,1],[D4,1],
-      [C4,1],[C4,1],[D4,1],[E4,1],[D4,1.5],[C4,0.5],[C4,2],
-      // Higher reprise — extra energy
-      [E5,1],[E5,1],[F4,1],[G4,1],[G4,1],[F4,1],[E5,1],[D4,1],
-      [C4,1],[C4,1],[D4,1],[E5,1],[D5,1.5],[C5,0.5],[C5,2],
-    ];
-
-    const beat = 0.21; // fast & bouncy
-    const master = ctx.createGain();
-    master.gain.value = 0.14;
-    master.connect(ctx.destination);
-
-    function scheduleLoop(startAt: number) {
-      if (_musicStopped) return;
-      let t = startAt;
-      notes.forEach(([freq, dur]) => {
-        const noteDur = dur * beat;
-        const osc = ctx.createOscillator();
-        const env = ctx.createGain();
-        osc.connect(env); env.connect(master);
-        osc.type = "triangle"; // brighter, warmer than sine
-        osc.frequency.value = freq;
-        env.gain.setValueAtTime(0, t);
-        env.gain.linearRampToValueAtTime(0.9, t + 0.018);
-        env.gain.setValueAtTime(0.7, t + noteDur * 0.55);
-        env.gain.linearRampToValueAtTime(0, t + noteDur * 0.85);
-        osc.start(t); osc.stop(t + noteDur);
-        t += noteDur;
-      });
-      const loopEnd = t;
-      const delay = (loopEnd - ctx.currentTime - 0.8) * 1000;
-      setTimeout(() => { if (!_musicStopped && _musicCtx) scheduleLoop(loopEnd); }, Math.max(0, delay));
+    const src = (taskLabel && TASK_MUSIC[taskLabel]) || DEFAULT_MUSIC;
+    if (_musicAudio) {
+      if (!_musicAudio.paused && _musicAudio.getAttribute("data-src") === src) return; // already playing right track
+      _musicAudio.pause();
+      _musicAudio = null;
     }
-    scheduleLoop(ctx.currentTime + 0.1);
+    const audio = new Audio(src);
+    audio.setAttribute("data-src", src);
+    audio.loop = true;
+    audio.volume = 0.35;
+    _musicAudio = audio;
+    audio.play().catch(() => {}); // autoplay may be blocked until user gesture
   } catch { /* audio not supported */ }
 }
 
 function stopKidsMusic() {
-  _musicStopped = true;
-  if (_musicCtx) { try { _musicCtx.close(); } catch {} _musicCtx = null; }
+  if (_musicAudio) {
+    _musicAudio.pause();
+    _musicAudio.currentTime = 0;
+    _musicAudio = null;
+  }
 }
 
 // ── COUNTDOWN ──
@@ -505,7 +479,7 @@ function MainScreen({
   function handleTap() {
     if (!started) {
       setStarted(true);
-      startRing(); return;
+      startRing(activeTasks[0]?.timerSeconds ?? 180, activeTasks[0]?.label); return;
     }
     if (!currentTask || flashSticker) return;
     const completion = state.language === "es" ? currentTask.voice_es : currentTask.voice_en;
@@ -524,14 +498,14 @@ function MainScreen({
         setTimeout(() => onWin(totalTasks), 800);
       } else {
         const nextTask = activeTasks[nextIdx];
-        setTaskIdx(nextIdx); resetRing(); startRing((nextTask as any).timerSeconds ?? 180);
+        setTaskIdx(nextIdx); resetRing(); startRing((nextTask as any).timerSeconds ?? 180, nextTask.label);
       }
     }, 1000);
   }
 
-  function startRing(seconds = 180) {
+  function startRing(seconds = 180, taskLabel?: string) {
     clearInterval(ringTimer.current); setRingProgress(0);
-    startKidsMusic();
+    startKidsMusic(taskLabel);
     let p = 0;
     ringTimer.current = setInterval(() => {
       p += 100 / seconds; setRingProgress(Math.min(p, 100));
@@ -548,7 +522,7 @@ function MainScreen({
       setTimeout(() => onWin(totalTasks), 800);
     } else {
       const nextTask = activeTasks[nextIdx];
-      setTaskIdx(nextIdx); resetRing(); startRing((nextTask as any).timerSeconds ?? 180);
+      setTaskIdx(nextIdx); resetRing(); startRing((nextTask as any).timerSeconds ?? 180, nextTask.label);
     }
   }
 

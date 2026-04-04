@@ -55,7 +55,7 @@ const PUBLIC_ASSET_PATHS = [
   "/logo192.png",
   "/logo512.png",
 ];
-const PUBLIC_ASSET_PREFIXES = ["/assets/", "/icons/", "/images/", "/static/"];
+const PUBLIC_ASSET_PREFIXES = ["/assets/", "/icons/", "/images/", "/static/", "/music/"];
 
 async function startServer() {
   const app = express();
