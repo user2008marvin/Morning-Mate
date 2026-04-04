@@ -11,6 +11,7 @@ import AppPage from "./pages/AppPage";
 import Onboarding from "./pages/Onboarding";
 import ParentDashboard from "./pages/ParentDashboard";
 import Success from "./pages/Success";
+import Help from "./pages/Help";
 function Router() {
   return (
     <Switch>
@@ -19,6 +20,7 @@ function Router() {
       <Route path={"/app"} component={AppPage} />
       <Route path={"/parent"} component={ParentDashboard} />
       <Route path={"/success"} component={Success} />
+      <Route path={"/help"} component={Help} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

@@ -344,12 +344,17 @@ export default function Home() {
             <span style={{ fontSize: 16 }}>👍</span>
           </div>
         </div>
-        <button onClick={() => {
-          if (meQuery.data) { navigate("/app"); }
-          else { setPendingNav("/app"); setAuthModalOpen(true); }
-        }} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 15, padding: "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", textDecoration: "none", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
-          Get Started
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <button onClick={() => navigate("/help")} style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, padding: "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)", textDecoration: "none" }}>
+            Help
+          </button>
+          <button onClick={() => {
+            if (meQuery.data) { navigate("/app"); }
+            else { setPendingNav("/app"); setAuthModalOpen(true); }
+          }} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 15, padding: "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", textDecoration: "none", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
+            Get Started
+          </button>
+        </div>
       </nav>
 
       {/* HERO */}
