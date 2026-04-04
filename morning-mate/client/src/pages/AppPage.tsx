@@ -250,7 +250,7 @@ async function speak(text: string, lang: Language = "en") {
   }
 }
 
-// ── HAPPY KIDS BACKGROUND MUSIC (Web Audio API — Twinkle Twinkle) ──
+// ── CHEERFUL KIDS BACKGROUND MUSIC (Web Audio API — Ode to Joy, upbeat) ──
 let _musicCtx: AudioContext | null = null;
 let _musicStopped = false;
 
@@ -260,39 +260,49 @@ function startKidsMusic() {
   try {
     const ctx = new AudioContext();
     _musicCtx = ctx;
-    // C major Twinkle Twinkle: C C G G A A G | F F E E D D C (×2)
-    const C4=261.63, D4=293.66, E4=329.63, F4=349.23, G4=392.00, A4=440.00, C5=523.25;
-    const melody = [
-      C4,C4,G4,G4,A4,A4,G4,
-      F4,F4,E4,E4,D4,D4,C4,
-      G4,G4,F4,F4,E4,E4,D4,
-      G4,G4,F4,F4,E4,E4,D4,
-      C4,C4,G4,G4,A4,A4,G4,
-      F4,F4,E4,E4,D4,D4,C4,
-      // Harmony octave up snippet
-      C5,C5,G4,A4,C5,G4,F4,E4,D4,C4,
+
+    const G3=196.00;
+    const C4=261.63, D4=293.66, E4=329.63, F4=349.23, G4=392.00, A4=440.00, B4=493.88;
+    const C5=523.25, D5=587.33, E5=659.25;
+
+    // Ode to Joy — bright, fast, cheerful. [freq, beat-multiplier]
+    const notes: [number, number][] = [
+      [E4,1],[E4,1],[F4,1],[G4,1],[G4,1],[F4,1],[E4,1],[D4,1],
+      [C4,1],[C4,1],[D4,1],[E4,1],[E4,1.5],[D4,0.5],[D4,2],
+      [E4,1],[E4,1],[F4,1],[G4,1],[G4,1],[F4,1],[E4,1],[D4,1],
+      [C4,1],[C4,1],[D4,1],[E4,1],[D4,1.5],[C4,0.5],[C4,2],
+      [D4,1],[D4,1],[E4,1],[C4,1],[D4,1],[E4,0.5],[F4,0.5],[E4,1],[C4,1],
+      [D4,1],[E4,0.5],[F4,0.5],[E4,1],[D4,1],[C4,1],[D4,1],[G3,2],
+      [E4,1],[E4,1],[F4,1],[G4,1],[G4,1],[F4,1],[E4,1],[D4,1],
+      [C4,1],[C4,1],[D4,1],[E4,1],[D4,1.5],[C4,0.5],[C4,2],
+      // Higher reprise — extra energy
+      [E5,1],[E5,1],[F4,1],[G4,1],[G4,1],[F4,1],[E5,1],[D4,1],
+      [C4,1],[C4,1],[D4,1],[E5,1],[D5,1.5],[C5,0.5],[C5,2],
     ];
-    const beat = 0.38;
+
+    const beat = 0.21; // fast & bouncy
     const master = ctx.createGain();
-    master.gain.value = 0.18;
+    master.gain.value = 0.14;
     master.connect(ctx.destination);
 
     function scheduleLoop(startAt: number) {
       if (_musicStopped) return;
-      melody.forEach((freq, i) => {
+      let t = startAt;
+      notes.forEach(([freq, dur]) => {
+        const noteDur = dur * beat;
         const osc = ctx.createOscillator();
         const env = ctx.createGain();
         osc.connect(env); env.connect(master);
-        osc.type = "sine";
+        osc.type = "triangle"; // brighter, warmer than sine
         osc.frequency.value = freq;
-        const t = startAt + i * beat;
         env.gain.setValueAtTime(0, t);
-        env.gain.linearRampToValueAtTime(0.8, t + 0.03);
-        env.gain.setValueAtTime(0.6, t + beat * 0.65);
-        env.gain.linearRampToValueAtTime(0, t + beat * 0.92);
-        osc.start(t); osc.stop(t + beat);
+        env.gain.linearRampToValueAtTime(0.9, t + 0.018);
+        env.gain.setValueAtTime(0.7, t + noteDur * 0.55);
+        env.gain.linearRampToValueAtTime(0, t + noteDur * 0.85);
+        osc.start(t); osc.stop(t + noteDur);
+        t += noteDur;
       });
-      const loopEnd = startAt + melody.length * beat;
+      const loopEnd = t;
       const delay = (loopEnd - ctx.currentTime - 0.8) * 1000;
       setTimeout(() => { if (!_musicStopped && _musicCtx) scheduleLoop(loopEnd); }, Math.max(0, delay));
     }
