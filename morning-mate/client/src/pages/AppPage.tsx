@@ -75,7 +75,7 @@ const REWARDS = [
 
 const WIN_STICKERS = ["⭐", "🌟", "💫", "✨", "🎯", "🏆", "🦁", "🦊", "🐯", "🦅", "🌈", "🎨"];
 
-type Screen = "onboarding" | "main" | "win";
+type Screen = "onboarding" | "main" | "win" | "done-today";
 type Language = "en" | "es";
 
 interface AppState {
@@ -850,7 +850,12 @@ export default function AppPage() {
   const [appState, setAppState] = useState<AppState>(loadState);
   const [screen, setScreen] = useState<Screen>(() => {
     const saved = localStorage.getItem("GJ_State_v1");
-    return saved ? "main" : "onboarding";
+    if (!saved) return "onboarding";
+    try {
+      const state = JSON.parse(saved);
+      if (state.lastDate === new Date().toDateString()) return "done-today";
+    } catch {}
+    return "main";
   });
   const [childId, setChildId] = useState<number | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -890,7 +895,11 @@ export default function AppPage() {
       streak: child.streak ?? prev.streak,
       completedDays: child.completedDays ? JSON.parse(child.completedDays) : prev.completedDays,
     }));
-    if (child.name && screen === "onboarding") setScreen("main");
+    if (child.name && screen === "onboarding") {
+      const todayStr = new Date().toDateString();
+      const lastDate = child.lastCompletedDate ? new Date(child.lastCompletedDate).toDateString() : "";
+      setScreen(lastDate === todayStr ? "done-today" : "main");
+    }
   }, [children]);
 
   function updateState(updates: Partial<AppState>) {
@@ -943,9 +952,9 @@ export default function AppPage() {
   }
 
   function handleNewMorning() {
-    // If not logged in and trial exhausted, show paywall
-    if (!user && getFreeMornings() >= FREE_MORNING_LIMIT) {
-      setTrialWall(true);
+    const todayStr = new Date().toDateString();
+    if (appState.lastDate === todayStr) {
+      setScreen("done-today");
     } else {
       setScreen("main");
     }
@@ -966,6 +975,37 @@ export default function AppPage() {
       )}
       {screen === "win" && (
         <WinScreen state={appState} onParent={goParent} onNext={handleNewMorning} />
+      )}
+      {screen === "done-today" && (
+        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 32, background: "linear-gradient(180deg,#fff8ee 0%,#ffecd2 100%)" }}>
+          <div style={{ fontSize: 72, marginBottom: 8 }}>🌅</div>
+          <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 32, color: "#ff5f1f", marginBottom: 12 }}>
+            All done for today!
+          </div>
+          <div style={{ fontSize: 18, color: "#7a5c3a", fontWeight: 700, marginBottom: 8 }}>
+            {appState.childName} crushed this morning! ⭐
+          </div>
+          <div style={{ fontSize: 15, color: "#a07850", lineHeight: 1.6, marginBottom: 32, maxWidth: 280 }}>
+            The next routine unlocks tomorrow morning. Come back then to keep the streak going!
+          </div>
+          <div style={{ display: "flex", gap: 24, marginBottom: 36 }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 36, color: "#ff9a3c" }}>{appState.stars}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#a07850", textTransform: "uppercase", letterSpacing: 1 }}>Stars</div>
+            </div>
+            <div style={{ width: 1, background: "#f0d5b0" }} />
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 36, color: "#ff9a3c" }}>{appState.streak}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#a07850", textTransform: "uppercase", letterSpacing: 1 }}>Day Streak</div>
+            </div>
+          </div>
+          <button
+            onClick={goParent}
+            style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "14px 36px", borderRadius: 50, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white", boxShadow: "0 6px 20px rgba(255,95,31,0.35)" }}
+          >
+            Parent Dashboard →
+          </button>
+        </div>
       )}
 
       {/* Trial paywall overlay */}
