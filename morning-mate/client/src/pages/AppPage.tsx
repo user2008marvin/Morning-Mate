@@ -251,16 +251,17 @@ async function speak(text: string, lang: Language = "en") {
 }
 
 // ── UPBEAT KIDS BACKGROUND MUSIC (real MP3 tracks, per task) ──
-// Tracks by Kevin MacLeod — CC BY 4.0 (incompetech.com)
+// "Kids" & "Happy Upbeat" & "Winner" by AShamaluevMusic — free for non-commercial use
+// "Carefree", "Monkeys Spinning Monkeys", "Chipper Doodle v2", "Quirky Dog" by Kevin MacLeod — CC BY 4.0
 const TASK_MUSIC: Record<string, string> = {
-  "WAKE UP!":       "/music/carefree.mp3",
-  "BRUSH TEETH!":   "/music/monkeys.mp3",
-  "SHOWER TIME!":   "/music/monkeys.mp3",
-  "GET DRESSED!":   "/music/chipper.mp3",
-  "EAT BREAKFAST!": "/music/quirky.mp3",
-  "LET'S GO!":      "/music/carefree.mp3",
+  "WAKE UP!":       "/music/kids.mp3",         // 170 BPM — cheerful kids pop
+  "BRUSH TEETH!":   "/music/happy-upbeat.mp3", // 188 BPM — super fast, keeps them brushing!
+  "SHOWER TIME!":   "/music/happy-upbeat.mp3", // 188 BPM — energetic
+  "GET DRESSED!":   "/music/kids.mp3",         // 170 BPM — upbeat and fun
+  "EAT BREAKFAST!": "/music/carefree.mp3",     // bouncy and playful during breakfast
+  "LET'S GO!":      "/music/winner.mp3",       // 134 BPM — triumphant finish!
 };
-const DEFAULT_MUSIC = "/music/carefree.mp3";
+const DEFAULT_MUSIC = "/music/kids.mp3";
 
 let _musicAudio: HTMLAudioElement | null = null;
 
