@@ -108,6 +108,21 @@ function ChildCard({
   );
 }
 
+const PRESET_REWARDS = [
+  "🍦 Ice Cream Friday",
+  "🍕 Pizza Night",
+  "🎬 Movie Night",
+  "🎮 Extra Game Time",
+  "🛝 Park Trip",
+  "⭐ Choose Dinner",
+  "🍫 Chocolate Treat",
+  "🎨 Arts & Crafts",
+  "🧸 New Toy / Book",
+  "🏊 Swimming Trip",
+  "🎉 Friend Sleepover",
+  "🍔 Burger Night",
+];
+
 function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSave: (data: Partial<Child> & { id?: number }) => void; onClose: () => void; }) {
   const TASK_LABELS = ["☀️ Wake Up", "🛁 Shower", "🥛 Breakfast", "🪥 Brush Teeth", "🎒 Pack Bag", "🚀 Let's Go"];
   const defaultTasks = child?.enabledTasks ? JSON.parse(child.enabledTasks) : [true, true, true, true, true, true];
@@ -115,12 +130,16 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
   const [age, setAge] = useState(child?.age?.toString() ?? "");
   const [schoolTime, setSchoolTime] = useState(child?.schoolTime ?? "");
   const [reward, setReward] = useState(child?.reward ?? "");
+  const [customReward, setCustomReward] = useState(
+    child?.reward && !PRESET_REWARDS.includes(child.reward) ? child.reward : ""
+  );
   const [tasks, setTasks] = useState<boolean[]>(defaultTasks);
 
   const toggleTask = (i: number) => setTasks(prev => { const n = [...prev]; n[i] = !n[i]; return n; });
+  const finalReward = customReward.trim() || reward;
   const handleSave = () => {
     if (!name.trim()) { toast.error("Name is required"); return; }
-    onSave({ id: child?.id, name: name.trim(), age: age ? parseInt(age) : undefined, schoolTime: schoolTime || undefined, reward: reward || undefined, enabledTasks: JSON.stringify(tasks) });
+    onSave({ id: child?.id, name: name.trim(), age: age ? parseInt(age) : undefined, schoolTime: schoolTime || undefined, reward: finalReward || undefined, enabledTasks: JSON.stringify(tasks) });
   };
 
   return (
@@ -143,10 +162,34 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
             <input type="time" value={schoolTime} onChange={e => setSchoolTime(e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "2px solid #eee", fontSize: "1rem", boxSizing: "border-box" }} />
           </label>
         </div>
-        <label style={{ display: "block", marginBottom: "16px" }}>
-          <div style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666", marginBottom: "4px" }}>🎁 Reward (optional)</div>
-          <input value={reward} onChange={e => setReward(e.target.value)} placeholder="e.g. 30 min screen time" style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "2px solid #eee", fontSize: "1rem", boxSizing: "border-box" }} />
-        </label>
+        <div style={{ marginBottom: "16px" }}>
+          <div style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666", marginBottom: "8px" }}>🎁 Weekly Reward</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "10px" }}>
+            {PRESET_REWARDS.map(r => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => { setReward(r); setCustomReward(""); }}
+                style={{
+                  padding: "9px 8px", borderRadius: "12px", cursor: "pointer", textAlign: "left", fontSize: "0.82rem",
+                  border: `2px solid ${reward === r && !customReward ? "#4facfe" : "#eee"}`,
+                  background: reward === r && !customReward ? "#e8f5ff" : "white",
+                  color: reward === r && !customReward ? "#1a6fb8" : "#333",
+                  fontWeight: reward === r && !customReward ? 700 : 400,
+                  transition: "border 0.1s, background 0.1s",
+                }}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+          <input
+            value={customReward}
+            onChange={e => { setCustomReward(e.target.value); setReward(""); }}
+            placeholder="Or type your own… e.g. Trampoline Park"
+            style={{ width: "100%", padding: "10px 12px", borderRadius: "12px", border: `2px solid ${customReward ? "#4facfe" : "#eee"}`, fontSize: "0.9rem", boxSizing: "border-box", outline: "none" }}
+          />
+        </div>
         <div style={{ marginBottom: "20px" }}>
           <div style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666", marginBottom: "10px" }}>Tasks to Include</div>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
