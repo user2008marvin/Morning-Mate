@@ -76,7 +76,7 @@ export const appRouter = router({
         await db.setResetToken(user.id, token, expiry);
         const baseUrl = `${ctx.req.protocol}://${ctx.req.get("host")}`;
         const resetLink = `${baseUrl}/reset-password?token=${token}`;
-        console.log(`[Auth] Password reset link for ${input.email}: ${resetLink}`);
+        console.log(`[Auth] Password reset requested for ${input.email}`);
         try {
           await sendEmail({
             to: input.email,
