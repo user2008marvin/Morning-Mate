@@ -250,56 +250,21 @@ async function speak(text: string, lang: Language = "en") {
   }
 }
 
-// ── KIDS BACKGROUND MUSIC — DAY-ROTATION POOL ──
-// Each task has 5 songs — rotates by day-of-week so every day feels fresh.
+// ── KIDS BACKGROUND MUSIC — 7-DAY ROTATION POOL ──
+// 7 tracks per task — one unique song for every day of the week (Sun=0 … Sat=6)
 // Sources: Kevin MacLeod (incompetech.com, CC BY) · Fesliyan Studios · AShamaluevMusic · MaxKoMusic
 const TASK_MUSIC_POOL: Record<string, string[]> = {
-  "WAKE UP!": [
-    "/music/jump-time.mp3",      // Fesliyan — energetic jump-around
-    "/music/cheery-monday.mp3",  // Kevin MacLeod — cheerful & bright
-    "/music/friday-morning.mp3", // Kevin MacLeod — morning feel
-    "/music/brightly-fancy.mp3", // Kevin MacLeod — bouncy & lively
-    "/music/carefree.mp3",       // Kevin MacLeod — light & happy
-  ],
-  "BRUSH TEETH!": [
-    "/music/dancing-silly.mp3",  // Fesliyan — silly dance
-    "/music/curious-kiddo.mp3",  // Fesliyan — playful & curious
-    "/music/comedy.mp3",         // AShamaluevMusic — giggly cartoon
-    "/music/happy-bee.mp3",      // Kevin MacLeod — buzzy & fun
-    "/music/fun-in-a-bottle.mp3",// Kevin MacLeod — pure fun
-  ],
-  "SHOWER TIME!": [
-    "/music/duck-duck-goose.mp3",// Fesliyan — bouncy kids game
-    "/music/cute.mp3",           // AShamaluevMusic — bright & skippy
-    "/music/cookie.mp3",         // AShamaluevMusic — playful
-    "/music/happy-alley.mp3",    // Kevin MacLeod — happy & rolling
-    "/music/brain-dance.mp3",    // Kevin MacLeod — bouncy groove
-  ],
-  "GET DRESSED!": [
-    "/music/clap-and-sing.mp3",  // Fesliyan — clap-along
-    "/music/sweet.mp3",          // AShamaluevMusic — warm bounce
-    "/music/happy-story.mp3",    // AShamaluevMusic — storytelling
-    "/music/bright-wish.mp3",    // Kevin MacLeod — bright & airy
-    "/music/play-date.mp3",      // Fesliyan — morning playful
-  ],
-  "EAT BREAKFAST!": [
-    "/music/sweet.mp3",          // AShamaluevMusic — warm & cosy
-    "/music/vacation.mp3",       // AShamaluevMusic — sunny & carefree
-    "/music/funin-and-sunin.mp3",// Kevin MacLeod — fun & sunny
-    "/music/happy-boy-theme.mp3",// Kevin MacLeod — cheerful kids theme
-    "/music/clap-and-sing.mp3",  // Fesliyan — warm clap-along
-  ],
-  "LET'S GO!": [
-    "/music/chicken-chase.mp3",  // Fesliyan — fast banjo send-off
-    "/music/winner.mp3",         // AShamaluevMusic — triumphant
-    "/music/carefree.mp3",       // Kevin MacLeod — light & breezy
-    "/music/fun-in-a-bottle.mp3",// Kevin MacLeod — high energy
-    "/music/jump-time.mp3",      // Fesliyan — jump & go!
-  ],
+  //                           Sun                          Mon                         Tue                           Wed                           Thu                          Fri                           Sat
+  "WAKE UP!":       ["/music/jump-time.mp3",      "/music/cheery-monday.mp3",  "/music/brightly-fancy.mp3",  "/music/friday-morning.mp3",  "/music/carefree.mp3",       "/music/fun-in-a-bottle.mp3", "/music/happy-bee.mp3"       ],
+  "BRUSH TEETH!":   ["/music/dancing-silly.mp3",  "/music/curious-kiddo.mp3",  "/music/comedy.mp3",          "/music/duck-duck-goose.mp3", "/music/happy-alley.mp3",    "/music/brain-dance.mp3",     "/music/funin-and-sunin.mp3" ],
+  "SHOWER TIME!":   ["/music/cute.mp3",           "/music/cookie.mp3",         "/music/happy-story.mp3",     "/music/bright-wish.mp3",     "/music/brain-dance.mp3",    "/music/carefree.mp3",        "/music/cheery-monday.mp3"   ],
+  "GET DRESSED!":   ["/music/clap-and-sing.mp3",  "/music/sweet.mp3",          "/music/happy-story.mp3",     "/music/bright-wish.mp3",     "/music/play-date.mp3",      "/music/vacation.mp3",        "/music/brightly-fancy.mp3"  ],
+  "EAT BREAKFAST!": ["/music/good-morning.mp3",   "/music/vacation.mp3",       "/music/funin-and-sunin.mp3", "/music/happy-boy-theme.mp3", "/music/sweet.mp3",          "/music/whiskey-on-the-mississippi.mp3", "/music/winner.mp3"],
+  "LET'S GO!":      ["/music/chicken-chase.mp3",  "/music/winner.mp3",         "/music/carefree.mp3",        "/music/jump-time.mp3",       "/music/comedy.mp3",         "/music/happy-bee.mp3",       "/music/friday-morning.mp3"  ],
 };
 const DEFAULT_MUSIC_POOL = [
-  "/music/jump-time.mp3", "/music/cheery-monday.mp3", "/music/carefree.mp3",
-  "/music/play-date.mp3", "/music/brightly-fancy.mp3",
+  "/music/jump-time.mp3", "/music/cheery-monday.mp3", "/music/brightly-fancy.mp3",
+  "/music/friday-morning.mp3", "/music/carefree.mp3", "/music/fun-in-a-bottle.mp3", "/music/happy-bee.mp3",
 ];
 
 // Pick today's track from a pool (rotates by day-of-week)
