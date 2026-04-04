@@ -71,14 +71,22 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
+  // Use process.cwd() in production — reliable in Docker where WORKDIR=/app.
+  // Fall back to import.meta.dirname in dev.
   const distPath =
     process.env.NODE_ENV === "development"
       ? path.resolve(import.meta.dirname, "../..", "dist", "public")
-      : path.resolve(import.meta.dirname, "public");
+      : path.join(process.cwd(), "dist", "public");
+
+  console.log(`[Static] Serving from: ${distPath}`);
+
   if (!fs.existsSync(distPath)) {
     console.error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`
+      `[Static] ERROR: Build directory not found: ${distPath}. Run pnpm build first.`
     );
+  } else {
+    const files = fs.readdirSync(distPath);
+    console.log(`[Static] Found ${files.length} files/dirs in build directory`);
   }
 
   app.use(express.static(distPath));
