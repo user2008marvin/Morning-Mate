@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "nk5JfEGjok3o4CWJqDuGe"
+uri = "file://morning-mate/exports/GlowJo_User_Manual.md"
+type = "text"
+title = "GlowJo User Manual v1.0"
