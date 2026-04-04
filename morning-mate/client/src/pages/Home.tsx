@@ -354,7 +354,7 @@ export default function Home() {
 
       {/* HERO */}
       <section style={{ minHeight: "100vh", background: "linear-gradient(180deg, var(--sunrise-top) 0%, var(--sunrise-mid) 60%, var(--sunrise-bot) 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "100px 24px 60px", position: "relative", overflow: "hidden", marginTop: 60 }}>
-        <div style={{ position: "absolute", top: -60, left: "50%", transform: "translateX(-50%)", width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, #ffe566 0%, #ffb830 50%, rgba(255,154,60,0) 70%)", animation: "sun-rise 3s ease-out forwards", opacity: 0 }} />
+        <div style={{ position: "absolute", top: 40, left: "50%", transform: "translateX(-50%)", width: 260, height: 260, borderRadius: "50%", background: "radial-gradient(circle, #ffe566 0%, #ffb830 50%, rgba(255,154,60,0) 70%)", animation: "sun-rise 3s ease-out forwards", opacity: 0 }} />
         <div style={{ position: "absolute", fontSize: 56, opacity: 0.18, animation: "drift linear infinite", top: "12%", left: "-60px", animationDuration: "18s", animationDelay: "0s" }}>☁️</div>
         <div style={{ position: "absolute", fontSize: 48, opacity: 0.18, animation: "drift linear infinite", top: "22%", left: "-80px", animationDuration: "24s", animationDelay: "5s" }}>☁️</div>
         <div style={{ position: "absolute", fontSize: 36, opacity: 0.18, animation: "drift linear infinite", top: "8%", left: "-40px", animationDuration: "20s", animationDelay: "10s" }}>☁️</div>
