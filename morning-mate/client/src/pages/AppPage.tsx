@@ -250,18 +250,17 @@ async function speak(text: string, lang: Language = "en") {
   }
 }
 
-// ── UPBEAT KIDS BACKGROUND MUSIC (real MP3 tracks, per task) ──
-// "Kids" & "Happy Upbeat" & "Winner" by AShamaluevMusic — free for non-commercial use
-// "Carefree", "Monkeys Spinning Monkeys", "Chipper Doodle v2", "Quirky Dog" by Kevin MacLeod — CC BY 4.0
+// ── PUMPING KIDS BACKGROUND MUSIC (real MP3 tracks, per task) ──
+// All tracks by AShamaluevMusic — free for non-commercial use (ashamaluevmusic.com)
 const TASK_MUSIC: Record<string, string> = {
-  "WAKE UP!":       "/music/kids.mp3",         // 170 BPM — cheerful kids pop
-  "BRUSH TEETH!":   "/music/happy-upbeat.mp3", // 188 BPM — super fast, keeps them brushing!
-  "SHOWER TIME!":   "/music/happy-upbeat.mp3", // 188 BPM — energetic
-  "GET DRESSED!":   "/music/kids.mp3",         // 170 BPM — upbeat and fun
-  "EAT BREAKFAST!": "/music/carefree.mp3",     // bouncy and playful during breakfast
+  "WAKE UP!":       "/music/fun-day.mp3",      // 175 BPM — bouncy Children's track, jumpy & alive!
+  "BRUSH TEETH!":   "/music/happy-upbeat.mp3", // 188 BPM — FASTEST, pumping Pop Rock!
+  "SHOWER TIME!":   "/music/adventure.mp3",    // 180 BPM — exciting & energetic!
+  "GET DRESSED!":   "/music/energetic.mp3",    // 180 BPM — driving pumping rock!
+  "EAT BREAKFAST!": "/music/fun-day.mp3",      // 175 BPM — cheerful kids energy
   "LET'S GO!":      "/music/winner.mp3",       // 134 BPM — triumphant finish!
 };
-const DEFAULT_MUSIC = "/music/kids.mp3";
+const DEFAULT_MUSIC = "/music/fun-day.mp3";
 
 let _musicAudio: HTMLAudioElement | null = null;
 
