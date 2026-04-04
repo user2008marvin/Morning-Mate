@@ -6,3 +6,9 @@ id = "nk5JfEGjok3o4CWJqDuGe"
 uri = "file://morning-mate/exports/GlowJo_User_Manual.md"
 type = "text"
 title = "GlowJo User Manual v1.0"
+
+[[outputs]]
+id = "DLUt3UWQe9eXqQ7RM0xFn"
+uri = "file://morning-mate/GLOWJO_CHANGES_AND_GOLIVE.md"
+type = "text"
+title = "GlowJo — Changes & Go-Live Checklist"
