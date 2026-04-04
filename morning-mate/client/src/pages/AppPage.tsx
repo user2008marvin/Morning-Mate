@@ -256,14 +256,23 @@ async function speak(text: string, lang: Language = "en") {
 const TASK_MUSIC: Record<string, string> = {
   "WAKE UP!":       "/music/good-morning.mp3",    // "Good Morning" — MaxKoMusic, bright upbeat morning track
   "BRUSH TEETH!":   "/music/dancing-silly.mp3",   // silly dance fun — kids love it
-  "SHOWER TIME!":   "/music/chicken-chase.mp3",   // fast banjo chase — super giggly!
-  "GET DRESSED!":   "/music/duck-duck-goose.mp3", // bouncy kids game music
+  "SHOWER TIME!":   "/music/duck-duck-goose.mp3", // bouncy kids game music
+  "GET DRESSED!":   "/music/clap-and-sing.mp3",   // warm & happy, clap along
   "EAT BREAKFAST!": "/music/clap-and-sing.mp3",   // warm & happy, clap along
-  "LET'S GO!":      "/music/winner.mp3",           // triumphant finish!
+  "LET'S GO!":      "/music/chicken-chase.mp3",   // fast banjo chase — exciting send-off!
 };
 const DEFAULT_MUSIC = "/music/duck-duck-goose.mp3";
 
 let _musicAudio: HTMLAudioElement | null = null;
+
+// ── TASK COMPLETE SOUND EFFECT ──
+function playTaskCompleteSound() {
+  try {
+    const sfx = new Audio("/music/task-complete-bell.mp3");
+    sfx.volume = 0.7;
+    sfx.play().catch(() => {});
+  } catch { /* audio not supported */ }
+}
 
 function startKidsMusic(taskLabel?: string) {
   try {
@@ -485,6 +494,7 @@ function MainScreen({
     if (!currentTask || flashSticker) return;
     const completion = state.language === "es" ? currentTask.voice_es : currentTask.voice_en;
     stopKidsMusic();
+    playTaskCompleteSound();
     if (completion) speak(completion, state.language);
     if (navigator.vibrate) navigator.vibrate([80, 30, 80]);
     if (confettiRef.current) spawnConfetti(confettiRef.current);
