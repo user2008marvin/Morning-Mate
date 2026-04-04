@@ -342,10 +342,14 @@ export default function Home() {
         @keyframes drift { from{transform:translateX(-100px)} to{transform:translateX(110vw)} }
         .reveal { opacity:0; }
         .reveal.visible { animation:fadein 0.6s ease-out forwards; }
+        @media (max-width: 520px) {
+          .nav-help { display: none !important; }
+          .nav-bar { padding: 12px 14px !important; }
+        }
       `}</style>
 
       {/* NAV */}
-      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,248,238,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,154,60,0.2)" }}>
+      <nav className="nav-bar" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,248,238,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,154,60,0.2)" }}>
         <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, color: "var(--coral)", display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 13, color: "var(--mid)", fontWeight: 900, letterSpacing: 0.5 }}>Get</span>
           <span>Glow<span style={{ color: "var(--dark)" }}>Jo</span></span>
@@ -355,7 +359,7 @@ export default function Home() {
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button onClick={() => navigate("/help")} style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, padding: "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)" }}>
+          <button className="nav-help" onClick={() => navigate("/help")} style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, padding: "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)" }}>
             Help
           </button>
           {meQuery.data ? (
