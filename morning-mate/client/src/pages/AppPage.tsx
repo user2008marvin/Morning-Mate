@@ -694,6 +694,28 @@ function MainScreen({
         <div style={{ fontSize: 12, fontWeight: 700, color: "#ffd700" }}>{weekDone}/5</div>
       </div>
 
+      {/* Freemium upsell nudge — shown below weekly stars */}
+      {tier === "freemium" && (
+        <div style={{
+          width: "100%", maxWidth: 340, marginTop: 8,
+          background: "rgba(255,215,0,0.08)", border: "1px solid rgba(255,215,0,0.2)",
+          borderRadius: 12, padding: "8px 14px",
+          display: "flex", alignItems: "center", gap: 10,
+        }}>
+          <span style={{ fontSize: 20, flexShrink: 0 }}>🔓</span>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.4 }}>
+            Complete a full week of mornings and earn a weekly reward —{" "}
+            <span
+              onClick={onParent}
+              style={{ color: "#ffd700", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}
+            >
+              upgrade to GlowJo
+            </span>{" "}
+            to track stars, unlock music & save progress.
+          </div>
+        </div>
+      )}
+
       {/* Bottom stats */}
       <div style={{ width: "100%", maxWidth: 340, display: "flex", justifyContent: "space-between", marginTop: 12, padding: "10px 16px", background: "rgba(255,255,255,0.05)", borderRadius: 14 }}>
         <div style={{ textAlign: "center" }}>
