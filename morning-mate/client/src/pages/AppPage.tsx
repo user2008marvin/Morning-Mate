@@ -252,9 +252,9 @@ async function speak(text: string, lang: Language = "en") {
 
 // ── KIDS BACKGROUND MUSIC (real MP3 tracks, per task) ──
 // Fesliyan Studios tracks — free for use (fesliyanstudios.com)
-// AShamaluevMusic tracks — free for non-commercial use (ashamaluevmusic.com)
+// MaxKoMusic tracks — CC BY-SA 3.0 (maxkomusic.com)
 const TASK_MUSIC: Record<string, string> = {
-  "WAKE UP!":       "/music/clap-and-sing.mp3",   // upbeat & playful, clap-along energy
+  "WAKE UP!":       "/music/good-morning.mp3",    // "Good Morning" — MaxKoMusic, bright upbeat morning track
   "BRUSH TEETH!":   "/music/dancing-silly.mp3",   // silly dance fun — kids love it
   "SHOWER TIME!":   "/music/chicken-chase.mp3",   // fast banjo chase — super giggly!
   "GET DRESSED!":   "/music/duck-duck-goose.mp3", // bouncy kids game music
