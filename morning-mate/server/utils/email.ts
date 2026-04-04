@@ -48,6 +48,21 @@ export async function sendEmail({ to, subject, template, data }: EmailOptions) {
         <a href="${data.reactivateLink}" style="display: inline-block; padding: 12px 24px; background: #ff5f1f; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px;">Reactivate subscription →</a>
       </div>
     `,
+    "password-reset": (data) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff8ee; padding: 20px; border-radius: 10px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="font-size: 48px;">🔑</div>
+          <h2 style="color: #ff5f1f; margin: 8px 0;">Reset Your Password</h2>
+        </div>
+        <p>Hi ${data.userName}!</p>
+        <p>We received a request to reset your GlowJo password. Click the button below — this link expires in 1 hour.</p>
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="${data.resetLink}" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #ff9a3c, #ff5f1f); color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 16px;">Reset My Password →</a>
+        </div>
+        <p style="font-size: 13px; color: #999;">If you didn't request this, you can safely ignore this email — your password won't change.</p>
+        <p style="margin-top: 20px; font-size: 12px; color: #bbb;">Or copy this link: ${data.resetLink}</p>
+      </div>
+    `,
     "payment-failed": (data) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>⚠️ Payment Issue, ${data.userName}</h2>

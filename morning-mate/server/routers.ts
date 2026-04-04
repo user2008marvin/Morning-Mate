@@ -10,9 +10,11 @@ import { analyticsRouter } from "./routers/analytics";
 import { emailRouter } from "./routers/email";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import * as db from "./db";
 import { createSessionToken, setSessionCookie } from "./_core/session";
 import { TRPCError } from "@trpc/server";
+import { sendEmail } from "./utils/email";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -61,6 +63,51 @@ export const appRouter = router({
         const token = await createSessionToken({ id: user.id, openId: user.openId, email: user.email, name: user.name, role: user.role as "user" | "admin" });
         setSessionCookie(ctx.res, token, ctx.req);
         return { success: true, user: { id: user.id, name: user.name, email: user.email } };
+      }),
+
+    requestPasswordReset: publicProcedure
+      .input(z.object({ email: z.string().email() }))
+      .mutation(async ({ input, ctx }) => {
+        const user = await db.getUserByEmail(input.email);
+        // Always return success to prevent email enumeration
+        if (!user || !user.passwordHash) return { success: true };
+        const token = crypto.randomBytes(32).toString("hex");
+        const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+        await db.setResetToken(user.id, token, expiry);
+        const baseUrl = `${ctx.req.protocol}://${ctx.req.get("host")}`;
+        const resetLink = `${baseUrl}/reset-password?token=${token}`;
+        console.log(`[Auth] Password reset link for ${input.email}: ${resetLink}`);
+        try {
+          await sendEmail({
+            to: input.email,
+            subject: "Reset your GlowJo password",
+            template: "password-reset",
+            data: { resetLink, userName: user.name || "there" },
+          });
+        } catch (e) {
+          console.warn("[Auth] Could not send reset email:", e);
+        }
+        return { success: true };
+      }),
+
+    resetPassword: publicProcedure
+      .input(z.object({
+        token: z.string().min(1),
+        password: z.string().min(6, "Password must be at least 6 characters"),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const user = await db.getUserByResetToken(input.token);
+        if (!user) throw new TRPCError({ code: "BAD_REQUEST", message: "This reset link is invalid or has already been used." });
+        const expiry = (user as any).resetTokenExpiry;
+        if (!expiry || new Date(expiry) < new Date()) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "This reset link has expired. Please request a new one." });
+        }
+        const passwordHash = await bcrypt.hash(input.password, 10);
+        await db.updateUserPassword(user.id, passwordHash);
+        await db.clearResetToken(user.id);
+        const token = await createSessionToken({ id: user.id, openId: user.openId, email: user.email, name: user.name, role: user.role as "user" | "admin" });
+        setSessionCookie(ctx.res, token, ctx.req);
+        return { success: true };
       }),
   }),
 

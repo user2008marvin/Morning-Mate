@@ -96,6 +96,14 @@ async function runStartupMigrations(dbUrl: string) {
       `ALTER TABLE users ADD COLUMN passwordHash VARCHAR(255) NULL`
     ).catch(() => {});
 
+    await conn.execute(
+      `ALTER TABLE users ADD COLUMN resetToken VARCHAR(128) NULL`
+    ).catch(() => {});
+
+    await conn.execute(
+      `ALTER TABLE users ADD COLUMN resetTokenExpiry TIMESTAMP NULL`
+    ).catch(() => {});
+
     await conn.end();
     console.log("[DB] Startup migrations complete — all tables ready");
   } catch (err) {
@@ -252,6 +260,27 @@ export async function updateUserPassword(userId: number, passwordHash: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(users).set({ passwordHash }).where(eq(users.id, userId));
+}
+
+export async function setResetToken(userId: number, token: string, expiry: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const isoExpiry = expiry.toISOString().slice(0, 19).replace("T", " ");
+  await db.execute(sql`UPDATE users SET resetToken = ${token}, resetTokenExpiry = ${isoExpiry} WHERE id = ${userId}`);
+}
+
+export async function getUserByResetToken(token: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.execute(sql`SELECT * FROM users WHERE resetToken = ${token} LIMIT 1`) as any;
+  const rows = Array.isArray(result) ? result[0] : result;
+  return (Array.isArray(rows) ? rows[0] : rows) ?? null;
+}
+
+export async function clearResetToken(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.execute(sql`UPDATE users SET resetToken = NULL, resetTokenExpiry = NULL WHERE id = ${userId}`);
 }
 
 // ── SUBSCRIPTION QUERIES ──
