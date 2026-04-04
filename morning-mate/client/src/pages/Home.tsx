@@ -529,7 +529,7 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px,1fr))", gap: 24 }}>
             {[
               { name: "Freemium", price: "Free forever", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", highlight: false, badge: null, tier: null },
-              { name: "GlowJo", price: "$4.99/mo", features: ["Up to 3 child profiles", "AI voice guidance (English)", "Happy music during every task", "Parent dashboard", "Priority support"], cta: "Get GlowJo", highlight: true, badge: "⭐ Full Access", tier: "starter" },
+              { name: "GlowJo", price: "$4.99/mo", features: ["Everything in Free", "Up to 3 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning (7 days)", "🎙️ Mum's Voice — record your own", "⭐ Stars, streaks & weekly rewards", "Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", highlight: true, badge: "⭐ Full Access", tier: "starter" },
             ].map((plan, i) => (
               <div key={i} style={{ position: "relative", background: plan.highlight ? "linear-gradient(135deg,var(--coral),var(--sunrise-mid))" : "rgba(255,255,255,0.06)", border: plan.highlight ? "2px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: "36px 28px 28px", textAlign: "center", transform: plan.highlight ? "scale(1.05)" : "scale(1)", transition: "transform 0.2s", boxShadow: plan.highlight ? "0 12px 40px rgba(0,0,0,0.3)" : "0 4px 16px rgba(0,0,0,0.15)" }}>
                 {plan.badge && (
