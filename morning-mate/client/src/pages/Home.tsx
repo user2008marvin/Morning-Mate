@@ -75,11 +75,13 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
   const voiceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const confettiTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  // ✅ CLEANUP ON UNMOUNT
+  // ✅ CANCEL any leftover app speech on mount + CLEANUP ON UNMOUNT
   useEffect(() => {
+    try { window.speechSynthesis.cancel(); } catch {}
     return () => {
       if (voiceTimer.current) clearTimeout(voiceTimer.current);
       confettiTimers.current.forEach(t => clearTimeout(t));
+      try { window.speechSynthesis.cancel(); } catch {}
     };
   }, []);
 

@@ -459,8 +459,12 @@ function MainScreen({
     return () => clearInterval(t);
   }, [state.schoolTime]);
 
-  // Stop music when component unmounts
-  useEffect(() => () => { stopKidsMusic(); clearInterval(ringTimer.current); }, []);
+  // Stop music AND speech when component unmounts
+  useEffect(() => () => {
+    stopKidsMusic();
+    clearInterval(ringTimer.current);
+    try { window.speechSynthesis.cancel(); } catch {}
+  }, []);
 
   const currentTask = activeTasks[taskIdx];
   const totalTasks = activeTasks.length;

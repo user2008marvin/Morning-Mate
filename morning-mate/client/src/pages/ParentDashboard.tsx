@@ -167,9 +167,9 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
 }
 
 const PLANS = [
-  { tier: "starter" as const, label: "Starter", emoji: "⭐", monthly: 4.99, yearly: 49.90, features: "1 child · English voice guidance" },
-  { tier: "plus"    as const, label: "Plus",    emoji: "🌟", monthly: 9.99, yearly: 99.90, features: "3 children · AI voice English & Spanish" },
-  { tier: "gold"    as const, label: "Gold",    emoji: "🏆", monthly: 14.99, yearly: 149.90, features: "Unlimited · Custom rewards & stickers · VIP support" },
+  { tier: "starter" as const, label: "Starter", emoji: "⭐", monthly: 4.99, yearly: 49.90, features: "1 child · English voice guidance", color: "rgba(79,172,254,0.35)", border: "rgba(79,172,254,0.7)", badge: null },
+  { tier: "plus"    as const, label: "Plus",    emoji: "🌟", monthly: 9.99, yearly: 99.90, features: "3 children · AI voice English & Spanish", color: "rgba(255,255,255,0.3)", border: "white", badge: "POPULAR" },
+  { tier: "gold"    as const, label: "Gold",    emoji: "🏆", monthly: 14.99, yearly: 149.90, features: "Unlimited · Custom rewards & stickers · VIP support", color: "rgba(255,215,0,0.3)", border: "#ffd700", badge: null },
 ];
 
 function UpgradeCard({ tier }: { tier: string }) {
@@ -208,13 +208,18 @@ function UpgradeCard({ tier }: { tier: string }) {
             onClick={() => createCheckout.mutate({ tier: plan.tier, billingPeriod: period })}
             disabled={createCheckout.isPending}
             style={{
-              background: "rgba(255,255,255,0.18)", color: "white",
-              border: "2px solid rgba(255,255,255,0.5)", borderRadius: "14px",
+              background: plan.color, color: "white",
+              border: `2px solid ${plan.border}`, borderRadius: "14px",
               padding: "12px 16px", cursor: "pointer", textAlign: "left",
               display: "flex", justifyContent: "space-between", alignItems: "flex-start",
               opacity: createCheckout.isPending ? 0.6 : 1,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)", position: "relative",
             }}>
+            {plan.badge && (
+              <span style={{ position: "absolute", top: -10, right: 12, background: "#ff5f1f", color: "white", fontSize: "0.62rem", fontWeight: 900, padding: "2px 8px", borderRadius: 20, letterSpacing: 0.5 }}>
+                {plan.badge}
+              </span>
+            )}
             <span style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
               <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: "1rem" }}>
                 {plan.emoji} {plan.label}
