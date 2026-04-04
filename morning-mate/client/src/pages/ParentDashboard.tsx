@@ -289,6 +289,101 @@ function MumsVoice() {
   );
 }
 
+// ── MUM'S EVENING PREP ──
+const DEFAULT_EVENING_TASKS = [
+  "Set out school clothes",
+  "Pack school bag",
+  "Fill water bottle",
+  "Prepare lunch / snacks",
+  "Charge tablet / devices",
+  "Sign any letters or forms",
+];
+
+function EveningPrep() {
+  const todayKey = `gj_evening_${new Date().toDateString()}`;
+  const customKey = "gj_evening_custom";
+
+  const [checked, setChecked] = useState<Record<string, boolean>>(() => {
+    try { return JSON.parse(localStorage.getItem(todayKey) || "{}"); } catch { return {}; }
+  });
+  const [custom, setCustom] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(customKey) || "[]"); } catch { return []; }
+  });
+  const [newTask, setNewTask] = useState("");
+
+  function toggle(label: string) {
+    const next = { ...checked, [label]: !checked[label] };
+    setChecked(next);
+    localStorage.setItem(todayKey, JSON.stringify(next));
+  }
+
+  function addTask() {
+    const t = newTask.trim();
+    if (!t) return;
+    const next = [...custom, t];
+    setCustom(next);
+    localStorage.setItem(customKey, JSON.stringify(next));
+    setNewTask("");
+  }
+
+  function removeCustom(i: number) {
+    const next = custom.filter((_, idx) => idx !== i);
+    setCustom(next);
+    localStorage.setItem(customKey, JSON.stringify(next));
+  }
+
+  const allTasks = [...DEFAULT_EVENING_TASKS, ...custom];
+  const doneCount = allTasks.filter(t => checked[t]).length;
+
+  return (
+    <div style={{ background: "white", borderRadius: 20, padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginTop: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+        <div style={{ fontSize: "1.1rem", color: "#1a1a2e" }}>🌙 Tonight's Prep</div>
+        <div style={{ fontSize: "0.8rem", fontWeight: 700, color: doneCount === allTasks.length ? "#4caf50" : "#aaa" }}>
+          {doneCount}/{allTasks.length} done
+        </div>
+      </div>
+      <div style={{ fontSize: "0.8rem", color: "#aaa", marginBottom: 14 }}>Resets each morning — your nightly checklist</div>
+
+      {/* Progress bar */}
+      <div style={{ height: 6, background: "#f0f0f0", borderRadius: 4, marginBottom: 14, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${(doneCount / allTasks.length) * 100}%`, background: "linear-gradient(90deg,#4facfe,#00f2fe)", borderRadius: 4, transition: "width 0.3s" }} />
+      </div>
+
+      {allTasks.map((task, i) => (
+        <div key={task + i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #f5f5f5" }}>
+          <button
+            onClick={() => toggle(task)}
+            style={{
+              width: 26, height: 26, borderRadius: 8, border: `2px solid ${checked[task] ? "#4facfe" : "#ddd"}`,
+              background: checked[task] ? "#4facfe" : "white", cursor: "pointer", flexShrink: 0,
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14,
+            }}
+          >{checked[task] ? "✓" : ""}</button>
+          <span style={{ fontSize: "0.9rem", color: checked[task] ? "#aaa" : "#333", textDecoration: checked[task] ? "line-through" : "none", flex: 1 }}>{task}</span>
+          {i >= DEFAULT_EVENING_TASKS.length && (
+            <button onClick={() => removeCustom(i - DEFAULT_EVENING_TASKS.length)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ccc", fontSize: 16, padding: 0 }}>×</button>
+          )}
+        </div>
+      ))}
+
+      {/* Add custom task */}
+      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <input
+          value={newTask}
+          onChange={e => setNewTask(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && addTask()}
+          placeholder="Add your own task…"
+          style={{ flex: 1, border: "1px solid #e0e0e0", borderRadius: 10, padding: "8px 12px", fontSize: "0.85rem", fontFamily: "inherit", outline: "none" }}
+        />
+        <button onClick={addTask} style={{ background: "linear-gradient(135deg,#4facfe,#00f2fe)", color: "white", border: "none", borderRadius: 10, padding: "8px 14px", cursor: "pointer", fontSize: "0.85rem", fontFamily: "'Fredoka One', cursive" }}>
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const PLANS = [
   { tier: "starter" as const, label: "GlowJo", emoji: "⭐", monthly: 4.99, yearly: 49.90, features: "3 children · AI voice · Happy music every task · Priority support", color: "rgba(79,172,254,0.35)", border: "rgba(79,172,254,0.7)", badge: "FULL ACCESS" },
 ];
@@ -450,6 +545,8 @@ export default function ParentDashboard() {
         )}
 
         {tier !== "freemium" && <MumsVoice />}
+
+        <EveningPrep />
 
         <div style={{ background: "white", borderRadius: "20px", padding: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginTop: "8px" }}>
           <div style={{ fontSize: "1.1rem", color: "#1a1a2e", marginBottom: "14px" }}>⚙️ Account</div>

@@ -870,14 +870,19 @@ export default function AppPage() {
   function handleWin(starsEarned: number) {
     const today = new Date().getDate();
     const todayStr = new Date().toDateString();
+    const dayOfWeek = new Date().getDay(); // 0=Sun … 6=Sat
     const newCompletedDays = appState.completedDays.includes(today)
       ? appState.completedDays : [...appState.completedDays, today];
     const newStreak = appState.lastDate !== todayStr ? appState.streak + 1 : appState.streak;
     const newStars = appState.stars + starsEarned;
+    // Mark today's slot in the weekly star strip
+    const newWeekDays = [...appState.weekDays] as boolean[];
+    newWeekDays[dayOfWeek] = true;
     const updates = {
       stars: newStars,
       streak: newStreak,
       completedDays: newCompletedDays,
+      weekDays: newWeekDays,
       lastDate: todayStr,
       stickersUnlocked: [...appState.stickersUnlocked, WIN_STICKERS[Math.min(appState.stars, WIN_STICKERS.length - 1)]]
     };

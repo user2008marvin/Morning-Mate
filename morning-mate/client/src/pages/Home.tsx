@@ -363,16 +363,21 @@ export default function Home() {
           ⭐ Trusted by 50K+ families
         </div>
 
-        <h1 style={{ fontFamily: "'Fredoka One',cursive", fontSize: "clamp(42px,10vw,80px)", color: "white", lineHeight: 1.1, textShadow: "0 4px 20px rgba(0,0,0,0.15)", animation: "fadein 0.8s ease-out 0.5s both", maxWidth: 800 }}>
-          Brush teeth?<em style={{ fontStyle: "normal", color: "var(--yellow)", display: "block" }}>Kids beg to.</em>
+        <div style={{ fontSize: 80, animation: "fadein 0.6s ease-out 0.3s both, mascot-bounce 2s ease-in-out infinite alternate", marginBottom: 8 }}>☀️</div>
+
+        <h1 style={{ fontFamily: "'Fredoka One',cursive", fontSize: "clamp(40px,9vw,74px)", color: "white", lineHeight: 1.1, textShadow: "0 4px 20px rgba(0,0,0,0.15)", animation: "fadein 0.8s ease-out 0.5s both", maxWidth: 700, margin: "0 auto" }}>
+          Good morning,<em style={{ fontStyle: "normal", color: "var(--yellow)", display: "block" }}>superstar! 🌟</em>
         </h1>
 
-        <div style={{ fontSize: "clamp(18px,4vw,24px)", color: "rgba(255,255,255,0.92)", fontWeight: 700, marginTop: 20, maxWidth: 560, lineHeight: 1.5, animation: "fadein 0.8s ease-out 0.7s both" }}>
-          Stop being the alarm clock. GlowJo turns chaotic school mornings into a game kids actually want to play.
+        <div style={{ fontSize: "clamp(17px,3.5vw,22px)", color: "rgba(255,255,255,0.92)", fontWeight: 700, marginTop: 20, maxWidth: 520, lineHeight: 1.6, animation: "fadein 0.8s ease-out 0.7s both" }}>
+          GlowJo turns chaotic school mornings into a fun routine kids actually love — no more nagging.
         </div>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center", marginTop: 36, animation: "fadein 0.8s ease-out 0.9s both" }}>
-          <button onClick={() => navigate("/app")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "16px 36px", borderRadius: 50, cursor: "pointer", background: "rgba(255,255,255,0.2)", color: "white", border: "2px solid rgba(255,255,255,0.6)", transition: "background 0.15s", textDecoration: "none", display: "inline-block" }}>
+          <button onClick={() => navigate("/app")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "16px 40px", borderRadius: 50, cursor: "pointer", background: "white", color: "#ff5f1f", border: "none", boxShadow: "0 8px 30px rgba(0,0,0,0.15)", transition: "transform 0.15s" }}>
+            Start Free ☀️
+          </button>
+          <button onClick={() => navigate("/app")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "16px 36px", borderRadius: 50, cursor: "pointer", background: "rgba(255,255,255,0.2)", color: "white", border: "2px solid rgba(255,255,255,0.6)", transition: "background 0.15s" }}>
             See Demo
           </button>
         </div>
@@ -381,8 +386,19 @@ export default function Home() {
           <span style={{ color: "var(--yellow)", fontSize: 16, letterSpacing: 2 }}>★★★★★</span> 4.9/5 from 2,000+ reviews
         </div>
 
-        <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap", marginTop: 8 }}>
-          <DemoPhone lang="en" />
+        {/* Welcome cards — warm & visual, no chore list */}
+        <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginTop: 40, animation: "fadein 0.8s ease-out 1.3s both" }}>
+          {[
+            { emoji: "🌟", label: "Earn Stars" },
+            { emoji: "🎵", label: "Fun Music" },
+            { emoji: "🏆", label: "Win Rewards" },
+            { emoji: "💛", label: "Happy Mornings" },
+          ].map((card, i) => (
+            <div key={i} style={{ background: "rgba(255,255,255,0.2)", border: "2px solid rgba(255,255,255,0.35)", borderRadius: 20, padding: "18px 22px", textAlign: "center", backdropFilter: "blur(8px)", minWidth: 100 }}>
+              <div style={{ fontSize: 36, marginBottom: 6 }}>{card.emoji}</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "white", letterSpacing: 0.5 }}>{card.label}</div>
+            </div>
+          ))}
         </div>
 
       </section>
