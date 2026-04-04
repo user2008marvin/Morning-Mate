@@ -659,7 +659,7 @@ export default function Home() {
             Turning chaotic mornings into peaceful routines, one star at a time.
           </p>
           <div style={{ fontSize: 12, color: "rgba(255,248,238,0.4)" }}>
-            © 2026 GlowJo. All rights reserved. | Privacy Policy | Terms of Service
+            © 2026 GetGlowJo. All rights reserved. | Privacy Policy | Terms of Service
           </div>
         </div>
       </footer>
