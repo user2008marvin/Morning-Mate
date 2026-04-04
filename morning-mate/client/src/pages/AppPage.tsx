@@ -7,6 +7,7 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useSubscription } from "@/hooks/useSubscription";
 import { getRecording } from "@/lib/voiceRecordings";
+import { AuthModal } from "@/components/AuthModal";
 
 // ── CONSTANTS ──
 const TASKS_EN = [
@@ -811,6 +812,16 @@ function WinScreen({ state, onParent, onNext }: { state: AppState; onParent: () 
   );
 }
 
+const FREE_MORNING_LIMIT = 3;
+const FREE_MORNING_KEY = "gj_free_mornings";
+
+function getFreeMornings(): number {
+  return parseInt(localStorage.getItem(FREE_MORNING_KEY) || "0", 10);
+}
+function incrementFreeMornings() {
+  localStorage.setItem(FREE_MORNING_KEY, String(getFreeMornings() + 1));
+}
+
 // ── ROOT ──
 export default function AppPage() {
   const [, navigate] = useLocation();
@@ -820,11 +831,13 @@ export default function AppPage() {
     return saved ? "main" : "onboarding";
   });
   const [childId, setChildId] = useState<number | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [trialWall, setTrialWall] = useState(false);
   const { tier } = useSubscription();
   const bilingualEnabled = tier !== "freemium";
 
   // Auth + child profile from DB
-  const { data: user } = trpc.auth.me.useQuery(undefined, { retry: false, staleTime: 5 * 60 * 1000 });
+  const { data: user, refetch: refetchUser } = trpc.auth.me.useQuery(undefined, { retry: false, staleTime: 5 * 60 * 1000 });
   const { data: children } = trpc.app.getChildren.useQuery(undefined, {
     enabled: !!user,
     staleTime: 60 * 1000,
@@ -891,11 +904,29 @@ export default function AppPage() {
     if (childId) {
       syncProgress.mutate({ childId, stars: newStars, streak: newStreak, completedDays: newCompletedDays });
     }
+    // Count free uses for unauthenticated users
+    if (!user) incrementFreeMornings();
     setScreen("win");
   }
 
   function goParent() {
     navigate("/parent");
+  }
+
+  function handleNewMorning() {
+    // If not logged in and trial exhausted, show paywall
+    if (!user && getFreeMornings() >= FREE_MORNING_LIMIT) {
+      setTrialWall(true);
+    } else {
+      setScreen("main");
+    }
+  }
+
+  function handleAuthSuccess() {
+    setAuthModalOpen(false);
+    setTrialWall(false);
+    refetchUser();
+    setScreen("main");
   }
 
   return (
@@ -905,8 +936,55 @@ export default function AppPage() {
         <MainScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} />
       )}
       {screen === "win" && (
-        <WinScreen state={appState} onParent={goParent} onNext={() => setScreen("main")} />
+        <WinScreen state={appState} onParent={goParent} onNext={handleNewMorning} />
       )}
+
+      {/* Trial paywall overlay */}
+      {trialWall && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(10,5,0,0.85)", zIndex: 999,
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          padding: 32, textAlign: "center", backdropFilter: "blur(6px)",
+        }}>
+          <div style={{ fontSize: 64, marginBottom: 8 }}>⭐</div>
+          <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 32, color: "white", lineHeight: 1.2, marginBottom: 8 }}>
+            Your 3 free mornings are up!
+          </div>
+          <div style={{ fontSize: 16, color: "rgba(255,255,255,0.8)", marginBottom: 28, lineHeight: 1.6, maxWidth: 300 }}>
+            Create a free GlowJo account to keep the streak alive — no credit card needed to sign up.
+          </div>
+          <button
+            onClick={() => setAuthModalOpen(true)}
+            style={{
+              fontFamily: "'Fredoka One',cursive", fontSize: 20, padding: "16px 40px",
+              borderRadius: 50, border: "none", cursor: "pointer",
+              background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white",
+              boxShadow: "0 8px 30px rgba(255,95,31,0.5)", marginBottom: 14, width: "100%", maxWidth: 300,
+            }}
+          >
+            Sign Up Free ☀️
+          </button>
+          <button
+            onClick={() => setAuthModalOpen(true)}
+            style={{
+              fontFamily: "'Fredoka One',cursive", fontSize: 16, padding: "12px 32px",
+              borderRadius: 50, background: "rgba(255,255,255,0.12)",
+              border: "2px solid rgba(255,255,255,0.3)", color: "white", cursor: "pointer", maxWidth: 300, width: "100%",
+            }}
+          >
+            Already have an account? Log in
+          </button>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 20 }}>
+            Upgrade to GlowJo for unlimited music, Mum's Voice & more — £4.99
+          </div>
+        </div>
+      )}
+
+      <AuthModal
+        open={authModalOpen}
+        onOpenChange={open => { setAuthModalOpen(open); }}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }
