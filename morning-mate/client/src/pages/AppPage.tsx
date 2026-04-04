@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useSubscription } from "@/hooks/useSubscription";
+import { getRecording } from "@/lib/voiceRecordings";
 
 // ── CONSTANTS ──
 const TASKS_EN = [
@@ -141,7 +142,21 @@ function spawnConfetti(container: HTMLElement) {
 // ── TTS — calls backend, parses tRPC JSON response ──
 const audioCache: Record<string, string> = {};
 
-async function speak(text: string, lang: Language = "en") {
+async function speak(text: string, lang: Language = "en", voiceKey?: string) {
+  // ── Mum's Voice — check for custom recording first ──
+  if (voiceKey) {
+    try {
+      const blob = await getRecording(voiceKey);
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.onended = () => URL.revokeObjectURL(url);
+        await audio.play().catch(() => {});
+        return;
+      }
+    } catch { /* fall through to TTS */ }
+  }
+
   const clean = text
     .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, "")
     .trim();
@@ -503,7 +518,7 @@ function MainScreen({
     halfwaySpoken.current = false;
     const prompt = state.language === "es" ? currentTask.prompt_es : currentTask.prompt_en;
     if (prompt) {
-      const t = setTimeout(() => speak(prompt, state.language), 400);
+      const t = setTimeout(() => speak(prompt, state.language, `prompt_${currentTask.label}`), 400);
       return () => clearTimeout(t);
     }
   }, [taskIdx, started]);
@@ -516,7 +531,7 @@ function MainScreen({
       const halfway = state.language === "es"
         ? (currentTask as any).halfway_es
         : (currentTask as any).halfway_en;
-      if (halfway) setTimeout(() => speak(halfway, state.language), 200);
+      if (halfway) setTimeout(() => speak(halfway, state.language, `halfway_${currentTask.label}`), 200);
     }
   }, [ringProgress]);
 
@@ -529,7 +544,7 @@ function MainScreen({
     const completion = state.language === "es" ? currentTask.voice_es : currentTask.voice_en;
     stopKidsMusic();
     playTaskCompleteSound();
-    if (completion) speak(completion, state.language);
+    if (completion) speak(completion, state.language, `completion_${currentTask.label}`);
     if (navigator.vibrate) navigator.vibrate([80, 30, 80]);
     if (confettiRef.current) spawnConfetti(confettiRef.current);
 

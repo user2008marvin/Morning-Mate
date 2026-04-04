@@ -1,10 +1,11 @@
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { toast } from "sonner";
+import { saveRecording, getRecording, deleteRecording, getSupportedMimeType } from "@/lib/voiceRecordings";
 
 const BG = "linear-gradient(180deg, #4facfe 0%, #ff9a3c 60%, #ff6b35 100%)";
 
@@ -162,6 +163,128 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
           <button onClick={handleSave} style={{ flex: 2, padding: "14px", borderRadius: "14px", border: "none", background: "linear-gradient(135deg, #4facfe, #00f2fe)", color: "white", fontSize: "1rem", cursor: "pointer", fontFamily: "'Fredoka One', cursive" }}>Save</button>
         </div>
       </div>
+    </div>
+  );
+}
+
+const TASKS = [
+  { label: "WAKE UP!",       emoji: "☀️" },
+  { label: "BRUSH TEETH!",   emoji: "🪥" },
+  { label: "SHOWER TIME!",   emoji: "🛁" },
+  { label: "GET DRESSED!",   emoji: "👕" },
+  { label: "EAT BREAKFAST!", emoji: "🥛" },
+  { label: "LET'S GO!",      emoji: "🚀" },
+];
+
+type VoiceSlot = "prompt" | "completion";
+
+function VoiceSlotRow({ taskLabel, slot, label }: { taskLabel: string; slot: VoiceSlot; label: string }) {
+  const key = `${slot}_${taskLabel}`;
+  const [hasRecording, setHasRecording] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const chunks = useRef<Blob[]>([]);
+
+  useEffect(() => {
+    getRecording(key).then(b => setHasRecording(!!b)).catch(() => {});
+  }, [key]);
+
+  async function startRecord() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = getSupportedMimeType();
+      const mr = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      chunks.current = [];
+      mr.ondataavailable = e => { if (e.data.size > 0) chunks.current.push(e.data); };
+      mr.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(chunks.current, { type: mimeType || "audio/webm" });
+        await saveRecording(key, blob);
+        setHasRecording(true);
+        setRecording(false);
+        toast.success("Voice saved!");
+      };
+      mr.start();
+      mediaRecorder.current = mr;
+      setRecording(true);
+    } catch {
+      toast.error("Microphone access denied");
+    }
+  }
+
+  function stopRecord() {
+    mediaRecorder.current?.stop();
+  }
+
+  async function playBack() {
+    const blob = await getRecording(key);
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    setPlaying(true);
+    audio.onended = () => { URL.revokeObjectURL(url); setPlaying(false); };
+    audio.play().catch(() => setPlaying(false));
+  }
+
+  async function remove() {
+    await deleteRecording(key);
+    setHasRecording(false);
+    toast.success("Removed");
+  }
+
+  const btnBase: React.CSSProperties = {
+    border: "none", borderRadius: 10, padding: "6px 12px", fontSize: "0.78rem",
+    cursor: "pointer", fontFamily: "'Fredoka One', cursive", fontWeight: 700,
+  };
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+      <div style={{ fontSize: "0.8rem", color: "#555", width: 90, flexShrink: 0 }}>{label}</div>
+      {recording ? (
+        <button onClick={stopRecord} style={{ ...btnBase, background: "#ff4444", color: "white", animation: "pulse 1s infinite" }}>
+          ⏹ Stop
+        </button>
+      ) : (
+        <button onClick={startRecord} style={{ ...btnBase, background: hasRecording ? "#e0f0ff" : "#4facfe", color: hasRecording ? "#333" : "white" }}>
+          🎙️ {hasRecording ? "Re-record" : "Record"}
+        </button>
+      )}
+      {hasRecording && !recording && (
+        <>
+          <button onClick={playBack} disabled={playing} style={{ ...btnBase, background: "#e8f5e9", color: "#2e7d32" }}>
+            {playing ? "▶ Playing…" : "▶ Play"}
+          </button>
+          <button onClick={remove} style={{ ...btnBase, background: "#fdecea", color: "#c62828" }}>
+            🗑
+          </button>
+        </>
+      )}
+      {hasRecording && !recording && (
+        <span style={{ fontSize: "0.72rem", color: "#4caf50", marginLeft: 2 }}>✓ saved</span>
+      )}
+    </div>
+  );
+}
+
+function MumsVoice() {
+  return (
+    <div style={{ background: "white", borderRadius: 20, padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginTop: 16 }}>
+      <div style={{ fontSize: "1.1rem", color: "#1a1a2e", marginBottom: 4 }}>🎙️ Mum's Voice</div>
+      <div style={{ fontSize: "0.82rem", color: "#888", marginBottom: 16 }}>
+        Record your own voice for each task. Kids love hearing you!<br />
+        Tap <strong>Record</strong>, speak your message, then tap <strong>Stop</strong>.
+      </div>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}`}</style>
+      {TASKS.map(t => (
+        <div key={t.label} style={{ background: "#f8faff", borderRadius: 14, padding: "12px 14px", marginBottom: 10 }}>
+          <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#333", marginBottom: 10 }}>
+            {t.emoji} {t.label}
+          </div>
+          <VoiceSlotRow taskLabel={t.label} slot="prompt" label="Task start" />
+          <VoiceSlotRow taskLabel={t.label} slot="completion" label="Task done" />
+        </div>
+      ))}
     </div>
   );
 }
@@ -325,6 +448,8 @@ export default function ParentDashboard() {
             <ChildCard key={c.id} child={c} onEdit={setEditingChild} onDelete={handleDelete} canDelete={children.length > 1} />
           ))
         )}
+
+        {tier !== "freemium" && <MumsVoice />}
 
         <div style={{ background: "white", borderRadius: "20px", padding: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginTop: "8px" }}>
           <div style={{ fontSize: "1.1rem", color: "#1a1a2e", marginBottom: "14px" }}>⚙️ Account</div>

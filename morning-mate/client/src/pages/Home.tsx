@@ -448,12 +448,12 @@ export default function Home() {
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 20, marginTop: 40 }}>
             {[
-              { icon: "🎤", title: "AI Voice", text: "Sunny's warm, encouraging voice guides every task.", badge: "STARTER+" },
-              { icon: "🌍", title: "Bilingual", text: "English + Spanish. Perfect for multilingual families.", badge: "STARTER+" },
+              { icon: "🎤", title: "AI Voice", text: "Sunny's warm, encouraging voice guides every task.", badge: "GLOWJO" },
+              { icon: "🎵", title: "Happy Music", text: "A different song every day keeps mornings fun and fresh.", badge: "GLOWJO" },
+              { icon: "🌍", title: "Bilingual", text: "English + Spanish. Perfect for multilingual families.", badge: "GLOWJO" },
               { icon: "🔒", title: "Parent Dashboard", text: "PIN-protected parent view with progress tracking.", badge: "FREE" },
-              { icon: "📊", title: "Brain Power Reports", text: "Weekly PDF reports showing Executive Function growth.", badge: "PLUS+" },
-              { icon: "🏆", title: "Brain Boss Certificate", text: "When kids hit 500 stars, unlock a printable Certificate.", badge: "PLUS+" },
-              { icon: "📱", title: "Offline Mode", text: "Works without WiFi. Perfect for car rides & travel.", badge: "FREE" },
+              { icon: "🎙️", title: "Mum's Voice", text: "Record your own voice for each task. Kids love hearing you instead of AI!", badge: "GLOWJO" },
+              { icon: "⭐", title: "Stars & Rewards", text: "Kids earn stars every morning and unlock custom rewards.", badge: "FREE" },
             ].map((feat, i) => (
               <div key={i} className="reveal" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, padding: 24, backdropFilter: "blur(8px)", transition: "transform 0.2s" }}>
                 <div style={{ fontSize: 32, marginBottom: 12 }}>{feat.icon}</div>
