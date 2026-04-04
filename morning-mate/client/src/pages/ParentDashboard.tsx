@@ -518,6 +518,19 @@ export default function ParentDashboard() {
     onError: (err) => toast.error(err.message || "Failed to remove"),
   });
 
+  const utils = trpc.useUtils();
+  const syncSubscription = trpc.stripe.syncSubscription.useMutation({
+    onSuccess: (result) => {
+      if (result.success) {
+        utils.subscription.getSubscription.invalidate();
+        toast.success("✅ Subscription synced! Spanish and all features are now unlocked.");
+      } else {
+        toast.error(`Could not find a paid subscription: ${result.reason}`);
+      }
+    },
+    onError: (err) => toast.error(err.message || "Sync failed"),
+  });
+
   const handleSave = (data: Partial<Child> & { id?: number }) => {
     if (data.id) {
       updateChild.mutate({ childId: data.id, name: data.name, age: data.age ?? undefined, schoolTime: data.schoolTime ?? undefined, reward: data.reward ?? undefined, enabledTasks: data.enabledTasks ? JSON.parse(data.enabledTasks) : undefined });
@@ -594,7 +607,21 @@ export default function ParentDashboard() {
         <div style={{ background: "white", borderRadius: "20px", padding: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginTop: "8px" }}>
           <div style={{ fontSize: "1.1rem", color: "#1a1a2e", marginBottom: "14px" }}>⚙️ Account</div>
           <div style={{ fontSize: "0.9rem", color: "#666", marginBottom: "6px" }}>📧 {user.email ?? "No email on file"}</div>
-          <div style={{ fontSize: "0.9rem", color: "#666" }}>🏷️ Plan: {TIER_LABELS[tier]}</div>
+          <div style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>🏷️ Plan: {TIER_LABELS[tier]}</div>
+          {tier === "freemium" && (
+            <button
+              onClick={() => syncSubscription.mutate()}
+              disabled={syncSubscription.isPending}
+              style={{
+                width: "100%", padding: "10px 16px", borderRadius: "12px",
+                border: "2px solid #ff9a3c", background: syncSubscription.isPending ? "#f5f0e8" : "#fff8ee",
+                color: "#ff5f1f", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer",
+                fontFamily: "'Nunito', sans-serif",
+              }}
+            >
+              {syncSubscription.isPending ? "Checking Stripe…" : "🔄 I already paid — sync my subscription"}
+            </button>
+          )}
         </div>
       </div>
 

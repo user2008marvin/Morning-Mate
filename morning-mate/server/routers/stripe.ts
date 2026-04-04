@@ -165,6 +165,61 @@ export const stripeRouter = router({
     }),
 
   /**
+   * Sync subscription from Stripe by looking up the user's email in Stripe.
+   * Fixes users who paid but are still showing as freemium (e.g. webhook never fired).
+   */
+  syncSubscription: protectedProcedure.mutation(async ({ ctx }) => {
+    try {
+      const email = ctx.user.email;
+      if (!email) return { success: false, reason: "No email on account" };
+
+      const customers = await stripe.customers.list({ email, limit: 5 });
+      if (!customers.data.length) {
+        return { success: false, reason: "No Stripe customer found for this email" };
+      }
+
+      for (const customer of customers.data) {
+        const subs = await stripe.subscriptions.list({
+          customer: customer.id,
+          status: "active",
+          limit: 1,
+          expand: ["data.items.data.price.product"],
+        });
+
+        if (subs.data.length > 0) {
+          const sub = subs.data[0];
+          const product = sub.items.data[0]?.price?.product as Stripe.Product | undefined;
+          const productId = typeof product === "string" ? product : product?.id;
+          const tierMap: Record<string, "starter" | "plus" | "gold"> = {
+            "prod_UFv1lk6xTeRu0r": "starter",
+            "prod_UFv7wwXLIFTBhw": "plus",
+            "prod_UFvCIa9o0bg0Ei": "gold",
+          };
+          const tier = productId ? (tierMap[productId] ?? "starter") : "starter";
+
+          await db.updateSubscription(ctx.user.id, {
+            tier,
+            stripeCustomerId: customer.id,
+            stripeSubscriptionId: sub.id,
+            status: "active",
+            currentPeriodEnd: sub.current_period_end
+              ? new Date(sub.current_period_end * 1000)
+              : undefined,
+          });
+
+          console.log(`[Stripe] syncSubscription: activated ${tier} for user ${ctx.user.id} via customer ${customer.id}`);
+          return { success: true, tier };
+        }
+      }
+
+      return { success: false, reason: "No active subscription found in Stripe" };
+    } catch (err: any) {
+      console.error("[Stripe] syncSubscription error:", err.message);
+      return { success: false, reason: err.message };
+    }
+  }),
+
+  /**
    * Handle Stripe webhook for subscription events
    * Syncs subscription data to database and sends email notifications
    */
