@@ -293,6 +293,15 @@ export default function Home() {
     }
   };
 
+  const handleFreeStart = () => {
+    if (meQuery.data) {
+      navigate("/app");
+    } else {
+      setPendingNav("/app");
+      setAuthModalOpen(true);
+    }
+  };
+
   // ✅ CLEANUP OBSERVERS
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
@@ -386,10 +395,10 @@ export default function Home() {
         </div>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center", marginTop: 36, animation: "fadein 0.8s ease-out 0.9s both" }}>
-          <button onClick={() => navigate("/app")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "16px 40px", borderRadius: 50, cursor: "pointer", background: "white", color: "#ff5f1f", border: "none", boxShadow: "0 8px 30px rgba(0,0,0,0.15)", transition: "transform 0.15s" }}>
+          <button onClick={handleFreeStart} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "16px 40px", borderRadius: 50, cursor: "pointer", background: "white", color: "#ff5f1f", border: "none", boxShadow: "0 8px 30px rgba(0,0,0,0.15)", transition: "transform 0.15s" }}>
             Try 3 Mornings Free ☀️
           </button>
-          <button onClick={() => navigate("/app")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "16px 36px", borderRadius: 50, cursor: "pointer", background: "rgba(255,255,255,0.2)", color: "white", border: "2px solid rgba(255,255,255,0.6)", transition: "background 0.15s" }}>
+          <button onClick={handleFreeStart} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "16px 36px", borderRadius: 50, cursor: "pointer", background: "rgba(255,255,255,0.2)", color: "white", border: "2px solid rgba(255,255,255,0.6)", transition: "background 0.15s" }}>
             See Demo
           </button>
         </div>
@@ -558,7 +567,7 @@ export default function Home() {
                 </div>
                 <button
                   disabled={loadingTier !== null}
-                  onClick={() => plan.tier === null ? navigate("/app") : handleCheckout(plan.tier as "starter")}
+                  onClick={() => plan.tier === null ? handleFreeStart() : handleCheckout(plan.tier as "starter")}
                   style={{ width: "100%", padding: "13px 24px", borderRadius: 30, border: "none", fontFamily: "'Fredoka One',cursive", fontSize: 16, fontWeight: 700, cursor: loadingTier !== null ? "wait" : "pointer", background: plan.highlight ? "white" : "rgba(255,255,255,0.18)", color: plan.highlight ? "var(--coral)" : "white", transition: "opacity 0.2s", opacity: loadingTier !== null && loadingTier !== plan.tier ? 0.5 : 1 }}
                 >
                   {plan.tier !== null && loadingTier === plan.tier ? "Opening Stripe…" : plan.cta}

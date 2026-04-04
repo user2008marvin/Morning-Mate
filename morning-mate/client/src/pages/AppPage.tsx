@@ -859,12 +859,19 @@ export default function AppPage() {
   const bilingualEnabled = tier !== "freemium";
 
   // Auth + child profile from DB
-  const { data: user, refetch: refetchUser } = trpc.auth.me.useQuery(undefined, { retry: false, staleTime: 5 * 60 * 1000 });
+  const { data: user, refetch: refetchUser, isFetched: userFetched } = trpc.auth.me.useQuery(undefined, { retry: false, staleTime: 5 * 60 * 1000 });
   const { data: children } = trpc.app.getChildren.useQuery(undefined, {
     enabled: !!user,
     staleTime: 60 * 1000,
   });
   const syncProgress = trpc.app.updateChild.useMutation();
+
+  // Require sign-in — redirect to home if not authenticated
+  useEffect(() => {
+    if (userFetched && !user) {
+      navigate("/");
+    }
+  }, [userFetched, user]);
 
   // Merge DB child profile into local state
   useEffect(() => {
