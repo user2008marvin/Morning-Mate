@@ -363,14 +363,12 @@ export default function Home() {
           ⭐ Trusted by 50K+ families
         </div>
 
-        <div style={{ fontSize: 80, animation: "fadein 0.6s ease-out 0.3s both, mascot-bounce 2s ease-in-out infinite alternate", marginBottom: 8 }}>☀️</div>
-
-        <h1 style={{ fontFamily: "'Fredoka One',cursive", fontSize: "clamp(40px,9vw,74px)", color: "white", lineHeight: 1.1, textShadow: "0 4px 20px rgba(0,0,0,0.15)", animation: "fadein 0.8s ease-out 0.5s both", maxWidth: 700, margin: "0 auto" }}>
-          Good morning,<em style={{ fontStyle: "normal", color: "var(--yellow)", display: "block" }}>superstar! 🌟</em>
+        <h1 style={{ fontFamily: "'Fredoka One',cursive", fontSize: "clamp(42px,10vw,80px)", color: "white", lineHeight: 1.1, textShadow: "0 4px 20px rgba(0,0,0,0.15)", animation: "fadein 0.8s ease-out 0.5s both", maxWidth: 800 }}>
+          Brush teeth?<em style={{ fontStyle: "normal", color: "var(--yellow)", display: "block" }}>Kids beg to.</em>
         </h1>
 
-        <div style={{ fontSize: "clamp(17px,3.5vw,22px)", color: "rgba(255,255,255,0.92)", fontWeight: 700, marginTop: 20, maxWidth: 520, lineHeight: 1.6, animation: "fadein 0.8s ease-out 0.7s both" }}>
-          GlowJo turns chaotic school mornings into a fun routine kids actually love — no more nagging.
+        <div style={{ fontSize: "clamp(18px,4vw,24px)", color: "rgba(255,255,255,0.92)", fontWeight: 700, marginTop: 20, maxWidth: 560, lineHeight: 1.5, animation: "fadein 0.8s ease-out 0.7s both" }}>
+          Stop being the alarm clock. GlowJo turns chaotic school mornings into a game kids actually want to play.
         </div>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center", marginTop: 36, animation: "fadein 0.8s ease-out 0.9s both" }}>
