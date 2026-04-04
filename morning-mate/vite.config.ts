@@ -158,11 +158,16 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
+// Only enable Manus-specific plugins in dev mode.
+// In production builds (vite build) these inject inline scripts that are
+// blocked by the Helmet CSP and cause a blank white page on Railway.
+const isProduction = process.env.NODE_ENV === "production";
+
 const plugins = [
   react(),
   tailwindcss(),
-  ...(jsxLocPlugin ? [jsxLocPlugin()] : []),
-  ...(vitePluginManusRuntime ? [vitePluginManusRuntime()] : []),
+  ...(jsxLocPlugin && !isProduction ? [jsxLocPlugin()] : []),
+  ...(vitePluginManusRuntime && !isProduction ? [vitePluginManusRuntime()] : []),
   vitePluginManusDebugCollector(),
 ];
 
