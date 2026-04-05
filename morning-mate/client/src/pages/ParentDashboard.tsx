@@ -605,7 +605,7 @@ export default function ParentDashboard() {
       <div style={{ background: BG, padding: "24px 20px 48px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: "480px", margin: "0 auto" }}>
           <div>
-            <div style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.75rem", letterSpacing: "1px", textTransform: "uppercase" }}>Morning Mate</div>
+            <div style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.75rem", letterSpacing: "1px", textTransform: "uppercase" }}>GlowJo ☀️</div>
             <div style={{ color: "white", fontSize: "1.6rem" }}>Hi, {user.name?.split(" ")[0] ?? "Parent"} 👋</div>
             <div style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.85rem" }}>{TIER_LABELS[tier]} · {children.length}/{maxChildren} kids</div>
           </div>

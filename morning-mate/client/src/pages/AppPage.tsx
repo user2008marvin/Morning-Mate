@@ -894,6 +894,15 @@ export default function AppPage() {
     return daysSince >= 3;
   })();
 
+  // Speak upgrade prompt when trial expires — kids hear it and pressure parents!
+  useEffect(() => {
+    if (!freemiumExpired) return;
+    const t = setTimeout(() => {
+      speak("Ask mummy or daddy to upgrade GlowJo and unlock loads more stars, treats and amazing music!");
+    }, 800);
+    return () => clearTimeout(t);
+  }, [freemiumExpired]);
+
   // Merge DB child profile into local state
   useEffect(() => {
     if (!children?.length) return;
