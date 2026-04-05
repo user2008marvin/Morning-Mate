@@ -158,6 +158,8 @@ function unlockAudioContext() {
 
 // ── TTS — calls backend, parses tRPC JSON response ──
 const audioCache: Record<string, string> = {};
+// Keep a reference so the audio element isn't garbage-collected mid-play
+let _speakAudio: HTMLAudioElement | null = null;
 
 async function speak(text: string, lang: Language = "en", voiceKey?: string) {
   // ── Mum's Voice — check for custom recording first ──
@@ -166,9 +168,9 @@ async function speak(text: string, lang: Language = "en", voiceKey?: string) {
       const blob = await getRecording(voiceKey);
       if (blob) {
         const url = URL.createObjectURL(blob);
-        const audio = new Audio(url);
-        audio.onended = () => URL.revokeObjectURL(url);
-        await audio.play().catch(() => {});
+        _speakAudio = new Audio(url);
+        _speakAudio.onended = () => { URL.revokeObjectURL(url); _speakAudio = null; };
+        await _speakAudio.play().catch(() => {});
         return;
       }
     } catch { /* fall through to TTS */ }
@@ -181,7 +183,8 @@ async function speak(text: string, lang: Language = "en", voiceKey?: string) {
 
   const cacheKey = `${lang}:${clean}`;
   if (audioCache[cacheKey]) {
-    new Audio(audioCache[cacheKey]).play().catch(() => {});
+    _speakAudio = new Audio(audioCache[cacheKey]);
+    _speakAudio.play().catch(() => {});
     return;
   }
 
@@ -201,7 +204,8 @@ async function speak(text: string, lang: Language = "en", voiceKey?: string) {
     if (!audioUrl) throw new Error("no audioUrl in response");
 
     audioCache[cacheKey] = audioUrl;
-    new Audio(audioUrl).play().catch(() => {});
+    _speakAudio = new Audio(audioUrl);
+    _speakAudio.play().catch(() => {});
   } catch {
     // Browser fallback — always pick a FEMALE voice
     // Voices load asynchronously — wait for them if not ready yet
@@ -806,7 +810,14 @@ function DeleteAccountLink() {
   const [, navigate] = useLocation();
   const utils = trpc.useUtils();
   const del = trpc.auth.deleteAccount.useMutation({
-    onSuccess: () => { utils.auth.me.reset(); navigate("/"); },
+    onSuccess: () => {
+      // Clear ALL local state so no trace of the old account remains
+      localStorage.removeItem("GJ_State_v1");
+      localStorage.removeItem("gj_free_mornings");
+      utils.app.getChildren.reset(); // clear cached children — prevents name/date leaking to next account
+      utils.auth.me.reset();
+      navigate("/");
+    },
     onError: () => alert("Could not delete account. Please try again."),
   });
   function handleDelete() {
@@ -921,6 +932,7 @@ export default function AppPage() {
   const bilingualEnabled = tier !== "freemium";
 
   // Auth + child profile from DB
+  const utils = trpc.useUtils();
   const { data: user, refetch: refetchUser, isFetched: userFetched } = trpc.auth.me.useQuery(undefined, { retry: false, staleTime: 5 * 60 * 1000 });
   const { data: children, refetch: refetchChildren } = trpc.app.getChildren.useQuery(undefined, {
     enabled: !!user,
@@ -1043,11 +1055,13 @@ export default function AppPage() {
   function handleAuthSuccess(isNewAccount: boolean) {
     setAuthModalOpen(false);
     if (isNewAccount) {
-      // New registration — wipe any stale local state from a previous account
+      // New registration — wipe all stale state from any previous account
       localStorage.removeItem("GJ_State_v1");
       localStorage.removeItem("gj_free_mornings");
       setAppState({ ...DEFAULT_STATE });
       saveState({ ...DEFAULT_STATE });
+      setServerLastCompleted(null); // prevent old completion date showing "done today" on new account
+      utils.app.getChildren.reset(); // clear cached children — prevents old name leaking in
     }
     refetchUser();
     setScreen("main");
