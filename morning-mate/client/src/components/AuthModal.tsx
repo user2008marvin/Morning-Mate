@@ -13,7 +13,7 @@ interface AuthModalProps {
   onSuccess?: (isNewAccount: boolean) => void;
 }
 
-type View = "login" | "register" | "forgot" | "forgot-sent";
+type View = "login" | "register";
 
 export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
   const [view, setView] = useState<View>("login");
@@ -26,7 +26,6 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
   const utils = trpc.useUtils();
   const loginMutation = trpc.auth.login.useMutation();
   const registerMutation = trpc.auth.register.useMutation();
-  const requestResetMutation = trpc.auth.requestPasswordReset.useMutation();
 
   // Clear form every time the modal opens so browser autofill doesn't leak a deleted account's email
   useEffect(() => {
@@ -75,9 +74,6 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
         clearForm();
         onOpenChange(false);
         onSuccess?.(true); // new account — wipe stale local state
-      } else if (view === "forgot") {
-        await requestResetMutation.mutateAsync({ email });
-        switchView("forgot-sent");
       }
     } catch (err: any) {
       const msg = err?.message || "Something went wrong. Please try again.";
@@ -90,8 +86,6 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
   const headerText = {
     login: { emoji: "🌟", title: "Welcome!", sub: "Sign in to your parent account" },
     register: { emoji: "🎉", title: "Join GlowJo!", sub: "Create your parent account" },
-    forgot: { emoji: "🔑", title: "Forgot Password?", sub: "We'll email you a reset link" },
-    "forgot-sent": { emoji: "📬", title: "Check Your Inbox!", sub: "A reset link is on its way" },
   }[view];
 
   return (
@@ -140,24 +134,7 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
 
           {/* Form body */}
           <div className="bg-white px-8 py-6">
-            {view === "forgot-sent" ? (
-              <div className="text-center py-4">
-                <p className="text-gray-700 text-sm leading-relaxed mb-4">
-                  If <strong>{email}</strong> has a GlowJo account, a password reset link has been sent.
-                  <br /><br />
-                  Check your inbox (and spam folder) — the link expires in <strong>1 hour</strong>.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => { switchView("login"); clearForm(); }}
-                  className="w-full py-3.5 rounded-xl font-black text-white text-base tracking-tight active:scale-[0.98]"
-                  style={{ background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b35 100%)" }}
-                >
-                  Back to Sign In
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 {view === "register" && (
                   <div>
                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
@@ -196,15 +173,6 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
                       <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
                         Password {view === "register" && <span className="text-gray-400 normal-case font-normal">(min 6 chars)</span>}
                       </label>
-                      {view === "login" && (
-                        <button
-                          type="button"
-                          onClick={() => switchView("forgot")}
-                          className="text-xs text-[#ff6b35] font-semibold hover:underline"
-                        >
-                          Forgot password?
-                        </button>
-                      )}
                     </div>
                     <input
                       type="password"
@@ -230,24 +198,11 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
                   className="w-full py-3.5 rounded-xl font-black text-white text-base tracking-tight transition-all disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98]"
                   style={{ background: loading ? "#ccc" : "linear-gradient(135deg, #ff9a3c 0%, #ff6b35 100%)" }}
                 >
-                  {loading
-                    ? "Please wait..."
-                    : view === "login"
-                    ? "Sign In →"
-                    : view === "register"
-                    ? "Create Account →"
-                    : "Send Reset Link →"}
+                  {loading ? "Please wait..." : view === "login" ? "Sign In →" : "Create Account →"}
                 </button>
 
                 <p className="text-center text-xs text-gray-400">
-                  {view === "forgot" ? (
-                    <>
-                      Remember it?{" "}
-                      <button type="button" onClick={() => switchView("login")} className="text-[#ff6b35] font-bold hover:underline">
-                        Back to sign in
-                      </button>
-                    </>
-                  ) : view === "login" ? (
+                  {view === "login" ? (
                     <>No account yet?{" "}
                       <button type="button" onClick={() => switchView("register")} className="text-[#ff6b35] font-bold hover:underline">
                         Create one free
@@ -262,7 +217,6 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
                   )}
                 </p>
               </form>
-            )}
           </div>
 
           {/* Footer */}
