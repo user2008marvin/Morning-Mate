@@ -156,8 +156,6 @@ function unlockAudioContext() {
   } catch {}
 }
 
-// ── TTS — calls backend, parses tRPC JSON response ──
-const audioCache: Record<string, string> = {};
 // Keep a reference so the audio element isn't garbage-collected mid-play
 let _speakAudio: HTMLAudioElement | null = null;
 
@@ -181,45 +179,18 @@ async function speak(text: string, lang: Language = "en", voiceKey?: string) {
     .trim();
   if (!clean) return;
 
-  const cacheKey = `${lang}:${clean}`;
-  if (audioCache[cacheKey]) {
-    _speakAudio = new Audio(audioCache[cacheKey]);
-    _speakAudio.play().catch(() => {});
-    return;
-  }
+  // ── Browser speech synthesis — same on every device ──
+  const getVoicesAsync = (): Promise<SpeechSynthesisVoice[]> => {
+    return new Promise(resolve => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) { resolve(voices); return; }
+      const handler = () => { resolve(window.speechSynthesis.getVoices()); };
+      window.speechSynthesis.addEventListener("voiceschanged", handler, { once: true });
+      setTimeout(() => { resolve(window.speechSynthesis.getVoices()); }, 1000);
+    });
+  };
 
   try {
-    // tRPC mutation over HTTP — body must be { json: { ... } } with superjson
-    const res = await fetch("/api/trpc/tts.speak", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ json: { text: clean, language: lang } }),
-    });
-
-    if (!res.ok) throw new Error(`TTS ${res.status}`);
-
-    const payload = await res.json() as { result?: { data?: { json?: { audioUrl?: string } } } };
-    const audioUrl = payload?.result?.data?.json?.audioUrl;
-    if (!audioUrl) throw new Error("no audioUrl in response");
-
-    audioCache[cacheKey] = audioUrl;
-    _speakAudio = new Audio(audioUrl);
-    _speakAudio.play().catch(() => {});
-  } catch {
-    // Browser fallback — always pick a FEMALE voice
-    // Voices load asynchronously — wait for them if not ready yet
-    const getVoicesAsync = (): Promise<SpeechSynthesisVoice[]> => {
-      return new Promise(resolve => {
-        const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) { resolve(voices); return; }
-        const handler = () => { resolve(window.speechSynthesis.getVoices()); };
-        window.speechSynthesis.addEventListener("voiceschanged", handler, { once: true });
-        setTimeout(() => { resolve(window.speechSynthesis.getVoices()); }, 1000);
-      });
-    };
-
-    try {
       const utterance = new SpeechSynthesisUtterance(clean);
       const voices = await getVoicesAsync();
 
@@ -283,7 +254,6 @@ async function speak(text: string, lang: Language = "en", voiceKey?: string) {
       utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
     } catch {}
-  }
 }
 
 // ── KIDS BACKGROUND MUSIC — 7-DAY ROTATION POOL ──
