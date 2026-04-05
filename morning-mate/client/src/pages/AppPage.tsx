@@ -458,27 +458,6 @@ function Onboarding({ onComplete }: { onComplete: (state: Partial<AppState>) => 
 }
 
 // ── MAIN KID SCREEN ──
-// ── FREEMIUM MUSIC GATE ──
-// Freemium users get 2 free calendar days of music.
-// Each unique calendar day counts once — replaying the same day doesn't add a new day.
-// After 2 days, music is locked until they upgrade.
-function canFreemiumPlayMusic(): boolean {
-  try {
-    const key = "gj_free_music_days";
-    const stored = localStorage.getItem(key);
-    const days: string[] = stored ? JSON.parse(stored) : [];
-    const today = new Date().toISOString().split("T")[0];
-    if (days.includes(today)) return true; // already used today — still within trial
-    if (days.length < 2) {
-      localStorage.setItem(key, JSON.stringify([...days, today]));
-      return true; // first or second day — grant access & record it
-    }
-    return false; // 2 days already used, today is a new (3rd) day — locked
-  } catch {
-    return true; // fallback: allow if localStorage unavailable
-  }
-}
-
 function MainScreen({
   state, onWin, onParent, onUpdateState, bilingualEnabled
 }: {
@@ -487,7 +466,7 @@ function MainScreen({
   bilingualEnabled: boolean;
 }) {
   const { tier } = useSubscription();
-  const musicEnabled = tier !== "freemium" || canFreemiumPlayMusic();
+  const musicEnabled = tier !== "freemium";
   const activeTasks = TASKS_EN.filter((_, i) => state.enabledTasks[i]);
   const [taskIdx, setTaskIdx] = useState(0);
   const [started, setStarted] = useState(false);
@@ -863,7 +842,6 @@ export default function AppPage() {
   });
   const [childId, setChildId] = useState<number | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [trialWall, setTrialWall] = useState(false);
   const { tier } = useSubscription();
   const bilingualEnabled = tier !== "freemium";
 
@@ -894,14 +872,6 @@ export default function AppPage() {
     return daysSince >= 3;
   })();
 
-  // Speak upgrade prompt when trial expires — kids hear it and pressure parents!
-  useEffect(() => {
-    if (!freemiumExpired) return;
-    const t = setTimeout(() => {
-      speak("Ask mummy or daddy to upgrade GlowJo and unlock loads more stars, treats and amazing music!");
-    }, 800);
-    return () => clearTimeout(t);
-  }, [freemiumExpired]);
 
   // Merge DB child profile into local state
   useEffect(() => {
@@ -997,7 +967,6 @@ export default function AppPage() {
 
   function handleAuthSuccess() {
     setAuthModalOpen(false);
-    setTrialWall(false);
     refetchUser();
     setScreen("main");
   }
@@ -1050,12 +1019,21 @@ export default function AppPage() {
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
           padding: 32, textAlign: "center", backdropFilter: "blur(6px)",
         }}>
-          <div style={{ fontSize: 64, marginBottom: 8 }}>⏰</div>
+          <div style={{ fontSize: 72, marginBottom: 8 }}>🌅</div>
           <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 30, color: "white", lineHeight: 1.2, marginBottom: 10 }}>
-            Your 3-day free trial has ended!
+            Your 3 free mornings are up!
           </div>
-          <div style={{ fontSize: 15, color: "rgba(255,255,255,0.8)", marginBottom: 28, lineHeight: 1.6, maxWidth: 300 }}>
-            {(user as any)?.name?.split(" ")[0] ?? "Hey"}, hope you loved GlowJo! ☀️<br />Upgrade to keep the morning magic going.
+          <div style={{ fontSize: 15, color: "rgba(255,255,255,0.8)", marginBottom: 8, lineHeight: 1.6, maxWidth: 300 }}>
+            Hope you loved GlowJo! ☀️
+          </div>
+          <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "12px 20px", marginBottom: 24, maxWidth: 300, width: "100%" }}>
+            <div style={{ fontSize: 14, color: "white", fontWeight: 700, marginBottom: 6 }}>Upgrade to unlock:</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.8, textAlign: "left" }}>
+              ⭐ Stars &amp; streaks forever<br />
+              🎵 Morning music every day<br />
+              🎁 Treat &amp; reward tracking<br />
+              🎙️ Mum's own voice for each task
+            </div>
           </div>
           <button
             onClick={() => navigate("/parent")}
@@ -1066,54 +1044,14 @@ export default function AppPage() {
               boxShadow: "0 8px 30px rgba(255,95,31,0.5)", marginBottom: 14, width: "100%", maxWidth: 320,
             }}
           >
-            See Upgrade Options ⭐
+            Upgrade Now ⭐
           </button>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 8 }}>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
             Plans from £4.99/mo · Cancel anytime
           </div>
         </div>
       )}
 
-      {/* Trial paywall overlay */}
-      {trialWall && (
-        <div style={{
-          position: "fixed", inset: 0, background: "rgba(10,5,0,0.85)", zIndex: 999,
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          padding: 32, textAlign: "center", backdropFilter: "blur(6px)",
-        }}>
-          <div style={{ fontSize: 64, marginBottom: 8 }}>⭐</div>
-          <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 32, color: "white", lineHeight: 1.2, marginBottom: 8 }}>
-            Your 3 free mornings are up!
-          </div>
-          <div style={{ fontSize: 16, color: "rgba(255,255,255,0.8)", marginBottom: 28, lineHeight: 1.6, maxWidth: 300 }}>
-            Create a free GlowJo account to keep the streak alive — no credit card needed to sign up.
-          </div>
-          <button
-            onClick={() => setAuthModalOpen(true)}
-            style={{
-              fontFamily: "'Fredoka One',cursive", fontSize: 20, padding: "16px 40px",
-              borderRadius: 50, border: "none", cursor: "pointer",
-              background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white",
-              boxShadow: "0 8px 30px rgba(255,95,31,0.5)", marginBottom: 14, width: "100%", maxWidth: 300,
-            }}
-          >
-            Sign Up Free ☀️
-          </button>
-          <button
-            onClick={() => setAuthModalOpen(true)}
-            style={{
-              fontFamily: "'Fredoka One',cursive", fontSize: 16, padding: "12px 32px",
-              borderRadius: 50, background: "rgba(255,255,255,0.12)",
-              border: "2px solid rgba(255,255,255,0.3)", color: "white", cursor: "pointer", maxWidth: 300, width: "100%",
-            }}
-          >
-            Already have an account? Log in
-          </button>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 20 }}>
-            Upgrade to GlowJo for unlimited music, Mum's Voice & more — £4.99
-          </div>
-        </div>
-      )}
 
       <AuthModal
         open={authModalOpen}
