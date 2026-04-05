@@ -569,8 +569,7 @@ function MainScreen({
 
   function startRing(seconds = 180, taskLabel?: string) {
     clearInterval(ringTimer.current); setRingProgress(0);
-    if (musicEnabled) startKidsMusic(taskLabel);
-    else playMusicTeaser();
+    if (musicEnabled || taskLabel === "WAKE UP!") startKidsMusic(taskLabel);
     let p = 0;
     ringTimer.current = setInterval(() => {
       p += 100 / seconds; setRingProgress(Math.min(p, 100));
