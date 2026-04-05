@@ -578,7 +578,7 @@ export default function ParentDashboard() {
         </div>
       </div>
 
-      <div style={{ maxWidth: "480px", margin: "-20px auto 0", padding: "0 16px 80px" }}>
+      <div style={{ maxWidth: "480px", margin: "0 auto 0", padding: "16px 16px 80px" }}>
         <UpgradeCard tier={tier} />
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
