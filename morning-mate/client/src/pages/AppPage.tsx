@@ -326,6 +326,39 @@ function stopKidsMusic() {
   }
 }
 
+// Play a short teaser of wake-up music for freemium users — fades out after 6 seconds
+let _teaserTimeout: ReturnType<typeof setTimeout> | null = null;
+let _teaserFadeInterval: ReturnType<typeof setInterval> | null = null;
+function playMusicTeaser() {
+  if (_teaserTimeout) return; // already played this session
+  const track = pickDailyTrack(TASK_MUSIC["WAKE UP!"]);
+  const audio = new Audio(track);
+  audio.volume = 0;
+  audio.loop = false;
+  audio.play().catch(() => {});
+
+  // Fade in over 1 second
+  let vol = 0;
+  const fadeIn = setInterval(() => {
+    vol = Math.min(vol + 0.05, 0.65);
+    audio.volume = vol;
+    if (vol >= 0.65) clearInterval(fadeIn);
+  }, 50);
+
+  // After 6 seconds, fade out over 2 seconds then stop
+  _teaserTimeout = setTimeout(() => {
+    let v = audio.volume;
+    _teaserFadeInterval = setInterval(() => {
+      v = Math.max(v - 0.04, 0);
+      audio.volume = v;
+      if (v <= 0) {
+        clearInterval(_teaserFadeInterval!);
+        audio.pause();
+      }
+    }, 80);
+  }, 6000);
+}
+
 // ── COUNTDOWN ──
 function getCountdown(schoolTime: string): string {
   const now = new Date();
@@ -546,6 +579,7 @@ function MainScreen({
   function startRing(seconds = 180, taskLabel?: string) {
     clearInterval(ringTimer.current); setRingProgress(0);
     if (musicEnabled) startKidsMusic(taskLabel);
+    else playMusicTeaser();
     let p = 0;
     ringTimer.current = setInterval(() => {
       p += 100 / seconds; setRingProgress(Math.min(p, 100));
@@ -1049,6 +1083,15 @@ export default function AppPage() {
           <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
             Plans from £4.99/mo · Cancel anytime
           </div>
+          <button
+            onClick={() => navigate("/parent")}
+            style={{
+              marginTop: 20, background: "none", border: "none", cursor: "pointer",
+              fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "underline",
+            }}
+          >
+            Manage account
+          </button>
         </div>
       )}
 
