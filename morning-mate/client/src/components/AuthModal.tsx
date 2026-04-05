@@ -48,7 +48,7 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
     try {
       if (view === "login") {
         await loginMutation.mutateAsync({ email, password });
-        toast.success("Welcome back! 🌟");
+        toast.success("Welcome! 🌟");
         await utils.auth.me.invalidate();
         clearForm();
         onOpenChange(false);
@@ -77,7 +77,7 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
   };
 
   const headerText = {
-    login: { emoji: "🌟", title: "Welcome Back!", sub: "Sign in to your parent account" },
+    login: { emoji: "🌟", title: "Welcome!", sub: "Sign in to your parent account" },
     register: { emoji: "🎉", title: "Join GlowJo!", sub: "Create your parent account" },
     forgot: { emoji: "🔑", title: "Forgot Password?", sub: "We'll email you a reset link" },
     "forgot-sent": { emoji: "📬", title: "Check Your Inbox!", sub: "A reset link is on its way" },

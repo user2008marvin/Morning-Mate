@@ -256,7 +256,9 @@ function VoiceSlotRow({ taskLabel, slot, label }: { taskLabel: string; slot: Voi
           setRecording(false);
           return;
         }
-        const blob = new Blob(chunks.current, { type: mimeType || "audio/webm" });
+        // Use the actual format the recorder chose, not our requested format
+        const actualMime = mr.mimeType || mimeType || "audio/webm";
+        const blob = new Blob(chunks.current, { type: actualMime });
         if (blob.size < 500) {
           toast.error("Recording too short or silent — please try again.");
           setRecording(false);
