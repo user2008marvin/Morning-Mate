@@ -236,21 +236,11 @@ function VoiceSlotRow({ taskLabel, slot, label }: { taskLabel: string; slot: Voi
   }, [key]);
 
   useEffect(() => {
-    if (!hasRecording) return;
-    getRecording(key).then(blob => {
-      if (!blob) return;
-      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
-      const url = URL.createObjectURL(blob);
-      blobUrlRef.current = url;
-      const audio = new Audio(url);
-      audio.onended = () => setPlaying(false);
-      audio.onerror = () => setPlaying(false);
-      audioRef.current = audio;
-    }).catch(() => {});
     return () => {
       if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     };
-  }, [hasRecording, key]);
+  }, [key]);
 
   async function startRecord() {
     try {
@@ -289,11 +279,28 @@ function VoiceSlotRow({ taskLabel, slot, label }: { taskLabel: string; slot: Voi
     mediaRecorder.current?.stop();
   }
 
-  function playBack() {
-    if (!audioRef.current) { toast.error("Audio not ready — try again"); return; }
-    audioRef.current.currentTime = 0;
-    setPlaying(true);
-    audioRef.current.play().catch(() => { setPlaying(false); toast.error("Could not play — check browser audio permissions"); });
+  async function playBack() {
+    try {
+      // Stop any existing playback first
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+      if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null; }
+
+      const blob = await getRecording(key);
+      if (!blob) { toast.error("Recording not found — try recording again"); return; }
+
+      const url = URL.createObjectURL(blob);
+      blobUrlRef.current = url;
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => setPlaying(false);
+      audio.onerror = () => { setPlaying(false); toast.error("Playback failed — try re-recording"); };
+
+      setPlaying(true);
+      await audio.play();
+    } catch {
+      setPlaying(false);
+      toast.error("Could not play — try re-recording this clip");
+    }
   }
 
   async function remove() {
@@ -528,7 +535,7 @@ function UpgradeCard({ tier }: { tier: string }) {
 export default function ParentDashboard() {
   const [, navigate] = useLocation();
   const { user, isLoading: authLoading } = useAuth();
-  const { tier } = useSubscription();
+  const { tier, daysUntilRenewal, cancelAtPeriodEnd, currentPeriodEnd } = useSubscription();
   const [editingChild, setEditingChild] = useState<Child | null | "new">(null);
 
   const { data: children = [], isLoading: childrenLoading, refetch } = trpc.app.getChildren.useQuery(undefined, { enabled: !!user });
@@ -618,6 +625,46 @@ export default function ParentDashboard() {
 
       <div style={{ maxWidth: "480px", margin: "0 auto 0", padding: "16px 16px 80px" }}>
         <UpgradeCard tier={tier} />
+
+        {/* Renewal / expiry reminder for paid subscribers */}
+        {tier !== "freemium" && currentPeriodEnd && (() => {
+          const days = daysUntilRenewal ?? 999;
+          const dateStr = currentPeriodEnd.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+          if (cancelAtPeriodEnd) {
+            return (
+              <div style={{ background: "rgba(220,50,50,0.1)", border: "1.5px solid rgba(220,50,50,0.4)", borderRadius: 16, padding: "14px 18px", marginBottom: 16, display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <div style={{ fontSize: 24 }}>⚠️</div>
+                <div>
+                  <div style={{ fontWeight: 700, color: "#cc2222", fontSize: "0.95rem" }}>Subscription ending {dateStr}</div>
+                  <div style={{ fontSize: "0.8rem", color: "#666", marginTop: 4 }}>Your plan has been cancelled and will end on this date. Renew any time from your billing portal to keep GlowJo going.</div>
+                </div>
+              </div>
+            );
+          }
+          if (days <= 0) {
+            return (
+              <div style={{ background: "rgba(220,50,50,0.1)", border: "1.5px solid rgba(220,50,50,0.4)", borderRadius: 16, padding: "14px 18px", marginBottom: 16, display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <div style={{ fontSize: 24 }}>🔴</div>
+                <div>
+                  <div style={{ fontWeight: 700, color: "#cc2222", fontSize: "0.95rem" }}>Your subscription has expired</div>
+                  <div style={{ fontSize: "0.8rem", color: "#666", marginTop: 4 }}>Renew now to restore music, Mum's Voice, and all GlowJo features.</div>
+                </div>
+              </div>
+            );
+          }
+          if (days <= 5) {
+            return (
+              <div style={{ background: "rgba(255,150,0,0.1)", border: "1.5px solid rgba(255,150,0,0.5)", borderRadius: 16, padding: "14px 18px", marginBottom: 16, display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <div style={{ fontSize: 24 }}>🔔</div>
+                <div>
+                  <div style={{ fontWeight: 700, color: "#b36a00", fontSize: "0.95rem" }}>Renews in {days} day{days !== 1 ? "s" : ""} — {dateStr}</div>
+                  <div style={{ fontSize: "0.8rem", color: "#666", marginTop: 4 }}>Your card will be charged automatically. Nothing to do — just a heads up!</div>
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <div style={{ fontSize: "1.2rem", color: "#1a1a2e" }}>👧 My Kids</div>
