@@ -140,6 +140,22 @@ function spawnConfetti(container: HTMLElement) {
   }
 }
 
+// ── AUDIO CONTEXT UNLOCK ──
+// Desktop Chrome blocks async audio.play() calls made outside a user gesture.
+// Calling this on the first tap pre-warms the audio context so subsequent
+// async plays (TTS responses, music) are allowed. Has no effect on mobile.
+let _audioCtxUnlocked = false;
+function unlockAudioContext() {
+  if (_audioCtxUnlocked) return;
+  _audioCtxUnlocked = true;
+  try {
+    const ACtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!ACtx) return;
+    const ctx = new ACtx();
+    ctx.resume().then(() => ctx.close()).catch(() => {});
+  } catch {}
+}
+
 // ── TTS — calls backend, parses tRPC JSON response ──
 const audioCache: Record<string, string> = {};
 
@@ -549,6 +565,7 @@ function MainScreen({
   }, [ringProgress]);
 
   function handleTap() {
+    unlockAudioContext(); // pre-warm audio context on first gesture — fixes desktop Chrome async play
     if (!started) {
       setStarted(true);
       startRing(activeTasks[0]?.timerSeconds ?? 180, activeTasks[0]?.label); return;
