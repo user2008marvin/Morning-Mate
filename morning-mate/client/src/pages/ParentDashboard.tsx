@@ -523,13 +523,16 @@ export default function ParentDashboard() {
     onSuccess: (result) => {
       if (result.success) {
         utils.subscription.getSubscription.invalidate();
-        toast.success("✅ Subscription synced! Spanish and all features are now unlocked.");
-      } else {
-        toast.error(`Could not find a paid subscription: ${result.reason}`);
+        toast.success("✅ Plan activated! All features including Spanish are now unlocked.");
       }
     },
-    onError: (err) => toast.error(err.message || "Sync failed"),
   });
+
+  useEffect(() => {
+    if (tier === "freemium" && user && !syncSubscription.isPending && !syncSubscription.isSuccess) {
+      syncSubscription.mutate();
+    }
+  }, [tier, user]);
 
   const handleSave = (data: Partial<Child> & { id?: number }) => {
     if (data.id) {
@@ -606,22 +609,33 @@ export default function ParentDashboard() {
 
         <div style={{ background: "white", borderRadius: "20px", padding: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginTop: "8px" }}>
           <div style={{ fontSize: "1.1rem", color: "#1a1a2e", marginBottom: "14px" }}>⚙️ Account</div>
-          <div style={{ fontSize: "0.9rem", color: "#666", marginBottom: "6px" }}>📧 {user.email ?? "No email on file"}</div>
-          <div style={{ fontSize: "0.9rem", color: "#666", marginBottom: "12px" }}>🏷️ Plan: {TIER_LABELS[tier]}</div>
-          {tier === "freemium" && (
-            <button
-              onClick={() => syncSubscription.mutate()}
-              disabled={syncSubscription.isPending}
-              style={{
-                width: "100%", padding: "10px 16px", borderRadius: "12px",
-                border: "2px solid #ff9a3c", background: syncSubscription.isPending ? "#f5f0e8" : "#fff8ee",
-                color: "#ff5f1f", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer",
-                fontFamily: "'Nunito', sans-serif",
-              }}
-            >
-              {syncSubscription.isPending ? "Checking Stripe…" : "🔄 I already paid — sync my subscription"}
-            </button>
-          )}
+          <div style={{ fontSize: "0.9rem", color: "#666", marginBottom: "8px" }}>📧 {user.email ?? "No email on file"}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "14px" }}>
+            <span style={{ fontSize: "0.9rem", color: "#666" }}>🏷️ Plan:</span>
+            {syncSubscription.isPending ? (
+              <span style={{ fontSize: "0.85rem", color: "#ff9a3c", fontWeight: 700 }}>Checking your subscription…</span>
+            ) : (
+              <span style={{
+                fontSize: "0.85rem", fontWeight: 800, padding: "3px 10px", borderRadius: 20,
+                background: tier === "freemium" ? "#f0f0f0" : "linear-gradient(135deg,#ff9a3c,#ff5f1f)",
+                color: tier === "freemium" ? "#888" : "white",
+              }}>
+                {tier === "freemium" ? "Free" : "GlowJo ⭐ Active"}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
+            style={{
+              width: "100%", padding: "10px 16px", borderRadius: "12px",
+              border: "2px solid #eee", background: "white",
+              color: "#999", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer",
+              fontFamily: "'Nunito', sans-serif",
+            }}
+          >
+            {logoutMutation.isPending ? "Signing out…" : "Sign Out"}
+          </button>
         </div>
       </div>
 
