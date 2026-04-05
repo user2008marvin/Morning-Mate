@@ -366,11 +366,7 @@ export default function Home() {
               Help
             </button>
           )}
-          {meQuery.data ? (
-            <button onClick={() => navigate("/app")} style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, padding: "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)" }}>
-              My App ☀️
-            </button>
-          ) : (
+          {!isMobile && !meQuery.data && (
             <button onClick={() => setAuthModalOpen(true)} style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, padding: "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)" }}>
               Sign In
             </button>
@@ -379,7 +375,7 @@ export default function Home() {
             if (meQuery.data) { navigate("/app"); }
             else { setPendingNav("/app"); setAuthModalOpen(true); }
           }} style={{ fontFamily: "'Fredoka One',cursive", fontSize: isMobile ? 13 : 15, padding: isMobile ? "8px 14px" : "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
-            Get Started
+            {meQuery.data ? "My App ☀️" : "Get Started"}
           </button>
         </div>
       </nav>
