@@ -1042,6 +1042,11 @@ export default function AppPage() {
 
   function handleAuthSuccess() {
     setAuthModalOpen(false);
+    // Wipe local state so new account doesn't inherit previous user's data
+    localStorage.removeItem("GJ_State_v1");
+    localStorage.removeItem("gj_free_mornings");
+    setAppState({ ...DEFAULT_STATE });
+    saveState({ ...DEFAULT_STATE });
     refetchUser();
     setScreen("main");
   }
