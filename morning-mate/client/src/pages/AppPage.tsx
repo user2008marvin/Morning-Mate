@@ -321,7 +321,7 @@ let _teaserTimeout: ReturnType<typeof setTimeout> | null = null;
 let _teaserFadeInterval: ReturnType<typeof setInterval> | null = null;
 function playMusicTeaser() {
   if (_teaserTimeout) return; // already played this session
-  const track = pickDailyTrack(TASK_MUSIC["WAKE UP!"]);
+  const track = pickDailyTrack(TASK_MUSIC_POOL["WAKE UP!"]);
   const audio = new Audio(track);
   audio.volume = 0;
   audio.loop = false;
