@@ -649,7 +649,7 @@ function MainScreen({
           onTouchStart={e => !flashSticker && (e.currentTarget.style.transform = "translate(-50%,-50%) scale(0.93)")}
           onTouchEnd={e => !flashSticker && (e.currentTarget.style.transform = "translate(-50%,-50%) scale(1)")}
         >
-          {flashSticker ? flashSticker : (!started ? "☀️" : currentTask ? currentTask.emoji : "🏆")}
+          {flashSticker ? flashSticker : (!started ? "👍👍" : currentTask ? currentTask.emoji : "🏆")}
         </button>
         {started && currentTask && (
           <div style={{ position: "absolute", bottom: "50%", left: "50%", transform: "translate(-50%, 50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
@@ -672,7 +672,7 @@ function MainScreen({
         ))}
       </div>
       <div style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.6)", marginTop: 8 }}>
-        {started ? `${Math.min(taskIdx, totalTasks)} / ${totalTasks} tasks` : "Tap ☀️ to begin!"}
+        {started ? `${Math.min(taskIdx, totalTasks)} / ${totalTasks} tasks` : "Tap 👍👍 to start your morning!"}
       </div>
 
       {/* Weekly reward bar */}
@@ -775,7 +775,7 @@ function WinScreen({ state, onParent, onNext }: { state: AppState; onParent: () 
 
   useEffect(() => {
     if (confettiRef.current) spawnConfetti(confettiRef.current);
-    speak("You've done it! You are absolutely brilliant and Sunny is so incredibly proud of you today! Now give us or mummy a GlowJo thumbs up!", state.language);
+    speak("You've done it! You are absolutely brilliant and Sunny is so incredibly proud of you today! Now give us all a GlowJo thumbs up!", state.language);
   }, []);
 
   const weekDone = state.weekDays.filter(Boolean).length;
@@ -804,8 +804,8 @@ function WinScreen({ state, onParent, onNext }: { state: AppState; onParent: () 
       </div>
       <div style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", marginTop: 4 }}>Sunny is so incredibly proud of you! ☀️</div>
       <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 20, padding: "14px 24px", marginTop: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-        <div style={{ fontSize: 44, animation: "mascot-bounce 1s ease-in-out infinite alternate" }}>👍</div>
-        <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 16, color: "white" }}>Give mummy a GlowJo thumbs up!</div>
+        <div style={{ fontSize: 44, animation: "mascot-bounce 1s ease-in-out infinite alternate" }}>👍👍</div>
+        <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 16, color: "white" }}>Give us all a GlowJo thumbs up!</div>
       </div>
       <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 16, padding: "12px 24px", marginTop: 16, fontSize: 16, fontWeight: 700, color: "white" }}>
         You're one step closer to {state.reward}!
