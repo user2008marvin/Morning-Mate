@@ -25,11 +25,13 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
     setSuccessCallback(undefined);
   }, []);
 
-  const handleSuccess = () => {
+  const handleSuccess = (isNewAccount: boolean) => {
     successCallback?.();
-    // Clear any stale local app state so new/returning account starts clean
-    localStorage.removeItem("GJ_State_v1");
-    localStorage.removeItem("gj_free_mornings");
+    if (isNewAccount) {
+      // New registration only — wipe stale local state from a previous account
+      localStorage.removeItem("GJ_State_v1");
+      localStorage.removeItem("gj_free_mornings");
+    }
     window.location.reload();
   };
 

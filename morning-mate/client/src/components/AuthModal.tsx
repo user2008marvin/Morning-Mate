@@ -10,7 +10,7 @@ import {
 interface AuthModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSuccess?: (isNewAccount: boolean) => void;
 }
 
 type View = "login" | "register" | "forgot" | "forgot-sent";
@@ -52,7 +52,7 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
         await utils.auth.me.invalidate();
         clearForm();
         onOpenChange(false);
-        onSuccess?.();
+        onSuccess?.(false); // existing account — keep local state
       } else if (view === "register") {
         if (!name.trim()) {
           setError("Please enter your name");
@@ -63,7 +63,7 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
         await utils.auth.me.invalidate();
         clearForm();
         onOpenChange(false);
-        onSuccess?.();
+        onSuccess?.(true); // new account — wipe stale local state
       } else if (view === "forgot") {
         await requestResetMutation.mutateAsync({ email });
         switchView("forgot-sent");
