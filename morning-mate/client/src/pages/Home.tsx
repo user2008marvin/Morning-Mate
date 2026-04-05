@@ -363,7 +363,7 @@ export default function Home() {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {!isMobile && (
             <button onClick={() => navigate("/help")} style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, padding: "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)" }}>
-              Help
+              Assistance
             </button>
           )}
           {!isMobile && !meQuery.data && (
@@ -372,10 +372,10 @@ export default function Home() {
             </button>
           )}
           <button onClick={() => {
-            if (meQuery.data) { navigate("/app"); }
-            else { setPendingNav("/app"); setAuthModalOpen(true); }
+            if (meQuery.data) { navigate("/parent"); }
+            else { setPendingNav("/parent"); setAuthModalOpen(true); }
           }} style={{ fontFamily: "'Fredoka One',cursive", fontSize: isMobile ? 13 : 15, padding: isMobile ? "8px 14px" : "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
-            {meQuery.data ? "My App ☀️" : "Get Started"}
+            {meQuery.data ? "Dashboard" : "Get Started"}
           </button>
         </div>
       </nav>

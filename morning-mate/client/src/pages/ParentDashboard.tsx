@@ -242,13 +242,23 @@ function VoiceSlotRow({ taskLabel, slot, label }: { taskLabel: string; slot: Voi
       mr.ondataavailable = e => { if (e.data.size > 0) chunks.current.push(e.data); };
       mr.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
+        if (chunks.current.length === 0) {
+          toast.error("Nothing recorded — make sure your mic is not muted and try again.");
+          setRecording(false);
+          return;
+        }
         const blob = new Blob(chunks.current, { type: mimeType || "audio/webm" });
+        if (blob.size < 500) {
+          toast.error("Recording too short or silent — please try again.");
+          setRecording(false);
+          return;
+        }
         await saveRecording(key, blob);
         setHasRecording(true);
         setRecording(false);
-        toast.success("Voice saved!");
+        toast.success("Voice saved! 🎙️");
       };
-      mr.start();
+      mr.start(200);
       mediaRecorder.current = mr;
       setRecording(true);
     } catch {
