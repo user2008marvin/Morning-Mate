@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import {
@@ -27,6 +27,17 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
   const loginMutation = trpc.auth.login.useMutation();
   const registerMutation = trpc.auth.register.useMutation();
   const requestResetMutation = trpc.auth.requestPasswordReset.useMutation();
+
+  // Clear form every time the modal opens so browser autofill doesn't leak a deleted account's email
+  useEffect(() => {
+    if (open) {
+      setEmail("");
+      setPassword("");
+      setName("");
+      setError("");
+      setView("login");
+    }
+  }, [open]);
 
   const clearForm = () => {
     setEmail("");
@@ -174,7 +185,7 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="parent@example.com"
                     required
-                    autoComplete="email"
+                    autoComplete="off"
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-[#ff9a3c] outline-none text-sm font-medium text-gray-800 transition-colors bg-gray-50 focus:bg-white"
                   />
                 </div>
