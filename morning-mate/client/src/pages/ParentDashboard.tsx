@@ -582,7 +582,7 @@ export default function ParentDashboard() {
   const handleDelete = (id: number) => { if (confirm("Remove this child?")) deleteChild.mutate({ childId: id }); };
 
   const deleteAccountMutation = trpc.auth.deleteAccount.useMutation({
-    onSuccess: () => { navigate("/"); },
+    onSuccess: () => { utils.auth.me.reset(); navigate("/"); },
     onError: () => toast.error("Could not delete account — please try again"),
   });
 

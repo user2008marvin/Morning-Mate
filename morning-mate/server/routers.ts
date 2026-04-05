@@ -123,7 +123,7 @@ export const appRouter = router({
       .mutation(async ({ ctx }) => {
         const userId = ctx.user.id;
         await db.deleteUserAccount(userId);
-        ctx.res.clearCookie(COOKIE_NAME, getSessionCookieOptions(ctx.req));
+        ctx.res.clearCookie(COOKIE_NAME, { ...getSessionCookieOptions(ctx.req), maxAge: -1 });
         return { success: true };
       }),
   }),

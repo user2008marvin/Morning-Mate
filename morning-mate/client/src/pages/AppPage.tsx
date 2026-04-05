@@ -804,8 +804,9 @@ function MainScreen({
 
 function DeleteAccountLink() {
   const [, navigate] = useLocation();
+  const utils = trpc.useUtils();
   const del = trpc.auth.deleteAccount.useMutation({
-    onSuccess: () => { navigate("/"); },
+    onSuccess: () => { utils.auth.me.reset(); navigate("/"); },
     onError: () => alert("Could not delete account. Please try again."),
   });
   function handleDelete() {
