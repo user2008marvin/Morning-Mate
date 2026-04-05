@@ -773,12 +773,35 @@ function MainScreen({
         )}
       </div>
 
-      {/* Parent link — no PIN, navigate to /parent */}
-      <button onClick={onParent} style={{
-        marginTop: 16, background: "transparent", border: "none",
-        color: "rgba(255,255,255,0.3)", fontSize: 12, cursor: "pointer", fontWeight: 700
-      }}>⚙️ Parent Dashboard</button>
+      {/* Parent link + account controls */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginTop: 16 }}>
+        <button onClick={onParent} style={{
+          background: "transparent", border: "none",
+          color: "rgba(255,255,255,0.3)", fontSize: 12, cursor: "pointer", fontWeight: 700
+        }}>⚙️ Parent Dashboard</button>
+        {!started && <DeleteAccountLink />}
+      </div>
     </div>
+  );
+}
+
+function DeleteAccountLink() {
+  const [, navigate] = useLocation();
+  const del = trpc.auth.deleteAccount.useMutation({
+    onSuccess: () => { navigate("/"); },
+    onError: () => alert("Could not delete account. Please try again."),
+  });
+  function handleDelete() {
+    if (!window.confirm("Delete this account? All data will be permanently removed. You can sign up again with the same email.")) return;
+    del.mutate();
+  }
+  return (
+    <button onClick={handleDelete} disabled={del.isPending} style={{
+      background: "transparent", border: "none",
+      color: "rgba(220,60,60,0.45)", fontSize: 11, cursor: "pointer", fontWeight: 700
+    }}>
+      {del.isPending ? "Deleting…" : "🗑️ Delete my account"}
+    </button>
   );
 }
 
