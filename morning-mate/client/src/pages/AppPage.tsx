@@ -885,6 +885,15 @@ export default function AppPage() {
     }
   }, [userFetched, user]);
 
+  // 3-day freemium trial — check account age
+  const freemiumExpired = (() => {
+    if (!user || tier !== "freemium") return false;
+    const created = (user as any).createdAt;
+    if (!created) return false;
+    const daysSince = Math.floor((Date.now() - new Date(created).getTime()) / (1000 * 60 * 60 * 24));
+    return daysSince >= 3;
+  })();
+
   // Merge DB child profile into local state
   useEffect(() => {
     if (!children?.length) return;
@@ -1022,6 +1031,37 @@ export default function AppPage() {
           >
             Parent Dashboard →
           </button>
+        </div>
+      )}
+
+      {/* Freemium 3-day trial expired — upgrade wall for signed-in users */}
+      {freemiumExpired && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(10,5,0,0.88)", zIndex: 999,
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          padding: 32, textAlign: "center", backdropFilter: "blur(6px)",
+        }}>
+          <div style={{ fontSize: 64, marginBottom: 8 }}>⏰</div>
+          <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 30, color: "white", lineHeight: 1.2, marginBottom: 10 }}>
+            Your 3-day free trial has ended!
+          </div>
+          <div style={{ fontSize: 15, color: "rgba(255,255,255,0.8)", marginBottom: 28, lineHeight: 1.6, maxWidth: 300 }}>
+            {(user as any)?.name?.split(" ")[0] ?? "Hey"}, hope you loved GlowJo! ☀️<br />Upgrade to keep the morning magic going.
+          </div>
+          <button
+            onClick={() => navigate("/parent")}
+            style={{
+              fontFamily: "'Fredoka One',cursive", fontSize: 20, padding: "16px 40px",
+              borderRadius: 50, border: "none", cursor: "pointer",
+              background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white",
+              boxShadow: "0 8px 30px rgba(255,95,31,0.5)", marginBottom: 14, width: "100%", maxWidth: 320,
+            }}
+          >
+            See Upgrade Options ⭐
+          </button>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 8 }}>
+            Plans from £4.99/mo · Cancel anytime
+          </div>
         </div>
       )}
 
