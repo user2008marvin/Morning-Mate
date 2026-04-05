@@ -228,10 +228,29 @@ function VoiceSlotRow({ taskLabel, slot, label }: { taskLabel: string; slot: Voi
   const [playing, setPlaying] = useState(false);
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     getRecording(key).then(b => setHasRecording(!!b)).catch(() => {});
   }, [key]);
+
+  useEffect(() => {
+    if (!hasRecording) return;
+    getRecording(key).then(blob => {
+      if (!blob) return;
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+      const url = URL.createObjectURL(blob);
+      blobUrlRef.current = url;
+      const audio = new Audio(url);
+      audio.onended = () => setPlaying(false);
+      audio.onerror = () => setPlaying(false);
+      audioRef.current = audio;
+    }).catch(() => {});
+    return () => {
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+    };
+  }, [hasRecording, key]);
 
   async function startRecord() {
     try {
@@ -270,18 +289,17 @@ function VoiceSlotRow({ taskLabel, slot, label }: { taskLabel: string; slot: Voi
     mediaRecorder.current?.stop();
   }
 
-  async function playBack() {
-    const blob = await getRecording(key);
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
+  function playBack() {
+    if (!audioRef.current) { toast.error("Audio not ready — try again"); return; }
+    audioRef.current.currentTime = 0;
     setPlaying(true);
-    audio.onended = () => { URL.revokeObjectURL(url); setPlaying(false); };
-    audio.play().catch(() => setPlaying(false));
+    audioRef.current.play().catch(() => { setPlaying(false); toast.error("Could not play — check browser audio permissions"); });
   }
 
   async function remove() {
     await deleteRecording(key);
+    if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = null; }
+    audioRef.current = null;
     setHasRecording(false);
     toast.success("Removed");
   }
@@ -554,6 +572,16 @@ export default function ParentDashboard() {
 
   const handleDelete = (id: number) => { if (confirm("Remove this child?")) deleteChild.mutate({ childId: id }); };
 
+  const deleteAccountMutation = trpc.auth.deleteAccount.useMutation({
+    onSuccess: () => { navigate("/"); },
+    onError: () => toast.error("Could not delete account — please try again"),
+  });
+
+  function handleDeleteAccount() {
+    if (!window.confirm("Are you sure? This will permanently delete your account, all children's profiles and data. This cannot be undone.")) return;
+    deleteAccountMutation.mutate();
+  }
+
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => { navigate("/"); },
   });
@@ -645,6 +673,18 @@ export default function ParentDashboard() {
             }}
           >
             {logoutMutation.isPending ? "Signing out…" : "Sign Out"}
+          </button>
+          <button
+            onClick={handleDeleteAccount}
+            disabled={deleteAccountMutation.isPending}
+            style={{
+              width: "100%", padding: "10px 16px", borderRadius: "12px", marginTop: "8px",
+              border: "2px solid #fee2e2", background: "white",
+              color: "#dc2626", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer",
+              fontFamily: "'Nunito', sans-serif",
+            }}
+          >
+            {deleteAccountMutation.isPending ? "Deleting…" : "🗑️ Delete Account"}
           </button>
         </div>
       </div>

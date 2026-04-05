@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { subscriptionRouter } from "./routers/subscription";
 import { appRouter as appFeaturesRouter } from "./routers/app";
 import { ttsRouter } from "./routers/tts";
@@ -81,7 +81,9 @@ export const appRouter = router({
         const token = crypto.randomBytes(32).toString("hex");
         const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
         await db.setResetToken(user.id, token, expiry);
-        const baseUrl = `${ctx.req.protocol}://${ctx.req.get("host")}`;
+        const host = ctx.req.get("host") || "";
+        const proto = host.includes("localhost") ? "http" : "https";
+        const baseUrl = `${proto}://${host}`;
         const resetLink = `${baseUrl}/reset-password?token=${token}`;
         console.log(`[Auth] Password reset requested for ${input.email}`);
         try {
@@ -114,6 +116,14 @@ export const appRouter = router({
         await db.clearResetToken(user.id);
         const token = await createSessionToken({ id: user.id, openId: user.openId, email: user.email, name: user.name, role: user.role as "user" | "admin" });
         setSessionCookie(ctx.res, token, ctx.req);
+        return { success: true };
+      }),
+
+    deleteAccount: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const userId = ctx.user.id;
+        await db.deleteUserAccount(userId);
+        ctx.res.clearCookie(COOKIE_NAME, getSessionCookieOptions(ctx.req));
         return { success: true };
       }),
   }),

@@ -395,6 +395,15 @@ export async function deleteChildProfile(childId: number) {
   await db.delete(childProfiles).where(eq(childProfiles.id, childId));
 }
 
+export async function deleteUserAccount(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(childProfiles).where(eq(childProfiles.userId, userId));
+  await db.delete(subscriptions).where(eq(subscriptions.userId, userId));
+  await db.delete(users).where(eq(users.id, userId));
+}
+
 // ── STRIPE QUERIES ──
 
 export async function getUserByStripeCustomerId(stripeCustomerId: string) {
