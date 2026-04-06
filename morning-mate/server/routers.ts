@@ -85,7 +85,7 @@ export const appRouter = router({
         const proto = host.includes("localhost") ? "http" : "https";
         const baseUrl = `${proto}://${host}`;
         const resetLink = `${baseUrl}/reset-password?token=${token}`;
-        console.log(`[Auth] Password reset requested for ${input.email}`);
+        console.log(`[Auth] Password reset requested for ${input.email} — link: ${resetLink}`);
         try {
           await sendEmail({
             to: input.email,
@@ -93,8 +93,9 @@ export const appRouter = router({
             template: "password-reset",
             data: { resetLink, userName: user.name || "there" },
           });
+          console.log(`[Auth] Reset email sent to ${input.email}`);
         } catch (e) {
-          console.warn("[Auth] Could not send reset email:", e);
+          console.warn("[Auth] Could not send reset email (check MAILGUN config). Link above is still valid:", e);
         }
         return { success: true };
       }),

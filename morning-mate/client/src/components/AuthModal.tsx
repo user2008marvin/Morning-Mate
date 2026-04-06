@@ -13,19 +13,21 @@ interface AuthModalProps {
   onSuccess?: (isNewAccount: boolean) => void;
 }
 
-type View = "login" | "register";
+type View = "login" | "register" | "forgot" | "forgot-sent";
 
 export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
   const [view, setView] = useState<View>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [forgotEmail, setForgotEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const utils = trpc.useUtils();
   const loginMutation = trpc.auth.login.useMutation();
   const registerMutation = trpc.auth.register.useMutation();
+  const resetRequestMutation = trpc.auth.requestPasswordReset.useMutation();
 
   // Clear form every time the modal opens so browser autofill doesn't leak a deleted account's email
   useEffect(() => {
@@ -33,6 +35,7 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
       setEmail("");
       setPassword("");
       setName("");
+      setForgotEmail("");
       setError("");
       setView("login");
     }
@@ -42,12 +45,27 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
     setEmail("");
     setPassword("");
     setName("");
+    setForgotEmail("");
     setError("");
   };
 
   const switchView = (v: View) => {
     setView(v);
     setError("");
+  };
+
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await resetRequestMutation.mutateAsync({ email: forgotEmail });
+      setView("forgot-sent");
+    } catch (err: any) {
+      setError(err?.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,6 +104,8 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
   const headerText = {
     login: { emoji: "🌟", title: "Welcome!", sub: "Sign in to your parent account" },
     register: { emoji: "🎉", title: "Join GlowJo!", sub: "Create your parent account" },
+    forgot: { emoji: "🔑", title: "Forgot Password?", sub: "We'll email you a reset link" },
+    "forgot-sent": { emoji: "📬", title: "Check Your Email!", sub: "A reset link is on its way" },
   }[view];
 
   return (
@@ -134,7 +154,10 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
 
           {/* Form body */}
           <div className="bg-white px-8 py-6">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+            {/* ── Login / Register ── */}
+            {(view === "login" || view === "register") && (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 {view === "register" && (
                   <div>
                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
@@ -167,24 +190,31 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
                   />
                 </div>
 
-                {(view === "login" || view === "register") && (
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        Password {view === "register" && <span className="text-gray-400 normal-case font-normal">(min 6 chars)</span>}
-                      </label>
-                    </div>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      required
-                      autoComplete={view === "login" ? "current-password" : "new-password"}
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-[#ff9a3c] outline-none text-sm font-medium text-gray-800 transition-colors bg-gray-50 focus:bg-white"
-                    />
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      Password {view === "register" && <span className="text-gray-400 normal-case font-normal">(min 6 chars)</span>}
+                    </label>
+                    {view === "login" && (
+                      <button
+                        type="button"
+                        onClick={() => switchView("forgot")}
+                        className="text-xs text-[#ff6b35] font-semibold hover:underline"
+                      >
+                        Forgot password?
+                      </button>
+                    )}
                   </div>
-                )}
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    autoComplete={view === "login" ? "current-password" : "new-password"}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-[#ff9a3c] outline-none text-sm font-medium text-gray-800 transition-colors bg-gray-50 focus:bg-white"
+                  />
+                </div>
 
                 {error && (
                   <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-red-600 text-sm font-medium">
@@ -217,6 +247,74 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
                   )}
                 </p>
               </form>
+            )}
+
+            {/* ── Forgot password — email entry ── */}
+            {view === "forgot" && (
+              <form onSubmit={handleForgotSubmit} className="flex flex-col gap-4">
+                <p className="text-sm text-gray-500 text-center">
+                  Enter the email address on your account and we'll send a reset link.
+                </p>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    placeholder="parent@example.com"
+                    required
+                    autoFocus
+                    autoComplete="email"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-[#ff9a3c] outline-none text-sm font-medium text-gray-800 transition-colors bg-gray-50 focus:bg-white"
+                  />
+                </div>
+
+                {error && (
+                  <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-red-600 text-sm font-medium">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3.5 rounded-xl font-black text-white text-base tracking-tight transition-all disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98]"
+                  style={{ background: loading ? "#ccc" : "linear-gradient(135deg, #ff9a3c 0%, #ff6b35 100%)" }}
+                >
+                  {loading ? "Sending..." : "Send Reset Link →"}
+                </button>
+
+                <p className="text-center text-xs text-gray-400">
+                  Remember it?{" "}
+                  <button type="button" onClick={() => switchView("login")} className="text-[#ff6b35] font-bold hover:underline">
+                    Back to sign in
+                  </button>
+                </p>
+              </form>
+            )}
+
+            {/* ── Forgot password — sent confirmation ── */}
+            {view === "forgot-sent" && (
+              <div className="flex flex-col gap-4 text-center">
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  If <strong>{forgotEmail}</strong> matches an account, you'll receive a reset link shortly.
+                </p>
+                <p className="text-xs text-gray-400">
+                  Check your spam folder if it doesn't appear within a minute.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => switchView("login")}
+                  className="w-full py-3.5 rounded-xl font-black text-white text-base tracking-tight active:scale-[0.98]"
+                  style={{ background: "linear-gradient(135deg, #ff9a3c 0%, #ff6b35 100%)" }}
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            )}
+
           </div>
 
           {/* Footer */}
