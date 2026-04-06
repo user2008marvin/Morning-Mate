@@ -367,11 +367,9 @@ export default function Home() {
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {!isMobile && (
-            <button onClick={() => navigate("/help")} style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, padding: "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)" }}>
-              Assistance
-            </button>
-          )}
+          <button onClick={() => navigate("/help")} style={{ fontFamily: "'Nunito',sans-serif", fontSize: isMobile ? 13 : 14, fontWeight: 700, padding: isMobile ? "8px 10px" : "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)" }}>
+            Assistance
+          </button>
           <button onClick={() => {
             if (meQuery.data) { navigate("/parent"); }
             else { setAuthModalOpen(true); }
