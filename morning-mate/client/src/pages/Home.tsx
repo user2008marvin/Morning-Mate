@@ -401,7 +401,7 @@ export default function Home() {
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center", marginTop: 36, animation: "fadein 0.8s ease-out 0.9s both" }}>
           <button onClick={handleFreeStart} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "16px 40px", borderRadius: 50, cursor: "pointer", background: "white", color: "#ff5f1f", border: "none", boxShadow: "0 8px 30px rgba(0,0,0,0.15)", transition: "transform 0.15s" }}>
-            Try 3 Mornings Free ☀️
+            Get Started Free ☀️
           </button>
           <button onClick={() => navigate("/app?demo=1")} style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "16px 36px", borderRadius: 50, cursor: "pointer", background: "rgba(255,255,255,0.2)", color: "white", border: "2px solid rgba(255,255,255,0.6)", transition: "background 0.15s" }}>
             See Demo
@@ -619,7 +619,7 @@ export default function Home() {
             })}
           </div>
           <div style={{ marginTop: 32, fontSize: 14, color: "var(--mid)" }}>
-            No credit card required • Cancel anytime • 7-day free trial
+            No credit card required • Cancel anytime • Free to start
           </div>
         </div>
       </section>
