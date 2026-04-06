@@ -710,7 +710,7 @@ export default function ParentDashboard() {
           </>
         )}
 
-        {tier !== "freemium" && <MumsVoice />}
+        <MumsVoice />
 
         <EveningPrep />
 
