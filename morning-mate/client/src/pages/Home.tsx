@@ -230,10 +230,30 @@ export default function Home() {
   const [pendingTier, setPendingTier] = useState<"starter" | "plus" | "gold" | null>(null);
   const [pendingNav, setPendingNav] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 520);
+  const [songPlaying, setSongPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  function toggleSong() {
+    if (!audioRef.current) {
+      audioRef.current = new Audio("/music/sunnys-song.mp3");
+      audioRef.current.onended = () => setSongPlaying(false);
+    }
+    if (songPlaying) {
+      audioRef.current.pause();
+      setSongPlaying(false);
+    } else {
+      audioRef.current.play().catch(() => {});
+      setSongPlaying(true);
+    }
+  }
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth <= 520);
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
+  }, []);
+
+  useEffect(() => {
+    return () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } };
   }, []);
 
   const [weather, setWeather] = useState<WeatherResult | null>(null);
@@ -416,6 +436,18 @@ export default function Home() {
         <div style={{ marginTop: 32, color: "rgba(255,255,255,0.85)", fontSize: 14, fontWeight: 700, animation: "fadein 0.8s ease-out 1.1s both" }}>
           <span style={{ color: "var(--yellow)", fontSize: 16, letterSpacing: 2 }}>★★★★★</span> 4.9/5 from 2,000+ reviews
         </div>
+
+        {/* Sunny's Song play button */}
+        <button onClick={toggleSong} style={{
+          marginTop: 20, display: "inline-flex", alignItems: "center", gap: 10,
+          background: "rgba(255,255,255,0.22)", border: "2px solid rgba(255,255,255,0.55)",
+          borderRadius: 50, padding: "10px 22px", cursor: "pointer", color: "white",
+          fontFamily: "'Fredoka One',cursive", fontSize: 16, backdropFilter: "blur(8px)",
+          animation: "fadein 0.8s ease-out 1.2s both", transition: "background 0.15s"
+        }}>
+          <span style={{ fontSize: 22 }}>{songPlaying ? "⏸️" : "🎵"}</span>
+          {songPlaying ? "Now playing Sunny's Song…" : "Play Sunny's Song 🎶"}
+        </button>
 
         {/* Welcome cards — warm & visual, no chore list */}
         <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginTop: 40, animation: "fadein 0.8s ease-out 1.3s both" }}>
