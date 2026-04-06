@@ -1,5 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import basicSsl from "@vitejs/plugin-basic-ssl";
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
@@ -166,6 +167,7 @@ const isProduction = process.env.NODE_ENV === "production";
 const plugins = [
   react(),
   tailwindcss(),
+  ...(!isProduction ? [basicSsl()] : []),
   ...(jsxLocPlugin && !isProduction ? [jsxLocPlugin()] : []),
   ...(vitePluginManusRuntime && !isProduction ? [vitePluginManusRuntime()] : []),
   vitePluginManusDebugCollector(),
@@ -188,6 +190,7 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    https: true,
     host: true,
     allowedHosts: true,
     fs: {
