@@ -13,6 +13,7 @@ import ParentDashboard from "./pages/ParentDashboard";
 import Success from "./pages/Success";
 import Help from "./pages/Help";
 import ResetPassword from "./pages/ResetPassword";
+import Privacy from "./pages/Privacy";
 function Router() {
   return (
     <Switch>
@@ -22,6 +23,7 @@ function Router() {
       <Route path={"/parent"} component={ParentDashboard} />
       <Route path={"/success"} component={Success} />
       <Route path={"/help"} component={Help} />
+      <Route path={"/privacy"} component={Privacy} />
       <Route path={"/reset-password"} component={ResetPassword} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

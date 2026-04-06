@@ -200,7 +200,6 @@ const PRESET_REWARDS = [
 ];
 
 function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSave: (data: Partial<Child> & { id?: number }) => void; onClose: () => void; }) {
-  const TASK_LABELS = ["☀️ Wake Up", "🛁 Shower", "🥛 Breakfast", "🪥 Brush Teeth", "🎒 Pack Bag", "🚀 Let's Go"];
   const defaultTasks = child?.enabledTasks ? JSON.parse(child.enabledTasks) : [true, true, true, true, true, true];
   const [name, setName] = useState(child?.name ?? "");
   const [age, setAge] = useState(child?.age?.toString() ?? "");
@@ -290,10 +289,10 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
         <div style={{ marginBottom: "20px" }}>
           <div style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666", marginBottom: "10px" }}>Tasks to Include</div>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {TASK_LABELS.map((label, i) => (
-              <label key={i} style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}>
+            {TASKS.map((t, i) => (
+              <label key={t.label} style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }}>
                 <input type="checkbox" checked={tasks[i]} onChange={() => toggleTask(i)} style={{ width: "18px", height: "18px", cursor: "pointer" }} />
-                <span style={{ fontSize: "0.95rem" }}>{label}</span>
+                <span style={{ fontSize: "0.95rem" }}>{t.emoji} {t.label}</span>
               </label>
             ))}
           </div>

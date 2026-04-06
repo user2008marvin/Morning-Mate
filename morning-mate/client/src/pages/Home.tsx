@@ -662,7 +662,10 @@ export default function Home() {
             Turning chaotic mornings into peaceful routines, one star at a time.
           </p>
           <div style={{ fontSize: 12, color: "rgba(255,248,238,0.4)" }}>
-            © 2026 GetGlowJo. All rights reserved. | Privacy Policy | Terms of Service
+            © 2026 GetGlowJo. All rights reserved.{" "}
+            <button onClick={() => navigate("/privacy")} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,248,238,0.55)", fontSize: 12, padding: 0, textDecoration: "underline", fontFamily: "'Nunito',sans-serif" }}>Privacy Policy</button>
+            {" | "}
+            <button onClick={() => navigate("/privacy")} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,248,238,0.55)", fontSize: 12, padding: 0, textDecoration: "underline", fontFamily: "'Nunito',sans-serif" }}>Terms of Service</button>
           </div>
         </div>
       </footer>
