@@ -191,20 +191,9 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">
-                      Password {view === "register" && <span className="text-gray-400 normal-case font-normal">(min 6 chars)</span>}
-                    </label>
-                    {view === "login" && (
-                      <button
-                        type="button"
-                        onClick={() => switchView("forgot")}
-                        className="text-xs text-[#ff6b35] font-semibold hover:underline"
-                      >
-                        Forgot password?
-                      </button>
-                    )}
-                  </div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                    Password {view === "register" && <span className="text-gray-400 normal-case font-normal">(min 6 chars)</span>}
+                  </label>
                   <input
                     type="password"
                     value={password}
@@ -230,6 +219,18 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
                 >
                   {loading ? "Please wait..." : view === "login" ? "Sign In →" : "Create Account →"}
                 </button>
+
+                {view === "login" && (
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => switchView("forgot")}
+                      className="text-sm text-[#ff6b35] font-semibold hover:underline"
+                    >
+                      Forgot your password?
+                    </button>
+                  </div>
+                )}
 
                 <p className="text-center text-xs text-gray-400">
                   {view === "login" ? (
