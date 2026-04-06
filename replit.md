@@ -70,7 +70,7 @@ Email/password → bcrypt hash → JWT cookie (`app_session_id`) → `trpc.auth.
 `freemium` (free, 1 child) → `starter` (£4.99/mo, up to 3 children)
 
 ### Mum's Voice
-- Recorded per task (prompt + completion) in ParentDashboard — available to ALL tiers
+- Recorded per task (prompt + completion) in ParentDashboard — **premium only** (hidden from freemium)
 - Stored in IndexedDB on device only (not synced to server)
 - Key format: `prompt_TASK LABEL` / `completion_TASK LABEL`
 - Plays during routine if recording exists; falls back to browser TTS
