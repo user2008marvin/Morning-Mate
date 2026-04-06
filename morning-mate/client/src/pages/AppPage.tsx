@@ -250,8 +250,8 @@ async function speak(text: string, lang: Language = "en", voiceKey?: string) {
       }
 
       // Warmer, more natural settings — neural voices ignore pitch/rate so this mainly affects older voices
-      utterance.pitch = 1.05;
-      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      utterance.rate = 1.1;
       window.speechSynthesis.speak(utterance);
     } catch {}
 }
@@ -883,10 +883,20 @@ function incrementFreeMornings() {
 }
 
 // ── ROOT ──
+const DEMO_STATE: AppState = {
+  ...DEFAULT_STATE,
+  childName: "Emma",
+  age: 7,
+  schoolTime: "08:30",
+  reward: "🍦 Ice Cream Friday",
+};
+
 export default function AppPage() {
   const [, navigate] = useLocation();
-  const [appState, setAppState] = useState<AppState>(loadState);
+  const isDemo = new URLSearchParams(window.location.search).get("demo") === "1";
+  const [appState, setAppState] = useState<AppState>(() => isDemo ? DEMO_STATE : loadState());
   const [screen, setScreen] = useState<Screen>(() => {
+    if (isDemo) return "main";
     const saved = localStorage.getItem("GJ_State_v1");
     if (!saved) return "onboarding";
     try {
@@ -912,12 +922,12 @@ export default function AppPage() {
   // Server-side completion date — the only tamper-proof "done today" source
   const [serverLastCompleted, setServerLastCompleted] = useState<string | null>(null);
 
-  // Require sign-in — redirect to home if not authenticated
+  // Require sign-in — skip in demo mode
   useEffect(() => {
-    if (userFetched && !user) {
+    if (!isDemo && userFetched && !user) {
       navigate("/");
     }
-  }, [userFetched, user]);
+  }, [isDemo, userFetched, user]);
 
   // 3-day freemium trial — check account age
   const freemiumExpired = (() => {
@@ -960,7 +970,7 @@ export default function AppPage() {
   function updateState(updates: Partial<AppState>) {
     setAppState(prev => {
       const next = { ...prev, ...updates };
-      saveState(next);
+      if (!isDemo) saveState(next);
       return next;
     });
   }
@@ -1038,6 +1048,14 @@ export default function AppPage() {
 
   return (
     <div style={{ maxWidth: 480, margin: "0 auto", minHeight: "100vh", position: "relative" }}>
+      {isDemo && (
+        <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, background: "#ff5f1f", color: "white", textAlign: "center", padding: "12px 16px", zIndex: 999, fontFamily: "'Fredoka One', cursive", fontSize: "0.95rem", display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
+          <span>✨ This is a demo</span>
+          <button onClick={() => navigate("/")} style={{ background: "white", color: "#ff5f1f", border: "none", borderRadius: 20, padding: "6px 16px", cursor: "pointer", fontFamily: "'Fredoka One', cursive", fontSize: "0.85rem", fontWeight: 700 }}>
+            Try 3 Free ☀️
+          </button>
+        </div>
+      )}
       {screen === "onboarding" && <Onboarding onComplete={handleOnboardingComplete} />}
       {screen === "main" && (
         <MainScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} />
