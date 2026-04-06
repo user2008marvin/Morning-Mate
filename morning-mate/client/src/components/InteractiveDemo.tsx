@@ -115,7 +115,7 @@ export function InteractiveDemo({ isOpen, onClose }: { isOpen: boolean; onClose:
             onClick={onClose}
             className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-orange-500 text-white rounded-full font-semibold hover:shadow-lg transition-shadow"
           >
-            Start Your 7-Day Free Trial
+            Get Started Free
           </button>
           <p className="text-xs text-gray-500 text-center mt-2">No credit card required • Cancel anytime</p>
         </div>

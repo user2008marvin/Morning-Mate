@@ -1032,7 +1032,7 @@ export default function AppPage() {
         <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 480, background: "#ff5f1f", color: "white", textAlign: "center", padding: "12px 16px", zIndex: 999, fontFamily: "'Fredoka One', cursive", fontSize: "0.95rem", display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
           <span>✨ This is a demo</span>
           <button onClick={() => navigate("/")} style={{ background: "white", color: "#ff5f1f", border: "none", borderRadius: 20, padding: "6px 16px", cursor: "pointer", fontFamily: "'Fredoka One', cursive", fontSize: "0.85rem", fontWeight: 700 }}>
-            Try 3 Free ☀️
+            Get Started Free ☀️
           </button>
         </div>
       )}

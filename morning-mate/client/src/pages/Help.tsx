@@ -67,7 +67,7 @@ const SECTIONS = [
         </Step>
         <Step n={2} title="Sign Up">
           Tap <strong>Start Free</strong> on the home page. Enter your email and choose a password.
-          <Note>Visitors get <strong>3 free mornings</strong> before being asked to sign up. Signing up is free — no credit card required.</Note>
+          <Note>Signing up is free — no credit card required. Try the demo first to see GlowJo in action.</Note>
         </Step>
         <Step n={3} title="First-Time Setup">
           <p style={{ marginBottom: 8 }}>You will be asked a few quick questions:</p>
