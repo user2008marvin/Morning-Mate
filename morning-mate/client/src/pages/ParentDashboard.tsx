@@ -54,6 +54,7 @@ type Child = {
   language: "en" | "es";
   enabledTasks: string | null;
   avatarEmoji: string | null;
+  completedDays: string | null;
   stars: number | null;
   streak: number | null;
 };
@@ -109,6 +110,75 @@ function ChildCard({
             <div style={{ fontSize: "0.9rem", color: "#333" }}>{child.reward}</div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ── WEEK STAR CHART ──
+const WEEK_DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+function getCurrentWeekDates(): Date[] {
+  const today = new Date();
+  const day = today.getDay(); // 0=Sun, 1=Mon, …, 6=Sat
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + diffToMonday);
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+function WeekStarChart({ child }: { child: Child }) {
+  const weekDates = getCurrentWeekDates();
+  // completedDays stores day-of-month numbers; parse safely
+  const completedDayNums: number[] = (() => {
+    try { return child.completedDays ? JSON.parse(child.completedDays) : []; }
+    catch { return []; }
+  })();
+  const todayNum = new Date().getDate();
+
+  function handlePrint() {
+    const chartId = `gj-wk-${child.id}`;
+    const style = document.createElement("style");
+    style.textContent = `@media print{body *{visibility:hidden!important}#${chartId},#${chartId} *{visibility:visible!important}#${chartId}{position:fixed!important;left:0!important;top:0!important;width:100%!important;padding:32px!important}}`;
+    document.head.appendChild(style);
+    window.print();
+    document.head.removeChild(style);
+  }
+
+  return (
+    <div id={`gj-wk-${child.id}`} style={{ background: "white", borderRadius: "16px", padding: "14px 18px 16px", boxShadow: "0 2px 12px rgba(0,0,0,0.05)", marginBottom: "20px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+        <span style={{ fontFamily: "'Fredoka One',cursive", fontSize: "1rem", color: "#ff9a3c" }}>
+          ⭐ {child.name}'s Week
+        </span>
+        <button onClick={handlePrint} style={{ background: "transparent", border: "1px solid #e0e0e0", borderRadius: "10px", padding: "5px 12px", cursor: "pointer", fontSize: "0.78rem", color: "#666", fontFamily: "'Nunito',sans-serif", fontWeight: 700 }}>
+          🖨️ Print Chart
+        </button>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "4px" }}>
+        {weekDates.map((d, i) => {
+          const dayNum = d.getDate();
+          const isCompleted = completedDayNums.includes(dayNum);
+          const isToday = dayNum === todayNum;
+          const isFuture = d > new Date() && !isCompleted;
+          return (
+            <div key={i} style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "0.6rem", fontWeight: 700, color: isToday ? "#ff9a3c" : "#bbb", marginBottom: "3px", letterSpacing: "0.03em", textTransform: "uppercase" }}>
+                {WEEK_DAY_LABELS[i]}
+              </div>
+              <div style={{ fontSize: "1.35rem", opacity: isFuture ? 0.35 : 1 }}>
+                {isCompleted ? "⭐" : "☆"}
+              </div>
+              <div style={{ fontSize: "0.6rem", color: "#ccc", marginTop: "2px" }}>
+                {d.getDate()}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -754,7 +824,10 @@ export default function ParentDashboard() {
         ) : (
           <>
             {(children as Child[]).map(c => (
-              <ChildCard key={c.id} child={c} onEdit={setEditingChild} onDelete={handleDelete} canDelete={children.length > 1} />
+              <React.Fragment key={c.id}>
+                <ChildCard child={c} onEdit={setEditingChild} onDelete={handleDelete} canDelete={children.length > 1} />
+                <WeekStarChart child={c} />
+              </React.Fragment>
             ))}
             <button
               onClick={() => navigate("/app")}
