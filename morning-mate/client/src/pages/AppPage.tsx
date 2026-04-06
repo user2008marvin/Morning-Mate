@@ -8,6 +8,7 @@ import { trpc } from "@/lib/trpc";
 import { useSubscription } from "@/hooks/useSubscription";
 import { getRecording } from "@/lib/voiceRecordings";
 import { AuthModal } from "@/components/AuthModal";
+import { fetchWeather, WeatherResult } from "@/lib/weather";
 
 // ── CONSTANTS ──
 const TASKS_EN = [
@@ -500,6 +501,11 @@ function MainScreen({
   const confettiRef = useRef<HTMLDivElement>(null);
   const halfwaySpoken = useRef(false);
 
+  const [weather, setWeather] = useState<WeatherResult | null>(null);
+  useEffect(() => {
+    fetchWeather().then(r => { if (r) setWeather(r); }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     const t = setInterval(() => setCountdown(getCountdown(state.schoolTime)), 30000);
     return () => clearInterval(t);
@@ -623,6 +629,12 @@ function MainScreen({
           {!started ? `Good morning, ${state.childName || "superstar"}! 🌟` : currentTask ? `${currentTask.emoji} ${currentTask.label}` : "You did it! 🏆"}
         </div>
       </div>
+
+      {!started && weather && (
+        <div style={{ marginTop: 10, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 20, padding: "6px 16px", fontSize: 13, fontWeight: 700, color: "white" }}>
+          {weather.emoji} {weather.message}
+        </div>
+      )}
 
       <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 20, color: "white", marginTop: 16, textAlign: "center" }}>
         {!started ? "Ready to start?" : currentTask ? currentTask.label : "ALL DONE!"}

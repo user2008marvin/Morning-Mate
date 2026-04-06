@@ -9,6 +9,7 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { AuthModal } from "@/components/AuthModal";
+import { fetchWeather, WeatherResult } from "@/lib/weather";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663462837813/Q6tJTdg6w67gktwsr4Arms/morning-hero-bg-fhdC9vtNYWmWwWTUt8eFwh.webp";
 const SUNNY_MASCOT = "https://d2xsxph8kpxj0f.cloudfront.net/310519663462837813/Q6tJTdg6w67gktwsr4Arms/sunny-mascot-B2aYkz9voMHKCVjDWR9DQM.webp";
@@ -234,6 +235,11 @@ export default function Home() {
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
   }, []);
+
+  const [weather, setWeather] = useState<WeatherResult | null>(null);
+  useEffect(() => {
+    fetchWeather().then(result => { if (result) setWeather(result); }).catch(() => {});
+  }, []);
   const emailMutation = trpc.analytics.captureEmail.useMutation();
   const stripeCheckoutMutation = trpc.stripe.createCheckoutSession.useMutation();
   const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
@@ -381,6 +387,12 @@ export default function Home() {
         <div style={{ position: "absolute", fontSize: 56, opacity: 0.18, animation: "drift linear infinite", top: "12%", left: "-60px", animationDuration: "18s", animationDelay: "0s" }}>☁️</div>
         <div style={{ position: "absolute", fontSize: 48, opacity: 0.18, animation: "drift linear infinite", top: "22%", left: "-80px", animationDuration: "24s", animationDelay: "5s" }}>☁️</div>
         <div style={{ position: "absolute", fontSize: 36, opacity: 0.18, animation: "drift linear infinite", top: "8%", left: "-40px", animationDuration: "20s", animationDelay: "10s" }}>☁️</div>
+
+        {weather && (
+          <div style={{ position: "absolute", top: 16, right: 16, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.35)", backdropFilter: "blur(6px)", padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700, color: "white", whiteSpace: "nowrap" }}>
+            {weather.emoji} {weather.temp}°C{weather.city ? ` · ${weather.city}` : ""}
+          </div>
+        )}
 
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.3)", border: "1px solid rgba(255,255,255,0.5)", padding: "6px 16px", borderRadius: 30, fontSize: 13, fontWeight: 700, color: "white", marginBottom: 24, animation: "fadein 0.8s ease-out 0.3s both" }}>
           ⭐ Trusted by 50K+ families
