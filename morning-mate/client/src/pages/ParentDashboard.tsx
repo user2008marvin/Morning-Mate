@@ -243,12 +243,44 @@ function VoiceSlotRow({ taskLabel, slot, label }: { taskLabel: string; slot: Voi
   }, [key]);
 
   async function startRecord() {
+    // Guard: browser support check
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast.error("Your browser doesn't support recording. Try Chrome or Safari.");
+      return;
+    }
+    if (typeof MediaRecorder === "undefined") {
+      toast.error("Recording not supported on this browser. Please use Chrome or Safari.");
+      return;
+    }
+
+    let stream: MediaStream;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (err: any) {
+      console.error("[VoiceRecord] getUserMedia failed:", err?.name, err?.message);
+      if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
+        toast.error("Microphone permission denied. Please allow mic access in your browser settings and try again.");
+      } else if (err?.name === "NotFoundError" || err?.name === "DevicesNotFoundError") {
+        toast.error("No microphone found. Please connect a microphone and try again.");
+      } else if (err?.name === "NotReadableError") {
+        toast.error("Microphone is in use by another app. Close other apps and try again.");
+      } else {
+        toast.error(`Couldn't access microphone: ${err?.message || err?.name || "unknown error"}`);
+      }
+      return;
+    }
+
+    try {
       const mimeType = getSupportedMimeType();
       const mr = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       chunks.current = [];
       mr.ondataavailable = e => { if (e.data.size > 0) chunks.current.push(e.data); };
+      mr.onerror = (e: any) => {
+        console.error("[VoiceRecord] MediaRecorder error:", e);
+        stream.getTracks().forEach(t => t.stop());
+        setRecording(false);
+        toast.error("Recording error — please try again.");
+      };
       mr.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
         if (chunks.current.length === 0) {
@@ -272,8 +304,10 @@ function VoiceSlotRow({ taskLabel, slot, label }: { taskLabel: string; slot: Voi
       mr.start(200);
       mediaRecorder.current = mr;
       setRecording(true);
-    } catch {
-      toast.error("Microphone access denied");
+    } catch (err: any) {
+      console.error("[VoiceRecord] MediaRecorder setup failed:", err?.name, err?.message);
+      stream.getTracks().forEach(t => t.stop());
+      toast.error(`Recording setup failed: ${err?.message || err?.name || "unknown error"}`);
     }
   }
 
