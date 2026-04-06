@@ -872,16 +872,6 @@ function WinScreen({ state, onParent, onNext }: { state: AppState; onParent: () 
   );
 }
 
-const FREE_MORNING_LIMIT = 3;
-const FREE_MORNING_KEY = "gj_free_mornings";
-
-function getFreeMornings(): number {
-  return parseInt(localStorage.getItem(FREE_MORNING_KEY) || "0", 10);
-}
-function incrementFreeMornings() {
-  localStorage.setItem(FREE_MORNING_KEY, String(getFreeMornings() + 1));
-}
-
 // ── ROOT ──
 const DEMO_STATE: AppState = {
   ...DEFAULT_STATE,
@@ -928,16 +918,6 @@ export default function AppPage() {
       navigate("/");
     }
   }, [isDemo, userFetched, user]);
-
-  // 3-day freemium trial — check account age
-  const freemiumExpired = (() => {
-    if (!user || tier !== "freemium") return false;
-    const created = (user as any).createdAt;
-    if (!created) return false;
-    const daysSince = Math.floor((Date.now() - new Date(created).getTime()) / (1000 * 60 * 60 * 24));
-    return daysSince >= 3;
-  })();
-
 
   // Merge DB child profile into local state
   useEffect(() => {
@@ -1095,54 +1075,6 @@ export default function AppPage() {
         </div>
       )}
 
-      {/* Freemium 3-day trial expired — upgrade wall for signed-in users */}
-      {freemiumExpired && (
-        <div style={{
-          position: "fixed", inset: 0, background: "rgba(10,5,0,0.88)", zIndex: 999,
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          padding: 32, textAlign: "center", backdropFilter: "blur(6px)",
-        }}>
-          <div style={{ fontSize: 72, marginBottom: 8 }}>🌅</div>
-          <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 30, color: "white", lineHeight: 1.2, marginBottom: 10 }}>
-            Your 3 free mornings are up!
-          </div>
-          <div style={{ fontSize: 15, color: "rgba(255,255,255,0.8)", marginBottom: 8, lineHeight: 1.6, maxWidth: 300 }}>
-            Hope you loved GlowJo! ☀️
-          </div>
-          <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "12px 20px", marginBottom: 24, maxWidth: 300, width: "100%" }}>
-            <div style={{ fontSize: 14, color: "white", fontWeight: 700, marginBottom: 6 }}>Upgrade to unlock:</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.8, textAlign: "left" }}>
-              ⭐ Stars &amp; streaks forever<br />
-              🎵 Morning music every day<br />
-              🎁 Treat &amp; reward tracking<br />
-              🎙️ Mum's own voice for each task
-            </div>
-          </div>
-          <button
-            onClick={() => navigate("/parent")}
-            style={{
-              fontFamily: "'Fredoka One',cursive", fontSize: 20, padding: "16px 40px",
-              borderRadius: 50, border: "none", cursor: "pointer",
-              background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white",
-              boxShadow: "0 8px 30px rgba(255,95,31,0.5)", marginBottom: 14, width: "100%", maxWidth: 320,
-            }}
-          >
-            Upgrade Now ⭐
-          </button>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>
-            Plans from £4.99/mo · Cancel anytime
-          </div>
-          <button
-            onClick={() => navigate("/parent")}
-            style={{
-              marginTop: 20, background: "none", border: "none", cursor: "pointer",
-              fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "underline",
-            }}
-          >
-            Manage account
-          </button>
-        </div>
-      )}
 
 
       <AuthModal
