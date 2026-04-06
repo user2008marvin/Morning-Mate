@@ -663,9 +663,7 @@ export default function Home() {
           </p>
           <div style={{ fontSize: 12, color: "rgba(255,248,238,0.4)" }}>
             © 2026 GetGlowJo. All rights reserved.{" "}
-            <button onClick={() => navigate("/privacy")} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,248,238,0.55)", fontSize: 12, padding: 0, textDecoration: "underline", fontFamily: "'Nunito',sans-serif" }}>Privacy Policy</button>
-            {" | "}
-            <button onClick={() => navigate("/privacy")} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,248,238,0.55)", fontSize: 12, padding: 0, textDecoration: "underline", fontFamily: "'Nunito',sans-serif" }}>Terms of Service</button>
+            <button onClick={() => navigate("/privacy-policy")} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,248,238,0.55)", fontSize: 12, padding: 0, textDecoration: "underline", fontFamily: "'Nunito',sans-serif" }}>Privacy Policy</button>
           </div>
         </div>
       </footer>
