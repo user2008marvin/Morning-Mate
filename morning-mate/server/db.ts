@@ -399,9 +399,23 @@ export async function deleteUserAccount(userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  await db.delete(childProfiles).where(eq(childProfiles.userId, userId));
-  await db.delete(subscriptions).where(eq(subscriptions.userId, userId));
-  await db.delete(users).where(eq(users.id, userId));
+  // Use raw SQL with explicit transaction so all-or-nothing, and verify the user row was actually removed
+  await db.execute(sql`START TRANSACTION`);
+  try {
+    await db.execute(sql`DELETE FROM childProfiles WHERE userId = ${userId}`);
+    await db.execute(sql`DELETE FROM subscriptions WHERE userId = ${userId}`);
+    const result = await db.execute(sql`DELETE FROM users WHERE id = ${userId}`) as any;
+    const affectedRows = result?.[0]?.affectedRows ?? result?.affectedRows ?? 0;
+    if (affectedRows === 0) {
+      await db.execute(sql`ROLLBACK`);
+      throw new Error(`No user found with id ${userId} — account may already be deleted`);
+    }
+    await db.execute(sql`COMMIT`);
+    console.log(`[Auth] Account ${userId} permanently deleted`);
+  } catch (err) {
+    await db.execute(sql`ROLLBACK`).catch(() => {});
+    throw err;
+  }
 }
 
 // ── STRIPE QUERIES ──
