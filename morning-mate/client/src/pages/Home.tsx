@@ -366,16 +366,11 @@ export default function Home() {
               Assistance
             </button>
           )}
-          {!isMobile && !meQuery.data && (
-            <button onClick={() => setAuthModalOpen(true)} style={{ fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, padding: "8px 16px", borderRadius: 30, border: "1px solid rgba(255,95,31,0.25)", cursor: "pointer", background: "transparent", color: "var(--coral)" }}>
-              Sign In
-            </button>
-          )}
           <button onClick={() => {
             if (meQuery.data) { navigate("/parent"); }
-            else { setPendingNav("/parent"); setAuthModalOpen(true); }
+            else { setAuthModalOpen(true); }
           }} style={{ fontFamily: "'Fredoka One',cursive", fontSize: isMobile ? 13 : 15, padding: isMobile ? "8px 14px" : "9px 22px", borderRadius: 30, border: "none", cursor: "pointer", background: "linear-gradient(135deg,var(--coral),var(--sunrise-mid))", color: "white", boxShadow: "0 4px 14px rgba(255,95,31,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}>
-            {meQuery.data ? "Dashboard" : "Get Started"}
+            {meQuery.data ? "Dashboard" : "Sign In"}
           </button>
         </div>
       </nav>
