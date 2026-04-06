@@ -38,27 +38,53 @@ artifacts-monorepo/
 
 ## GlowJo (morning-mate/)
 
-**Location**: `morning-mate/` (standalone project, cloned from GitHub — not yet in pnpm workspace)
+**Location**: `morning-mate/` (standalone project — not in pnpm workspace)
+**Live**: getglowjo.com (Railway, auto-deploys from GitHub: user2008marvin/Morning-Mate)
 
-**Stack**: React + Vite frontend, tRPC + Express backend, Drizzle ORM + MySQL (Manus-hosted), JWT sessions in cookies, Manus OAuth
+**Stack**: React + Vite frontend, tRPC + Express backend, Drizzle ORM + TiDB Cloud (MySQL), JWT sessions in cookies, email/password auth
 
-**Routes**: `/` Home, `/onboarding`, `/app` game, `/parent` Parent Dashboard, `/success` post-payment page
+**Routes**: `/` Home, `/app` morning routine game, `/app?demo=1` demo mode, `/parent` Parent Dashboard, `/success` post-payment, `/reset-password` password reset
 
 ### Auth Flow
-Manus OAuth → `/api/oauth/callback` → JWT cookie (`app_session_id` via `COOKIE_NAME` in `shared/const.ts`) → `trpc.auth.me` for session
+Email/password → bcrypt hash → JWT cookie (`app_session_id`) → `trpc.auth.me` for session. Forgot password sends reset link via Mailgun (token logged to Railway console as fallback).
 
 ### Key Files
-- `server/_core/session.ts` — JWT session creation/verification + `setSessionCookie(res, token, req)`
-- `server/_core/oauth.ts` — Manus OAuth callback, sets session cookie
-- `server/_core/cookies.ts` — `getSessionCookieOptions(req)` — uses `sameSite: "none"` for cross-origin OAuth
-- `server/routers.ts` — root tRPC router: `auth`, `subscription`, `app`, `tts`, `stripe`, `analytics`, `email`
-- `client/src/hooks/useAuth.ts` — `trpc.auth.me` wrapper
-- `client/src/hooks/useSubscription.ts` — `trpc.subscription.getSubscription` wrapper
-- `client/src/pages/ParentDashboard.tsx` — real auth, child CRUD, Stripe upgrade
-- `client/src/pages/Success.tsx` — post-Stripe confirmation page
+- `server/_core/index.ts` — Express server, Helmet CSP (blob: allowed for media), rate limiting
+- `server/routers.ts` — tRPC router: `auth` (login/register/forgotPassword/resetPassword), `subscription`, `app`, `stripe`
+- `server/utils/email.ts` — Mailgun email (password-reset, welcome templates)
+- `server/db.ts` — TiDB Cloud connection, user/child/subscription CRUD
+- `client/src/pages/AppPage.tsx` — morning routine game (tasks, TTS, Mum's Voice playback, demo mode)
+- `client/src/pages/ParentDashboard.tsx` — child CRUD, Mum's Voice recording, Stripe upgrade, evening prep
+- `client/src/pages/ResetPassword.tsx` — token-based password reset page
+- `client/src/components/AuthModal.tsx` — login / register / forgot password (4 view states)
+- `client/src/lib/voiceRecordings.ts` — IndexedDB store for Mum's Voice recordings (per device)
+- `vite.config.ts` — HTTPS enabled in dev (basicSsl) so mic recording works in Replit preview
+
+### Freemium Strategy
+- **Free**: Sign up, use app indefinitely, music on WAKE UP task only, 1 child max
+- **Demo**: `/app?demo=1` — no sign-up, preset child "Emma age 7", orange banner CTA — this is the one free taste
+- **No trial countdown** — 3-day free morning limit removed; demo replaces it
+- **Upgrade via dashboard** — UpgradeCard at bottom of ParentDashboard is the upsell point
 
 ### Subscription Tiers
-`freemium` (1 kid) → `starter` ($2.99/mo, 1 kid) → `plus` ($7.99/mo, 2 kids) → `gold` ($12.99/mo, 4 kids)
+`freemium` (free, 1 child) → `starter` (£4.99/mo, up to 3 children)
+
+### Mum's Voice
+- Recorded per task (prompt + completion) in ParentDashboard — available to ALL tiers
+- Stored in IndexedDB on device only (not synced to server)
+- Key format: `prompt_TASK LABEL` / `completion_TASK LABEL`
+- Plays during routine if recording exists; falls back to browser TTS
+- CSP allows `blob:` in mediaSrc/connectSrc so recordings play back correctly
+
+### TTS
+- Browser speech synthesis only (rate 1.1, pitch 1.1)
+- No server TTS — Manus TTS removed
+
+### Multi-Child Flow (PLANNED — not yet built)
+Premium supports up to 3 children. Planned UX:
+1. If account has multiple children, show a **child picker** before the routine starts (tap to select which child is doing their morning)
+2. After routine completion (child hits "LET'S GO! 🚀"), show prompt: "Emma's done! ☀️ Start Jake's morning?" — one tap starts next child's routine
+3. Sequential by design — simultaneous use requires a second device (natural for families)
 
 ---
 
