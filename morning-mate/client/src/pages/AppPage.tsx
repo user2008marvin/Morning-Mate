@@ -253,8 +253,9 @@ async function speak(text: string, lang: Language = "en", voiceKey?: string) {
       }
 
       // Warmer, more natural settings — neural voices ignore pitch/rate so this mainly affects older voices
+      // Spanish TTS voices run naturally faster — drop rate to match perceived English speed
       utterance.pitch = 1.1;
-      utterance.rate = 1.1;
+      utterance.rate = lang === "es" ? 0.9 : 1.1;
       window.speechSynthesis.speak(utterance);
     } catch {}
 }
