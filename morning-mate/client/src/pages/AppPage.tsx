@@ -85,6 +85,7 @@ interface AppState {
   schoolTime: string;
   reward: string;
   enabledTasks: boolean[];
+  avatarEmoji: string;
   stars: number;
   streak: number;
   language: Language;
@@ -100,6 +101,7 @@ const DEFAULT_STATE: AppState = {
   schoolTime: "08:30",
   reward: REWARDS[0],
   enabledTasks: [true, true, true, true, true, true],
+  avatarEmoji: "",
   stars: 0,
   streak: 0,
   language: "en",
@@ -613,7 +615,9 @@ function MainScreen({
         <div style={{ background: "rgba(255,215,0,0.15)", border: "1px solid rgba(255,215,0,0.3)", borderRadius: 20, padding: "6px 14px", fontFamily: "'Fredoka One',cursive", fontSize: 16, color: "#ffd700" }}>
           ⭐ {state.stars}
         </div>
-        <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 14, color: "#ff9a3c" }}>☀️ GlowJo</div>
+        <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: state.avatarEmoji ? 28 : 14, color: "#ff9a3c" }}>
+          {state.avatarEmoji || "☀️ GlowJo"}
+        </div>
         <div style={{ background: "rgba(255,95,31,0.15)", border: "1px solid rgba(255,95,31,0.3)", borderRadius: 20, padding: "6px 14px", fontFamily: "'Fredoka One',cursive", fontSize: 16, color: "#ff9a3c" }}>
           🔥 {state.streak}
         </div>
@@ -850,7 +854,9 @@ function WinScreen({ state, onParent, onNext }: { state: AppState; onParent: () 
       </div>
       <div style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", marginTop: 4 }}>Sunny is so incredibly proud of you! ☀️</div>
       <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 20, padding: "14px 24px", marginTop: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-        <div style={{ fontSize: 44, animation: "mascot-bounce 1s ease-in-out infinite alternate" }}>👍👍</div>
+        <div style={{ fontSize: 56, animation: "mascot-bounce 1s ease-in-out infinite alternate" }}>
+          {state.avatarEmoji || "👍👍"}
+        </div>
         <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 16, color: "white" }}>Give us all a GlowJo thumbs up!</div>
       </div>
       <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 16, padding: "12px 24px", marginTop: 16, fontSize: 16, fontWeight: 700, color: "white" }}>
@@ -943,6 +949,7 @@ export default function AppPage() {
       schoolTime: child.schoolTime ?? prev.schoolTime,
       reward: child.reward ?? prev.reward,
       enabledTasks: child.enabledTasks ? JSON.parse(child.enabledTasks) : prev.enabledTasks,
+      avatarEmoji: (child as any).avatarEmoji ?? prev.avatarEmoji,
       language: (child.language as Language) ?? prev.language,
       stars: child.stars ?? prev.stars,
       streak: child.streak ?? prev.streak,

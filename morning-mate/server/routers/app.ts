@@ -24,6 +24,7 @@ export const appRouter = router({
         reward: z.string().optional(),
         language: z.enum(["en", "es"]).default("en"),
         enabledTasks: z.array(z.boolean()).length(6).optional(),
+        avatarEmoji: z.string().max(10).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -44,6 +45,7 @@ export const appRouter = router({
         reward: input.reward ?? null,
         language: input.language,
         enabledTasks: input.enabledTasks ? JSON.stringify(input.enabledTasks) : JSON.stringify([true, true, true, true, true, true]),
+        avatarEmoji: input.avatarEmoji ?? null,
         stars: 0,
         streak: 0,
         completedDays: JSON.stringify([]),
@@ -63,6 +65,7 @@ export const appRouter = router({
         reward: z.string().optional(),
         language: z.enum(["en", "es"]).optional(),
         enabledTasks: z.array(z.boolean()).optional(),
+        avatarEmoji: z.string().max(10).optional(),
         stars: z.number().optional(),
         streak: z.number().optional(),
         completedDays: z.array(z.number()).optional(),
@@ -85,6 +88,7 @@ export const appRouter = router({
       if (input.reward !== undefined) updates.reward = input.reward ?? null;
       if (input.language !== undefined) updates.language = input.language;
       if (input.enabledTasks !== undefined) updates.enabledTasks = JSON.stringify(input.enabledTasks);
+      if (input.avatarEmoji !== undefined) updates.avatarEmoji = input.avatarEmoji || null;
       if (input.stars !== undefined) updates.stars = input.stars;
       if (input.streak !== undefined) updates.streak = input.streak;
       if (input.completedDays !== undefined) updates.completedDays = JSON.stringify(input.completedDays);

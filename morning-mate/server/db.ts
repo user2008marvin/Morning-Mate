@@ -104,6 +104,10 @@ async function runStartupMigrations(dbUrl: string) {
       `ALTER TABLE users ADD COLUMN resetTokenExpiry TIMESTAMP NULL`
     ).catch(() => {});
 
+    await conn.execute(
+      `ALTER TABLE childProfiles ADD COLUMN avatarEmoji VARCHAR(10) NULL`
+    ).catch(() => {});
+
     await conn.end();
     console.log("[DB] Startup migrations complete — all tables ready");
   } catch (err) {

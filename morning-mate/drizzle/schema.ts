@@ -60,6 +60,7 @@ export const childProfiles = mysqlTable("childProfiles", {
   reward: varchar("reward", { length: 100 }),
   language: mysqlEnum("language", ["en", "es"]).default("en").notNull(),
   enabledTasks: text("enabledTasks"), // JSON: [true, true, true, true, true, true]
+  avatarEmoji: varchar("avatarEmoji", { length: 10 }),
   stars: int("stars").default(0),
   streak: int("streak").default(0),
   completedDays: text("completedDays"), // JSON: [1, 2, 3, ...]

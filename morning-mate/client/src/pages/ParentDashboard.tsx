@@ -43,6 +43,8 @@ function LoginPrompt() {
   );
 }
 
+const AVATARS = ["🦄", "🚀", "🦁", "🐸", "🐼", "🦊", "🐶", "🐱", "🦋", "🐉", "⭐", "🎃"];
+
 type Child = {
   id: number;
   name: string;
@@ -51,6 +53,7 @@ type Child = {
   reward: string | null;
   language: "en" | "es";
   enabledTasks: string | null;
+  avatarEmoji: string | null;
   stars: number | null;
   streak: number | null;
 };
@@ -70,12 +73,15 @@ function ChildCard({
       boxShadow: "0 4px 20px rgba(0,0,0,0.08)", marginBottom: "16px",
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
-        <div>
-          <div style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#1a1a2e", fontFamily: "'Fredoka One', cursive" }}>{child.name}</div>
-          <div style={{ fontSize: "0.85rem", color: "#888" }}>
-            {child.age ? `Age ${child.age}` : ""}
-            {child.schoolTime ? ` · 🏫 ${child.schoolTime}` : ""}
-            {` · ${enabledCount} tasks`}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ fontSize: "2.4rem", lineHeight: 1 }}>{child.avatarEmoji || "🌟"}</div>
+          <div>
+            <div style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#1a1a2e", fontFamily: "'Fredoka One', cursive" }}>{child.name}</div>
+            <div style={{ fontSize: "0.85rem", color: "#888" }}>
+              {child.age ? `Age ${child.age}` : ""}
+              {child.schoolTime ? ` · 🏫 ${child.schoolTime}` : ""}
+              {` · ${enabledCount} tasks`}
+            </div>
           </div>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
@@ -134,20 +140,41 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
     child?.reward && !PRESET_REWARDS.includes(child.reward) ? child.reward : ""
   );
   const [tasks, setTasks] = useState<boolean[]>(defaultTasks);
+  const [avatarEmoji, setAvatarEmoji] = useState(child?.avatarEmoji ?? AVATARS[0]);
 
   const toggleTask = (i: number) => setTasks(prev => { const n = [...prev]; n[i] = !n[i]; return n; });
   const finalReward = customReward.trim() || reward;
   const handleSave = () => {
     if (!name.trim()) { toast.error("Name is required"); return; }
-    onSave({ id: child?.id, name: name.trim(), age: age ? parseInt(age) : undefined, schoolTime: schoolTime || undefined, reward: finalReward || undefined, enabledTasks: JSON.stringify(tasks) });
+    onSave({ id: child?.id, name: name.trim(), age: age ? parseInt(age) : undefined, schoolTime: schoolTime || undefined, reward: finalReward || undefined, enabledTasks: JSON.stringify(tasks), avatarEmoji: avatarEmoji || undefined });
   };
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", zIndex: 100 }}>
       <div style={{ background: "white", borderRadius: "24px", padding: "28px", width: "100%", maxWidth: "420px", maxHeight: "90vh", overflowY: "auto" }}>
-        <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: "1.5rem", marginBottom: "20px", color: "#1a1a2e" }}>
+        <h2 style={{ fontFamily: "'Fredoka One', cursive", fontSize: "1.5rem", marginBottom: "16px", color: "#1a1a2e" }}>
           {child ? "✏️ Edit Child" : "➕ Add Child"}
         </h2>
+        <div style={{ marginBottom: "16px" }}>
+          <div style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666", marginBottom: "8px" }}>Choose an Avatar</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "8px" }}>
+            {AVATARS.map(a => (
+              <button
+                key={a}
+                type="button"
+                onClick={() => setAvatarEmoji(a)}
+                style={{
+                  fontSize: "1.6rem", padding: "6px", borderRadius: "12px", cursor: "pointer",
+                  border: `2px solid ${avatarEmoji === a ? "#4facfe" : "#eee"}`,
+                  background: avatarEmoji === a ? "#e8f5ff" : "white",
+                  transition: "border 0.1s, background 0.1s",
+                }}
+              >
+                {a}
+              </button>
+            ))}
+          </div>
+        </div>
         <label style={{ display: "block", marginBottom: "12px" }}>
           <div style={{ fontSize: "0.8rem", fontWeight: "600", color: "#666", marginBottom: "4px" }}>Name *</div>
           <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Emma" style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "2px solid #eee", fontSize: "1rem", outline: "none", boxSizing: "border-box" }} />
@@ -607,9 +634,9 @@ export default function ParentDashboard() {
 
   const handleSave = (data: Partial<Child> & { id?: number }) => {
     if (data.id) {
-      updateChild.mutate({ childId: data.id, name: data.name, age: data.age ?? undefined, schoolTime: data.schoolTime ?? undefined, reward: data.reward ?? undefined, enabledTasks: data.enabledTasks ? JSON.parse(data.enabledTasks) : undefined });
+      updateChild.mutate({ childId: data.id, name: data.name, age: data.age ?? undefined, schoolTime: data.schoolTime ?? undefined, reward: data.reward ?? undefined, enabledTasks: data.enabledTasks ? JSON.parse(data.enabledTasks) : undefined, avatarEmoji: data.avatarEmoji ?? undefined });
     } else {
-      createChild.mutate({ name: data.name!, age: data.age ?? undefined, schoolTime: data.schoolTime ?? undefined, reward: data.reward ?? undefined, enabledTasks: data.enabledTasks ? JSON.parse(data.enabledTasks) : undefined, language: "en" });
+      createChild.mutate({ name: data.name!, age: data.age ?? undefined, schoolTime: data.schoolTime ?? undefined, reward: data.reward ?? undefined, enabledTasks: data.enabledTasks ? JSON.parse(data.enabledTasks) : undefined, avatarEmoji: data.avatarEmoji ?? undefined, language: "en" });
     }
   };
 
