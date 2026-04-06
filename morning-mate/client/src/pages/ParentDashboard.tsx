@@ -633,7 +633,6 @@ export default function ParentDashboard() {
       </div>
 
       <div style={{ maxWidth: "480px", margin: "0 auto 0", padding: "16px 16px 80px" }}>
-        <UpgradeCard tier={tier} />
 
         {/* Renewal / expiry reminder for paid subscribers */}
         {tier !== "freemium" && currentPeriodEnd && (() => {
@@ -692,14 +691,30 @@ export default function ParentDashboard() {
             <button onClick={() => setEditingChild("new")} style={{ background: "linear-gradient(135deg, #4facfe, #00f2fe)", color: "white", border: "none", borderRadius: "14px", padding: "14px 28px", cursor: "pointer", fontSize: "1rem", fontFamily: "'Fredoka One', cursive" }}>➕ Add First Child</button>
           </div>
         ) : (
-          (children as Child[]).map(c => (
-            <ChildCard key={c.id} child={c} onEdit={setEditingChild} onDelete={handleDelete} canDelete={children.length > 1} />
-          ))
+          <>
+            {(children as Child[]).map(c => (
+              <ChildCard key={c.id} child={c} onEdit={setEditingChild} onDelete={handleDelete} canDelete={children.length > 1} />
+            ))}
+            <button
+              onClick={() => navigate("/app")}
+              style={{
+                width: "100%", padding: "18px", borderRadius: "20px", border: "none",
+                background: "linear-gradient(135deg, #ff9a3c, #ff5f1f)",
+                color: "white", fontSize: "1.2rem", fontFamily: "'Fredoka One', cursive",
+                cursor: "pointer", boxShadow: "0 6px 24px rgba(255,95,31,0.35)",
+                marginBottom: "16px",
+              }}
+            >
+              🌅 Start Morning Routine
+            </button>
+          </>
         )}
 
         {tier !== "freemium" && <MumsVoice />}
 
         <EveningPrep />
+
+        <UpgradeCard tier={tier} />
 
         <div style={{ background: "white", borderRadius: "20px", padding: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginTop: "8px" }}>
           <div style={{ fontSize: "1.1rem", color: "#1a1a2e", marginBottom: "14px" }}>⚙️ Account</div>
