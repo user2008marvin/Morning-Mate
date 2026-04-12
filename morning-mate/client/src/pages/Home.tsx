@@ -116,21 +116,24 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
           setTimeout(() => resolve(window.speechSynthesis.getVoices()), 1000);
         });
       const voices = await getVoicesAsync();
-      const MALE_SKIP = ['Daniel', 'Google UK English Male', 'Alex', 'Fred', 'Microsoft David', 'Microsoft Mark', 'Arthur', 'David', 'Mark', 'George', 'Ryan', 'Microsoft Ryan', 'Microsoft George', 'Rishi', 'Aaron', 'Thomas', 'Reed', 'Eddy', 'Grandpa', 'Albert', 'Bad News', 'Bahh', 'Bells', 'Boing', 'Bubbles', 'Cellos', 'Wobble', 'Zarvox', 'Guy', 'Liam', 'James', 'Chris', 'Connor', 'Microsoft Guy Online (Natural)', 'Microsoft Ryan Online (Natural)', 'Microsoft George Online (Natural)', 'Microsoft Liam Online (Natural)'];
+      // Female voices ordered warmest-first (matches AppPage.tsx)
+      const FEMALE_EN = ['Microsoft Libby','Microsoft Sonia','Microsoft Mia','Microsoft Aria','Microsoft Jenny','Karen','Moira','Tessa','Fiona','Samantha','Google UK English Female','Google US English','Microsoft Hazel','Microsoft Zira','Zira'];
+      const FEMALE_ES = ['Google español','Paulina','Monica','Google español de Estados Unidos','Microsoft Helena','Mónica','Microsoft Elvira Online (Natural)'];
       const FEMALE_KEYWORDS = ['aria','jenny','libby','sonia','mia','susan','zira','hazel','natasha','victoria','emma','samantha','karen','tessa','moira','fiona','helena','elvira','paulina','monica','alice','grace','isabella'];
+      const MALE_SKIP = ['Daniel','Google UK English Male','Alex','Fred','Microsoft David','Microsoft Mark','Arthur','David','Mark','George','Ryan','Microsoft Ryan','Microsoft George','Rishi','Aaron','Thomas','Reed','Eddy','Grandpa','Guy','Liam','James','Chris','Connor','Microsoft Guy Online (Natural)','Microsoft Ryan Online (Natural)','Microsoft George Online (Natural)','Microsoft Liam Online (Natural)'];
       const isMale = (v: SpeechSynthesisVoice) => MALE_SKIP.includes(v.name) || v.name.toLowerCase().includes('male');
       const isFemale = (v: SpeechSynthesisVoice) => FEMALE_KEYWORDS.some(k => v.name.toLowerCase().includes(k)) || v.name.toLowerCase().includes('female');
       let chosen: SpeechSynthesisVoice | null = null;
       if (lang === "es") {
-        const FEMALE_ES = ['Google español', 'Paulina', 'Monica', 'Google español de Estados Unidos', 'Microsoft Helena', 'Mónica', 'Microsoft Elvira Online (Natural)'];
-        chosen = voices.find(v => FEMALE_ES.includes(v.name))
+        chosen = voices.find(v => FEMALE_ES.some(n => v.name.includes(n)))
           ?? voices.find(v => v.lang.startsWith('es') && isFemale(v))
           ?? voices.find(v => v.lang.startsWith('es') && !isMale(v))
           ?? null;
         utterance.lang = 'es-ES';
       } else {
-        const FEMALE_EN = ['Google UK English Female', 'Samantha', 'Karen', 'Tessa', 'Moira', 'Fiona', 'Google US English', 'Microsoft Zira', 'Microsoft Hazel', 'Zira', 'Microsoft Aria Online (Natural)', 'Microsoft Jenny Online (Natural)', 'Microsoft Libby Online (Natural)', 'Microsoft Sonia Online (Natural)'];
-        chosen = voices.find(v => FEMALE_EN.some(n => v.name.startsWith(n)))
+        chosen = voices.find(v => FEMALE_EN.some(n => v.name.includes(n)))
+          ?? voices.find(v => v.lang === 'en-GB' && isFemale(v))
+          ?? voices.find(v => v.lang === 'en-GB' && !isMale(v))
           ?? voices.find(v => v.lang.startsWith('en') && isFemale(v))
           ?? voices.find(v => v.lang.startsWith('en') && !isMale(v))
           ?? voices.find(v => isFemale(v)) ?? null;
@@ -138,7 +141,7 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
       }
       if (chosen) utterance.voice = chosen;
       utterance.pitch = 1.1;
-      utterance.rate = 0.92;
+      utterance.rate = lang === 'es' ? 0.9 : 0.95;
       window.speechSynthesis.speak(utterance);
     } catch {}
   }

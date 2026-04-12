@@ -81,9 +81,14 @@ export const appRouter = router({
         const token = crypto.randomBytes(32).toString("hex");
         const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
         await db.setResetToken(user.id, token, expiry);
-        const host = ctx.req.get("host") || "";
-        const proto = host.includes("localhost") ? "http" : "https";
-        const baseUrl = `${proto}://${host}`;
+        // Use APP_URL env var first (Railway / reverse-proxy safe).
+        // Fall back to reconstructing from the request host for local dev.
+        let baseUrl = (process.env.APP_URL || "").replace(/\/$/, "");
+        if (!baseUrl) {
+          const host = ctx.req.get("x-forwarded-host") || ctx.req.get("host") || "";
+          const proto = ctx.req.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+          baseUrl = `${proto}://${host}`;
+        }
         const resetLink = `${baseUrl}/reset-password?token=${token}`;
         console.log(`[Auth] Password reset requested for ${input.email} — link: ${resetLink}`);
         try {
