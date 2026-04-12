@@ -220,17 +220,15 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
                   {loading ? "Please wait..." : view === "login" ? "Sign In →" : "Create Account →"}
                 </button>
 
-                {view === "login" && (
-                  <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={() => switchView("forgot")}
-                      className="text-sm text-[#ff6b35] font-semibold hover:underline"
-                    >
-                      Forgot your password?
-                    </button>
-                  </div>
-                )}
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => switchView("forgot")}
+                    className="text-sm text-[#ff6b35] font-semibold hover:underline"
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
 
                 <p className="text-center text-xs text-gray-400">
                   {view === "login" ? (

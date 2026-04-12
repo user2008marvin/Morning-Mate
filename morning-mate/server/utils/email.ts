@@ -1,13 +1,10 @@
-import FormData from "form-data";
-import Mailgun from "mailgun.js";
+import { Resend } from "resend";
 
-const mailgun = new Mailgun(FormData);
-const mg = process.env.MAILGUN_API_KEY
-  ? mailgun.client({
-      username: "api",
-      key: process.env.MAILGUN_API_KEY,
-    })
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
   : null;
+
+const FROM = process.env.RESEND_FROM_EMAIL || "GlowJo <noreply@myglowjo.fit>";
 
 interface EmailOptions {
   to: string;
@@ -17,11 +14,11 @@ interface EmailOptions {
 }
 
 export async function sendEmail({ to, subject, template, data }: EmailOptions) {
-  // Skip email sending if Mailgun is not configured (e.g., during tests)
-  if (!mg) {
-    console.warn(`[Email] Mailgun not configured, skipping email to ${to}`);
+  if (!resend) {
+    console.warn(`[Email] Resend not configured (missing RESEND_API_KEY), skipping email to ${to}`);
     return { success: false };
   }
+
   const emailTemplates: Record<string, (data: any) => string> = {
     "welcome": (data) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff8ee; padding: 24px; border-radius: 12px;">
@@ -33,9 +30,7 @@ export async function sendEmail({ to, subject, template, data }: EmailOptions) {
         <p style="color: #5a3e28; font-size: 15px; line-height: 1.7;">
           You've just taken the first step to turning chaotic school mornings into something your child actually looks forward to. 🎉
         </p>
-        <p style="color: #5a3e28; font-size: 15px; line-height: 1.7;">
-          Here's what to do next:
-        </p>
+        <p style="color: #5a3e28; font-size: 15px; line-height: 1.7;">Here's what to do next:</p>
         <ol style="color: #5a3e28; font-size: 15px; line-height: 2;">
           <li>Set up your child's profile (name, age, wake-up time)</li>
           <li>Choose their morning tasks</li>
@@ -44,9 +39,7 @@ export async function sendEmail({ to, subject, template, data }: EmailOptions) {
         <div style="text-align: center; margin: 32px 0;">
           <a href="${data.appUrl}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #ff9a3c, #ff5f1f); color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 17px;">Start Your First Morning →</a>
         </div>
-        <p style="color: #a07850; font-size: 13px; line-height: 1.6;">
-          If you have any questions, just reply to this email — we're a small team and we read every message. 💛
-        </p>
+        <p style="color: #a07850; font-size: 13px; line-height: 1.6;">If you have any questions, just reply to this email — we're a small team and we read every message. 💛</p>
         <p style="color: #a07850; font-size: 13px;">The GlowJo Team</p>
       </div>
     `,
@@ -61,18 +54,18 @@ export async function sendEmail({ to, subject, template, data }: EmailOptions) {
     `,
     "subscription-welcome": (data) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>🎉 Welcome to Morning Mate Pro, ${data.userName}!</h2>
+        <h2>🎉 Welcome to GlowJo, ${data.userName}!</h2>
         <p>Your subscription is active until <strong>${data.currentPeriodEnd}</strong>.</p>
-        <p>Enjoy unlimited challenges, custom routines, and family analytics!</p>
-        <a href="${process.env.APP_URL}" style="display: inline-block; padding: 12px 24px; background: #ff5f1f; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px;">Get started →</a>
+        <p>Enjoy happy music every morning, bilingual routines, and Mum's Voice recording!</p>
+        <a href="${process.env.APP_URL || "https://myglowjo.fit"}" style="display: inline-block; padding: 12px 24px; background: #ff5f1f; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px;">Open GlowJo →</a>
       </div>
     `,
     "subscription-canceled": (data) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>😢 We'll miss you, ${data.userName}</h2>
-        <p>Your Morning Mate Pro subscription was canceled on <strong>${data.canceledDate}</strong>.</p>
+        <p>Your GlowJo subscription was canceled on <strong>${data.canceledDate}</strong>.</p>
         <p>You can reactivate anytime:</p>
-        <a href="${data.reactivateLink}" style="display: inline-block; padding: 12px 24px; background: #ff5f1f; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px;">Reactivate subscription →</a>
+        <a href="${data.reactivateLink}" style="display: inline-block; padding: 12px 24px; background: #ff5f1f; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px;">Reactivate →</a>
       </div>
     `,
     "password-reset": (data) => `
@@ -100,25 +93,14 @@ export async function sendEmail({ to, subject, template, data }: EmailOptions) {
     `,
   };
 
-  const htmlContent = emailTemplates[template]?.(data) || "";
+  const html = emailTemplates[template]?.(data) || "";
 
   try {
-    const messageData = {
-      from: process.env.MAILGUN_FROM_EMAIL || "noreply@morningmate.app",
-      to: to,
-      subject: subject,
-      html: htmlContent,
-    };
-
-    const result = await mg.messages.create(
-      process.env.MAILGUN_DOMAIN || "",
-      messageData
-    );
-
-    console.log(`✅ Email sent to ${to}:`, result.id);
+    const result = await resend.emails.send({ from: FROM, to, subject, html });
+    console.log(`✅ Email sent to ${to}:`, result.data?.id);
     return { success: true };
   } catch (error) {
-    console.error(`❌ Mailgun error:`, error);
+    console.error(`❌ Resend error:`, error);
     throw error;
   }
 }
