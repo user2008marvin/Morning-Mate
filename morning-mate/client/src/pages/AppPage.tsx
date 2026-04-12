@@ -494,6 +494,8 @@ function MainScreen({
 }) {
   const { tier } = useSubscription();
   const musicEnabled = tier !== "freemium";
+  // Track whether this freemium session has music allowed (first 2 unique days get full music)
+  const freemiumMusicRef = useRef<boolean | null>(null);
   const activeTasks = TASKS_EN.filter((_, i) => state.enabledTasks[i]);
   const [taskIdx, setTaskIdx] = useState(0);
   const [started, setStarted] = useState(false);
@@ -578,7 +580,31 @@ function MainScreen({
 
   function startRing(seconds = 180, taskLabel?: string) {
     clearInterval(ringTimer.current); setRingProgress(0);
-    if (musicEnabled || taskLabel === "WAKE UP!") startKidsMusic(taskLabel);
+
+    // Determine if music should play for freemium users this session
+    // First 2 unique days get full music on all tasks; after that WAKE UP! only
+    if (!musicEnabled && freemiumMusicRef.current === null) {
+      try {
+        const today = new Date().toDateString();
+        const raw = localStorage.getItem("gj_freemium_music_days");
+        const days: string[] = raw ? JSON.parse(raw) : [];
+        if (days.includes(today)) {
+          freemiumMusicRef.current = true; // already counted today
+        } else if (days.length < 2) {
+          days.push(today);
+          localStorage.setItem("gj_freemium_music_days", JSON.stringify(days));
+          freemiumMusicRef.current = true; // still within 2 free days
+        } else {
+          freemiumMusicRef.current = false; // free days exhausted
+        }
+      } catch {
+        freemiumMusicRef.current = false;
+      }
+    }
+
+    const shouldPlayFullMusic = musicEnabled || freemiumMusicRef.current === true;
+    if (shouldPlayFullMusic || taskLabel === "WAKE UP!") startKidsMusic(taskLabel);
+
     let p = 0;
     ringTimer.current = setInterval(() => {
       p += 100 / seconds; setRingProgress(Math.min(p, 100));
@@ -800,6 +826,7 @@ function DeleteAccountLink() {
       // Clear ALL local state so no trace of the old account remains
       localStorage.removeItem("GJ_State_v1");
       localStorage.removeItem("gj_free_mornings");
+      localStorage.removeItem("gj_freemium_music_days");
       utils.app.getChildren.reset(); // clear cached children — prevents name/date leaking to next account
       utils.auth.me.reset();
       navigate("/");
@@ -1037,6 +1064,7 @@ export default function AppPage() {
       // New registration — wipe all stale state from any previous account
       localStorage.removeItem("GJ_State_v1");
       localStorage.removeItem("gj_free_mornings");
+      localStorage.removeItem("gj_freemium_music_days");
       setAppState({ ...DEFAULT_STATE });
       saveState({ ...DEFAULT_STATE });
       setServerLastCompleted(null); // prevent old completion date showing "done today" on new account

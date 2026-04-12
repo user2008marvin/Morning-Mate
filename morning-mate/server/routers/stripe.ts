@@ -267,15 +267,46 @@ export const stripeRouter = router({
               break;
             }
 
-            // Update subscription in database
-            await db.updateSubscription(user.id, {
+            // Resolve the tier from the product attached to this subscription
+            let resolvedTier: "starter" | "plus" | "gold" | null = null;
+            try {
+              const fullSub = await stripe.subscriptions.retrieve(subscription.id, {
+                expand: ["items.data.price.product"],
+              });
+              const product = fullSub.items.data[0]?.price?.product;
+              const productName = typeof product === "object" && product !== null
+                ? (product as { name?: string }).name?.toLowerCase() ?? ""
+                : "";
+              const productId = typeof product === "string" ? product
+                : typeof product === "object" && product !== null
+                ? (product as { id: string }).id : "";
+
+              // Map by product name (preferred) or by known product ID
+              const idMap: Record<string, "starter" | "plus" | "gold"> = {
+                "prod_UFv1lk6xTeRu0r": "starter",
+                "prod_UFv7wwXLIFTBhw": "plus",
+                "prod_UFvCIa9o0bg0Ei": "gold",
+              };
+              if (productName.includes("starter") || productName.includes("glowjo starter")) resolvedTier = "starter";
+              else if (productName.includes("plus") || productName.includes("glowjo plus")) resolvedTier = "plus";
+              else if (productName.includes("gold") || productName.includes("glowjo gold")) resolvedTier = "gold";
+              else if (productId && idMap[productId]) resolvedTier = idMap[productId];
+            } catch (tierErr) {
+              console.warn(`[Stripe] Could not resolve tier for subscription ${subscription.id}:`, tierErr);
+            }
+
+            // Update subscription in database — always include tier when we can resolve it
+            const subUpdate: Parameters<typeof db.updateSubscription>[1] = {
               stripeSubscriptionId: subscription.id,
+              stripeCustomerId: subscription.customer,
               status: subscription.status,
               currentPeriodEnd: new Date(subscription.current_period_end * 1000),
               currentPeriodStart: new Date(subscription.current_period_start * 1000),
-            });
+            };
+            if (resolvedTier) subUpdate.tier = resolvedTier;
+            await db.updateSubscription(user.id, subUpdate);
 
-            console.log(`[Stripe] Subscription updated in DB: ${subscription.id}`);
+            console.log(`[Stripe] Subscription updated in DB: ${subscription.id} tier=${resolvedTier ?? "unresolved"}`);
 
             // Send welcome email on first subscription
             if (event.type === "customer.subscription.created") {
@@ -308,6 +339,33 @@ export const stripeRouter = router({
             console.log(`[Stripe] Subscription marked as canceled: ${subscription.id}`);
             console.log(`[Stripe] Cancellation email would be sent to ${user.email}`);
 
+            break;
+          }
+
+          case "checkout.session.completed": {
+            const session = event.data.object as any;
+            if (session.payment_status !== "paid") break;
+
+            const metaUserId = session.metadata?.userId ? parseInt(session.metadata.userId) : null;
+            const tier = session.metadata?.tier as "starter" | "plus" | "gold" | undefined;
+
+            if (!tier || !metaUserId) {
+              console.warn(`[Stripe] checkout.session.completed missing metadata`, session.metadata);
+              break;
+            }
+
+            // Look up user in our DB
+            const cusUser = await db.getUserByStripeCustomerId(session.customer);
+            const targetUserId = cusUser?.id ?? metaUserId;
+
+            await db.updateSubscription(targetUserId, {
+              tier,
+              stripeCustomerId: session.customer,
+              stripeSubscriptionId: session.subscription ?? undefined,
+              status: "active",
+            });
+
+            console.log(`[Stripe] checkout.session.completed: activated ${tier} for userId ${targetUserId}`);
             break;
           }
 

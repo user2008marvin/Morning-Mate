@@ -56,7 +56,7 @@ export const TIER_CONFIG: Record<Tier, TierConfig> = {
     yearlyPrice: 24,
     description: "Everything you need for one child",
     features: {
-      childProfiles: 1,
+      childProfiles: 3,
       voiceEncouragement: true,
       bilingualMode: true,
       parentDashboard: "view-only",
