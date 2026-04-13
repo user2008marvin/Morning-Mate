@@ -22,6 +22,15 @@ const OCCASIONS = [
   { id: "photo", name: "Photoshoot / Event", icon: "📸", desc: "Striking & editorial" }
 ];
 
+const SKIN_TONES = [
+  { id: "fair", label: "Fair", color: "#FDDBB4", desc: "Porcelain & light" },
+  { id: "light", label: "Light", color: "#F5C89B", desc: "Ivory & warm" },
+  { id: "medium", label: "Medium", color: "#D4956A", desc: "Warm beige" },
+  { id: "tan", label: "Tan", color: "#B07D52", desc: "Golden brown" },
+  { id: "deep", label: "Deep", color: "#7C4D2F", desc: "Rich brown" },
+  { id: "rich", label: "Rich", color: "#3E2010", desc: "Deep ebony" }
+];
+
 const LOOKS: Record<string, { name: string, prompt: string, desc: string }[]> = {
   "wedding": [
     { name: "Romantic Blush", desc: "Soft pink, dewy skin, subtle glow, light lashes", prompt: "A dreamy romantic makeup look with soft pink blush draped over the cheekbones, a sheer dewy foundation, subtle pearlescent highlighter, and light fluttery lashes." },
@@ -49,11 +58,15 @@ const LOOKS: Record<string, { name: string, prompt: string, desc: string }[]> = 
   ]
 };
 
+type DemoStep = 0 | 1 | 2 | 3 | 4 | 5 | 6 | "dashboard";
+
+const STEP_LABELS = ["Occasion", "Look", "Skin Tone", "Photo", "Details", "Result"];
+
 export default function Home() {
   const { toast } = useToast();
   const { user, isLoading, demoCompleted, markDemoComplete, setPlan } = useAuth();
 
-  const [step, setStep] = useState<0 | 1 | 2 | 3 | 4 | "dashboard">(0);
+  const [step, setStep] = useState<DemoStep>(0);
 
   useEffect(() => {
     if (!isLoading && !user && demoCompleted) {
@@ -63,6 +76,7 @@ export default function Home() {
 
   const [occasion, setOccasion] = useState("");
   const [look, setLook] = useState("");
+  const [skinTone, setSkinTone] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [afterUrl, setAfterUrl] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -97,6 +111,12 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleSkinToneSelect = (id: string) => {
+    setSkinTone(id);
+    setStep(4);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -108,8 +128,13 @@ export default function Home() {
     }
   };
 
-  const handleProcess = async () => {
+  const handlePhotoConfirm = () => {
     if (!photoUrl) return;
+    setStep(5);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleProcess = async () => {
     setIsProcessing(true);
     try {
       await new Promise((r) => setTimeout(r, 1500));
@@ -126,7 +151,7 @@ export default function Home() {
         }
       }).catch(() => {});
 
-      setStep(4);
+      setStep(6);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       toast({ title: "Processing Failed", description: "Could not apply makeup simulation.", variant: "destructive" });
@@ -165,9 +190,10 @@ export default function Home() {
     }
   };
 
-  const selectedLookDetails = occasion && look ? LOOKS[occasion].find((l) => l.name === look) : null;
+  const selectedLookDetails = occasion && look ? LOOKS[occasion]?.find((l) => l.name === look) : null;
   const selectedOccasionObj = OCCASIONS.find((o) => o.id === occasion);
-  const isDemoActive = step !== 0 && step !== "dashboard";
+  const selectedSkinToneObj = SKIN_TONES.find((s) => s.id === skinTone);
+  const isDemoActive = typeof step === "number" && step >= 1 && step <= 6;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -176,7 +202,7 @@ export default function Home() {
       <main className="pt-28 px-4 sm:px-6 lg:px-8">
         <AnimatePresence mode="wait">
 
-          {/* LANDING HERO */}
+          {/* ── LANDING HERO ── */}
           {step === 0 && (
             <motion.div
               key="hero"
@@ -260,29 +286,38 @@ export default function Home() {
             </motion.div>
           )}
 
-          {/* DEMO FLOW */}
+          {/* ── DEMO FLOW — Steps 1–6 ── */}
           {isDemoActive && (
             <motion.div
-              key="demo"
+              key="demo-wrapper"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="max-w-5xl mx-auto"
             >
               {/* Progress Tracker */}
-              <div className="flex items-center justify-center space-x-2 mb-12">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="flex items-center">
-                    <div className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors duration-300",
-                      (step as number) >= i ? "bg-primary text-white shadow-md shadow-primary/30" : "bg-muted text-muted-foreground",
-                      step === i && "ring-4 ring-primary/20"
-                    )}>
-                      {i}
-                    </div>
-                    {i < 4 && (
+              <div className="flex items-center justify-center mb-12 overflow-x-auto pb-2">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="flex items-center shrink-0">
+                    <div className="flex flex-col items-center gap-1">
                       <div className={cn(
-                        "w-8 sm:w-16 h-1 mx-2 rounded-full transition-colors duration-300",
+                        "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300",
+                        (step as number) > i ? "bg-primary text-white" :
+                        step === i ? "bg-primary text-white ring-4 ring-primary/20" :
+                        "bg-muted text-muted-foreground"
+                      )}>
+                        {(step as number) > i ? "✓" : i}
+                      </div>
+                      <span className={cn(
+                        "text-xs font-medium hidden sm:block",
+                        step === i ? "text-primary" : "text-muted-foreground"
+                      )}>
+                        {STEP_LABELS[i - 1]}
+                      </span>
+                    </div>
+                    {i < 6 && (
+                      <div className={cn(
+                        "w-8 sm:w-14 h-0.5 mx-1 mb-5 rounded-full transition-colors duration-300",
                         (step as number) > i ? "bg-primary" : "bg-muted"
                       )} />
                     )}
@@ -291,7 +326,8 @@ export default function Home() {
               </div>
 
               <AnimatePresence mode="wait">
-                {/* STEP 1 */}
+
+                {/* STEP 1 — OCCASION */}
                 {step === 1 && (
                   <motion.div
                     key="step1"
@@ -300,82 +336,73 @@ export default function Home() {
                     exit={{ opacity: 0, y: -20 }}
                     className="space-y-8"
                   >
-                    <div className="text-center max-w-2xl mx-auto space-y-4">
-                      <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-foreground leading-tight">
-                        Your face. <br />
-                        <span className="text-primary italic">Your occasion.</span>
-                        <br />
-                        Your perfect look.
-                      </h1>
-                      <p className="text-lg text-muted-foreground font-sans">
-                        Find makeup chosen for your occasion, then try it on your own face in seconds.
-                      </p>
+                    <div className="text-center max-w-2xl mx-auto space-y-3">
+                      <h2 className="text-4xl md:text-5xl font-serif">What's the occasion?</h2>
+                      <p className="text-lg text-muted-foreground">Pick your event and we'll curate the perfect looks for it.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
                       {OCCASIONS.map((occ) => (
                         <button
                           key={occ.id}
                           onClick={() => handleOccasionSelect(occ.id)}
                           className="group relative bg-card rounded-3xl p-6 text-left border border-card-border shadow-sm hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
                         >
-                          <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300 text-primary">
+                          <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-primary">
                             <ChevronRight size={24} />
                           </div>
                           <div className="text-5xl mb-4 transform group-hover:scale-110 transition-transform duration-300 origin-left">
                             {occ.icon}
                           </div>
-                          <h3 className="text-xl font-serif font-semibold text-foreground mb-2">{occ.name}</h3>
-                          <p className="text-muted-foreground text-sm font-sans">{occ.desc}</p>
+                          <h3 className="text-xl font-serif font-semibold text-foreground mb-1">{occ.name}</h3>
+                          <p className="text-muted-foreground text-sm">{occ.desc}</p>
                         </button>
                       ))}
                     </div>
                   </motion.div>
                 )}
 
-                {/* STEP 2 */}
+                {/* STEP 2 — LOOK */}
                 {step === 2 && occasion && (
                   <motion.div
                     key="step2"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    className="space-y-8 max-w-4xl mx-auto"
+                    className="max-w-4xl mx-auto space-y-8"
                   >
                     <button
                       onClick={() => setStep(1)}
                       className="flex items-center text-sm font-semibold text-muted-foreground hover:text-primary transition-colors"
                     >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back to Occasions
+                      <ArrowLeft className="w-4 h-4 mr-2" /> Back to Occasions
                     </button>
 
-                    <div className="text-center space-y-4">
-                      <div className="inline-block px-4 py-1.5 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold tracking-wide uppercase mb-2">
+                    <div className="text-center space-y-3">
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold">
                         {selectedOccasionObj?.icon} {selectedOccasionObj?.name}
                       </div>
-                      <h2 className="text-3xl md:text-4xl font-serif">Choose your vibe.</h2>
-                      <p className="text-muted-foreground">Expertly curated looks for this occasion.</p>
+                      <h2 className="text-3xl md:text-4xl font-serif">Choose your look.</h2>
+                      <p className="text-muted-foreground">Two expertly curated looks for this occasion.</p>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-8 mt-10">
-                      {LOOKS[occasion].map((l, idx) => (
+                    <div className="grid md:grid-cols-2 gap-8 mt-6">
+                      {LOOKS[occasion]?.map((l, idx) => (
                         <button
                           key={idx}
                           onClick={() => handleLookSelect(l.name)}
-                          className="group bg-card rounded-3xl p-8 border border-card-border shadow-md hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/40 transition-all duration-500 text-left flex flex-col justify-between min-h-[280px] relative overflow-hidden"
+                          className="group bg-card rounded-3xl p-8 border border-card-border shadow-md hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/40 transition-all duration-500 text-left flex flex-col justify-between min-h-[260px] relative overflow-hidden"
                         >
                           <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors duration-500" />
                           <div>
-                            <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center text-primary mb-6 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                            <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center text-primary mb-5 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                               <Sparkles size={24} />
                             </div>
-                            <h3 className="text-2xl font-serif font-semibold mb-3">{l.name}</h3>
+                            <h3 className="text-2xl font-serif font-semibold mb-2">{l.name}</h3>
                             <p className="text-muted-foreground leading-relaxed">{l.desc}</p>
                           </div>
-                          <div className="mt-8 flex items-center text-primary font-medium tracking-wide">
-                            Select Look
-                            <ChevronRight className="ml-2 w-5 h-5 transform group-hover:translate-x-2 transition-transform" />
+                          <div className="mt-6 flex items-center text-primary font-medium">
+                            Select Look <ChevronRight className="ml-2 w-5 h-5 transform group-hover:translate-x-2 transition-transform" />
                           </div>
                         </button>
                       ))}
@@ -383,38 +410,88 @@ export default function Home() {
                   </motion.div>
                 )}
 
-                {/* STEP 3 */}
+                {/* STEP 3 — SKIN TONE */}
                 {step === 3 && (
                   <motion.div
                     key="step3"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    className="max-w-2xl mx-auto"
+                    className="max-w-3xl mx-auto space-y-8"
                   >
                     <button
                       onClick={() => setStep(2)}
+                      className="flex items-center text-sm font-semibold text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2" /> Back to Looks
+                    </button>
+
+                    <div className="text-center space-y-3">
+                      <div className="inline-block px-4 py-1.5 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold tracking-wide uppercase">
+                        Personalise your look
+                      </div>
+                      <h2 className="text-3xl md:text-4xl font-serif">What's your skin tone?</h2>
+                      <p className="text-muted-foreground">We'll tailor every shade perfectly for you.</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 mt-6">
+                      {SKIN_TONES.map((tone) => (
+                        <button
+                          key={tone.id}
+                          onClick={() => handleSkinToneSelect(tone.id)}
+                          className="group bg-card rounded-2xl p-5 border border-card-border shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300 flex flex-col items-center gap-3 hover:-translate-y-1"
+                        >
+                          <div
+                            className="w-14 h-14 rounded-full shadow-inner border-4 border-white group-hover:scale-110 transition-transform duration-300"
+                            style={{ backgroundColor: tone.color }}
+                          />
+                          <div className="text-center">
+                            <p className="font-serif font-semibold text-foreground">{tone.label}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{tone.desc}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* STEP 4 — UPLOAD PHOTO */}
+                {step === 4 && (
+                  <motion.div
+                    key="step4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="max-w-2xl mx-auto"
+                  >
+                    <button
+                      onClick={() => setStep(3)}
                       className="flex items-center text-sm font-semibold text-muted-foreground hover:text-primary transition-colors mb-8"
                     >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back to Looks
+                      <ArrowLeft className="w-4 h-4 mr-2" /> Back to Skin Tone
                     </button>
 
                     <div className="bg-card rounded-3xl p-8 md:p-10 shadow-xl border border-card-border">
-                      <div className="text-center mb-10">
-                        <h2 className="text-3xl font-serif mb-3">Upload your photo</h2>
-                        <p className="text-muted-foreground">
-                          We'll apply the{" "}
-                          <span className="font-semibold text-foreground">"{look}"</span> makeup look to your face.
-                        </p>
+                      <div className="text-center mb-8">
+                        <div className="inline-flex items-center gap-2 mb-3">
+                          <div
+                            className="w-5 h-5 rounded-full border-2 border-white shadow"
+                            style={{ backgroundColor: selectedSkinToneObj?.color }}
+                          />
+                          <span className="text-sm text-muted-foreground font-medium">
+                            {selectedSkinToneObj?.label} skin · {look}
+                          </span>
+                        </div>
+                        <h2 className="text-3xl font-serif mb-2">Upload your photo</h2>
+                        <p className="text-muted-foreground">We'll apply your <span className="font-semibold text-foreground">"{look}"</span> look, tailored to your skin tone.</p>
                       </div>
 
                       {!photoUrl ? (
                         <div
                           onClick={() => fileInputRef.current?.click()}
-                          className="w-full aspect-[4/3] md:aspect-video rounded-2xl border-2 border-dashed border-primary/30 bg-secondary/30 flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 hover:border-primary/60 transition-all duration-300 group"
+                          className="w-full aspect-[4/3] rounded-2xl border-2 border-dashed border-primary/30 bg-secondary/30 flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/50 hover:border-primary/60 transition-all duration-300 group"
                         >
-                          <div className="w-20 h-20 rounded-full bg-white shadow-sm flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform duration-300">
+                          <div className="w-20 h-20 rounded-full bg-white shadow flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform duration-300">
                             <Camera size={32} />
                           </div>
                           <p className="font-medium text-lg">Tap to take or upload a photo</p>
@@ -428,61 +505,18 @@ export default function Home() {
                           />
                         </div>
                       ) : (
-                        <div className="space-y-8">
+                        <div className="space-y-6">
                           <div className="relative w-full max-w-sm mx-auto aspect-[3/4] rounded-2xl overflow-hidden shadow-lg border-4 border-white">
                             <img src={photoUrl} alt="Upload preview" className="w-full h-full object-cover" />
                             <button
-                              onClick={() => setPhotoUrl("")}
+                              onClick={() => { setPhotoUrl(""); if (fileInputRef.current) fileInputRef.current.value = ""; }}
                               className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white backdrop-blur-sm p-2 rounded-full transition-colors"
                             >
                               <RefreshCcw size={18} />
                             </button>
                           </div>
-
-                          <div className="space-y-5 border-t border-border pt-8">
-                            <h4 className="font-serif text-xl">
-                              Where should we send your results?{" "}
-                              <span className="text-muted-foreground text-sm font-sans font-normal">(Optional)</span>
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <label className="text-sm font-semibold text-foreground ml-1">First Name</label>
-                                <input
-                                  type="text"
-                                  value={firstName}
-                                  onChange={(e) => setFirstName(e.target.value)}
-                                  className="w-full px-4 py-3 rounded-xl bg-background border-2 border-border focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
-                                  placeholder="Your name"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <label className="text-sm font-semibold text-foreground ml-1">Email</label>
-                                <input
-                                  type="email"
-                                  value={email}
-                                  onChange={(e) => setEmail(e.target.value)}
-                                  className="w-full px-4 py-3 rounded-xl bg-background border-2 border-border focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200"
-                                  placeholder="you@example.com"
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <Button
-                            onClick={handleProcess}
-                            disabled={isProcessing}
-                            className="w-full h-14 text-lg"
-                          >
-                            {isProcessing ? (
-                              <>
-                                <Sparkles className="w-5 h-5 mr-2 animate-spin" />
-                                Applying Makeup...
-                              </>
-                            ) : (
-                              <>
-                                Try On Look <Sparkles className="w-5 h-5 ml-2" />
-                              </>
-                            )}
+                          <Button onClick={handlePhotoConfirm} className="w-full h-12 text-base">
+                            Use This Photo <ChevronRight className="ml-2 w-5 h-5" />
                           </Button>
                         </div>
                       )}
@@ -490,53 +524,135 @@ export default function Home() {
                   </motion.div>
                 )}
 
-                {/* STEP 4: RESULT → transitions to dashboard */}
-                {step === 4 && afterUrl && (
+                {/* STEP 5 — YOUR DETAILS */}
+                {step === 5 && (
                   <motion.div
-                    key="step4"
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    key="step5"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="max-w-2xl mx-auto"
+                  >
+                    <button
+                      onClick={() => setStep(4)}
+                      className="flex items-center text-sm font-semibold text-muted-foreground hover:text-primary transition-colors mb-8"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2" /> Back to Photo
+                    </button>
+
+                    <div className="bg-card rounded-3xl p-8 md:p-10 shadow-xl border border-card-border space-y-7">
+                      <div className="text-center">
+                        <h2 className="text-3xl font-serif mb-2">Almost there!</h2>
+                        <p className="text-muted-foreground">
+                          Add your details to save your results — or skip ahead.{" "}
+                          <span className="text-sm">(optional)</span>
+                        </p>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-foreground ml-1">First Name</label>
+                          <input
+                            type="text"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-background border-2 border-border focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200 text-base"
+                            placeholder="Your name"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-foreground ml-1">Email Address</label>
+                          <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-background border-2 border-border focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200 text-base"
+                            placeholder="you@example.com"
+                          />
+                        </div>
+                      </div>
+
+                      <Button
+                        onClick={handleProcess}
+                        disabled={isProcessing}
+                        className="w-full h-14 text-lg font-semibold"
+                      >
+                        {isProcessing ? (
+                          <>
+                            <Sparkles className="w-5 h-5 mr-2 animate-spin" />
+                            Applying Your Look…
+                          </>
+                        ) : (
+                          <>
+                            Try On Look <Sparkles className="w-5 h-5 ml-2" />
+                          </>
+                        )}
+                      </Button>
+                      <p className="text-center text-xs text-muted-foreground">
+                        Your photo is processed locally and never stored without your consent.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* STEP 6 — RESULT */}
+                {step === 6 && afterUrl && (
+                  <motion.div
+                    key="step6"
+                    initial={{ opacity: 0, scale: 0.97 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="max-w-5xl mx-auto space-y-12"
                   >
                     <div className="text-center space-y-4">
-                      <h2 className="text-4xl md:text-5xl font-serif italic text-primary">Gorgeous.</h2>
+                      <h2 className="text-4xl md:text-5xl font-serif italic text-primary">
+                        {firstName ? `Stunning, ${firstName}.` : "Gorgeous."}
+                      </h2>
                       <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-                        Drag the slider to see your before and after with the{" "}
-                        <span className="font-semibold text-foreground">"{look}"</span> look.
+                        Drag the slider to reveal your{" "}
+                        <span className="font-semibold text-foreground">"{look}"</span> transformation.
                       </p>
                     </div>
 
                     <SplitImage beforeSrc={photoUrl} afterSrc={afterUrl} />
 
                     <div className="bg-card rounded-3xl p-8 border border-primary/20 shadow-xl shadow-primary/5 max-w-3xl mx-auto relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full -z-0" />
-                      <div className="relative z-10 space-y-4">
-                        <div className="flex items-center space-x-2 text-primary">
-                          <Sparkles size={20} />
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-bl-full" />
+                      <div className="relative space-y-4">
+                        <div className="flex items-center gap-3 text-primary">
+                          <div
+                            className="w-5 h-5 rounded-full border-2 border-primary/30 shrink-0"
+                            style={{ backgroundColor: selectedSkinToneObj?.color }}
+                          />
+                          <Sparkles size={18} />
                           <h3 className="font-serif text-2xl font-semibold">Makeup Recipe: {look}</h3>
                         </div>
                         <p className="text-muted-foreground leading-relaxed text-lg">
                           {selectedLookDetails?.prompt}
                         </p>
+                        <p className="text-sm text-muted-foreground">
+                          Tailored for <span className="font-medium text-foreground">{selectedSkinToneObj?.label}</span> skin
+                          {" · "}{selectedOccasionObj?.name}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-center gap-4 pt-4">
-                      <Button size="lg" onClick={handleDemoComplete} className="px-10">
-                        Continue to Plans
+                    <div className="flex flex-col items-center gap-3 pt-4 pb-8">
+                      <Button size="lg" onClick={handleDemoComplete} className="px-12 h-14 text-lg font-semibold">
+                        Go to Mum's Dashboard
                         <ChevronRight className="ml-2 w-5 h-5" />
                       </Button>
                       <p className="text-sm text-muted-foreground">
-                        This was your free demo — choose a plan to try more looks.
+                        Your demo is complete — see your dashboard and choose a plan.
                       </p>
                     </div>
                   </motion.div>
                 )}
+
               </AnimatePresence>
             </motion.div>
           )}
 
-          {/* DEMO DASHBOARD — shown after demo completes */}
+          {/* ── MUM'S DASHBOARD ── */}
           {step === "dashboard" && (
             <motion.div
               key="dashboard"
@@ -548,6 +664,7 @@ export default function Home() {
               <DemoDashboard
                 look={look || "your look"}
                 occasion={occasion}
+                firstName={firstName}
                 onSelectFreemium={() => handleSelectPlan("freemium")}
                 onSelectPaid={() => handleSelectPlan("paid")}
               />
@@ -556,7 +673,7 @@ export default function Home() {
 
         </AnimatePresence>
 
-        {/* PRICING SECTION — always at the bottom of the page */}
+        {/* ── PRICING SECTION — always at bottom ── */}
         <div ref={pricingRef} className="max-w-5xl mx-auto">
           <PricingSection
             onSelectFreemium={() => handleSelectPlan("freemium")}
