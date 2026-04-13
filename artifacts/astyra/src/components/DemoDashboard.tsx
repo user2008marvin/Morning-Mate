@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { Check, Sparkles, Crown, Lock } from "lucide-react";
+import { Check, Sparkles, Crown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DemoDashboardProps {
   look: string;
   occasion: string;
+  firstName?: string;
   onSelectFreemium: () => void;
   onSelectPaid: () => void;
 }
@@ -25,29 +26,35 @@ const paidFeatures = [
   "New looks added weekly",
 ];
 
-export function DemoDashboard({ look, occasion, onSelectFreemium, onSelectPaid }: DemoDashboardProps) {
+export function DemoDashboard({ look, occasion, firstName, onSelectFreemium, onSelectPaid }: DemoDashboardProps) {
   return (
     <motion.div
-      key="demo-dashboard"
+      key="mums-dashboard"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       className="max-w-4xl mx-auto space-y-12 pt-4"
     >
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold">
-          <Lock size={14} />
-          Demo Complete
+      {/* Header */}
+      <div className="text-center space-y-5">
+        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold">
+          <Star size={14} className="fill-primary" />
+          Mum's Dashboard
         </div>
         <h2 className="text-3xl md:text-4xl font-serif text-foreground">
-          Love your new <span className="text-primary italic">{look}</span> look?
+          {firstName
+            ? <>Welcome, <span className="text-primary italic">{firstName}</span>! Your look is ready.</>
+            : <>Love your <span className="text-primary italic">{look}</span> look?</>
+          }
         </h2>
         <p className="text-muted-foreground text-lg max-w-lg mx-auto">
-          Your free demo is done. Choose a plan to keep discovering your perfect looks — unlimited times.
+          Your free demo is complete. Choose a plan to unlock unlimited looks — any occasion, any time.
         </p>
       </div>
 
+      {/* Plan cards */}
       <div className="grid md:grid-cols-2 gap-6 items-start">
+
         {/* Freemium */}
         <motion.div
           initial={{ opacity: 0, x: -16 }}
@@ -88,7 +95,7 @@ export function DemoDashboard({ look, occasion, onSelectFreemium, onSelectPaid }
           </Button>
         </motion.div>
 
-        {/* Paid */}
+        {/* Full Access */}
         <motion.div
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
@@ -108,7 +115,7 @@ export function DemoDashboard({ look, occasion, onSelectFreemium, onSelectPaid }
             </div>
 
             <div className="mb-5">
-              <span className="text-4xl font-serif font-bold text-white">$12</span>
+              <span className="text-4xl font-serif font-bold text-white">$4.99</span>
               <span className="text-white/70 text-sm ml-2">/ month</span>
             </div>
 
