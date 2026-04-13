@@ -92,7 +92,7 @@ export function PricingSection({ onSelectFreemium, onSelectPaid, sectionRef }: P
           </Button>
         </motion.div>
 
-        {/* Paid */}
+        {/* Full Access */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -113,7 +113,7 @@ export function PricingSection({ onSelectFreemium, onSelectPaid, sectionRef }: P
             </div>
 
             <div className="mb-6">
-              <span className="text-5xl font-serif font-bold text-white">$12</span>
+              <span className="text-5xl font-serif font-bold text-white">$4.99</span>
               <span className="text-white/70 ml-2 text-sm">/ month</span>
             </div>
 
