@@ -696,6 +696,13 @@ export default function Home() {
           <p style={{ fontSize: 14, color: "rgba(255,248,238,0.6)", marginBottom: 16 }}>
             Turning chaotic mornings into peaceful routines, one star at a time.
           </p>
+          <div style={{ fontSize: 13, color: "rgba(255,248,238,0.65)", marginBottom: 12 }}>
+            🧩{" "}
+            <a href="https://www.getsensoryaids.com" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,248,238,0.8)", textDecoration: "underline" }}>
+              getsensoryaids.com
+            </a>
+            {" "}— sensory tools &amp; aids for SEND kids
+          </div>
           <div style={{ fontSize: 12, color: "rgba(255,248,238,0.4)" }}>
             © 2026 GetGlowJo. All rights reserved.{" "}
             <button onClick={() => navigate("/privacy-policy")} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,248,238,0.55)", fontSize: 12, padding: 0, textDecoration: "underline", fontFamily: "'Nunito',sans-serif" }}>Privacy Policy</button>
