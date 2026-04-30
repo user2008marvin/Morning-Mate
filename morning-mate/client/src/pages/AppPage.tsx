@@ -1199,7 +1199,9 @@ export default function AppPage() {
             {appState.childName} crushed this morning! ⭐
           </div>
           <div style={{ fontSize: 15, color: "#a07850", lineHeight: 1.6, marginBottom: 32, maxWidth: 280 }}>
-            The next routine unlocks tomorrow morning. Come back then to keep the streak going!
+            {children && children.length > 1
+              ? "Amazing work! Is another child ready for their turn?"
+              : "The next routine unlocks tomorrow morning. Come back then to keep the streak going!"}
           </div>
           <div style={{ display: "flex", gap: 24, marginBottom: 36 }}>
             <div style={{ textAlign: "center" }}>
@@ -1212,20 +1214,29 @@ export default function AppPage() {
               <div style={{ fontSize: 12, fontWeight: 700, color: "#a07850", textTransform: "uppercase", letterSpacing: 1 }}>Day Streak</div>
             </div>
           </div>
-          {children && children.length > 1 && (
+          {children && children.length > 1 ? (
+            <>
+              <button
+                onClick={() => { setChildId(null); setScreen("child-select"); }}
+                style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, padding: "18px 48px", borderRadius: 50, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white", boxShadow: "0 6px 24px rgba(255,95,31,0.4)", marginBottom: 16, letterSpacing: 0.5 }}
+              >
+                🌟 Next Child's Turn!
+              </button>
+              <button
+                onClick={goParent}
+                style={{ fontFamily: "'Fredoka One',cursive", fontSize: 15, padding: "10px 28px", borderRadius: 50, border: "2px solid #f0d5b0", cursor: "pointer", background: "transparent", color: "#a07850" }}
+              >
+                Parent Dashboard →
+              </button>
+            </>
+          ) : (
             <button
-              onClick={() => { setChildId(null); setScreen("child-select"); }}
-              style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "14px 36px", borderRadius: 50, border: "none", cursor: "pointer", background: "white", color: "#ff9a3c", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", marginBottom: 12 }}
+              onClick={goParent}
+              style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "14px 36px", borderRadius: 50, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white", boxShadow: "0 6px 20px rgba(255,95,31,0.35)" }}
             >
-              👦 Switch Child
+              Parent Dashboard →
             </button>
           )}
-          <button
-            onClick={goParent}
-            style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "14px 36px", borderRadius: 50, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white", boxShadow: "0 6px 20px rgba(255,95,31,0.35)" }}
-          >
-            Parent Dashboard →
-          </button>
         </div>
       )}
 
