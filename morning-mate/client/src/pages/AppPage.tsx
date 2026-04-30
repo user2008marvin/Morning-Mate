@@ -1149,6 +1149,21 @@ export default function AppPage() {
     setScreen("main");
   }
 
+  // Block non-demo users from seeing the game until auth is confirmed.
+  // The useEffect above already redirects to "/" if not signed in — this just
+  // prevents the game flashing briefly while that check is in-flight.
+  if (!isDemo && !userFetched) {
+    return (
+      <div style={{
+        minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+        background: "linear-gradient(180deg,#4facfe 0%,#ff9a3c 60%,#ff6b35 100%)",
+      }}>
+        <div style={{ fontSize: 56, animation: "mascot-bounce 1.5s ease-in-out infinite alternate" }}>☀️</div>
+        <style>{`@keyframes mascot-bounce{from{transform:translateY(0)}to{transform:translateY(-12px)}}`}</style>
+      </div>
+    );
+  }
+
   return (
     <div style={{ maxWidth: 480, margin: "0 auto", minHeight: "100vh", position: "relative" }}>
       {isDemo && (
