@@ -1,9 +1,5 @@
 import { Resend } from "resend";
 
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
-
 const FROM = process.env.RESEND_FROM_EMAIL || "GlowJo <noreply@myglowjo.fit>";
 
 interface EmailOptions {
@@ -14,10 +10,12 @@ interface EmailOptions {
 }
 
 export async function sendEmail({ to, subject, template, data }: EmailOptions) {
-  if (!resend) {
-    console.warn(`[Email] Resend not configured (missing RESEND_API_KEY), skipping email to ${to}`);
-    return { success: false };
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.error(`[Email] RESEND_API_KEY is not set — cannot send email to ${to}`);
+    throw new Error("Email service is not configured (missing RESEND_API_KEY).");
   }
+  const resend = new Resend(apiKey);
 
   const emailTemplates: Record<string, (data: any) => string> = {
     "welcome": (data) => `
