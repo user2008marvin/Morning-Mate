@@ -76,7 +76,7 @@ const REWARDS = [
 
 const WIN_STICKERS = ["⭐", "🌟", "💫", "✨", "🎯", "🏆", "🦁", "🦊", "🐯", "🦅", "🌈", "🎨"];
 
-type Screen = "onboarding" | "main" | "win" | "done-today";
+type Screen = "onboarding" | "child-select" | "main" | "win" | "done-today";
 type Language = "en" | "es";
 
 interface AppState {
@@ -848,7 +848,7 @@ function DeleteAccountLink() {
 }
 
 // ── WIN SCREEN ──
-function WinScreen({ state, onParent, onNext }: { state: AppState; onParent: () => void; onNext: () => void }) {
+function WinScreen({ state, onParent, onNext, onSwitchChild }: { state: AppState; onParent: () => void; onNext: () => void; onSwitchChild?: () => void }) {
   const confettiRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -913,6 +913,74 @@ function WinScreen({ state, onParent, onNext }: { state: AppState; onParent: () 
           fontFamily: "'Fredoka One',cursive", fontSize: 16, padding: "14px", borderRadius: 40, border: "none",
           background: "white", color: "#ff5f1f", cursor: "pointer"
         }}>☀️ New Morning</button>
+        {onSwitchChild && (
+          <button onClick={onSwitchChild} style={{
+            fontFamily: "'Fredoka One',cursive", fontSize: 16, padding: "14px", borderRadius: 40,
+            border: "2px solid rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.15)", color: "white", cursor: "pointer"
+          }}>👦 Switch Child</button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── CHILD SELECTOR ──
+function ChildSelector({ children, onSelect }: {
+  children: any[];
+  onSelect: (child: any) => void;
+}) {
+  const todayStr = new Date().toDateString();
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(180deg,#4facfe 0%,#ff9a3c 60%,#ff6b35 100%)",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      padding: "28px 20px", fontFamily: "'Nunito',sans-serif",
+    }}>
+      <div style={{ fontSize: 56, marginBottom: 8 }}>☀️</div>
+      <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 28, color: "white", marginBottom: 6, textAlign: "center" }}>
+        Good morning!
+      </div>
+      <div style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", marginBottom: 32, textAlign: "center" }}>
+        Who's doing their morning routine today?
+      </div>
+      <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 14 }}>
+        {children.map((child: any) => {
+          const doneToday = child.lastCompletedDate
+            ? new Date(child.lastCompletedDate).toDateString() === todayStr
+            : false;
+          return (
+            <button
+              key={child.id}
+              onClick={() => onSelect(child)}
+              style={{
+                display: "flex", alignItems: "center", gap: 16,
+                background: doneToday ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.9)",
+                border: doneToday ? "2px solid rgba(255,255,255,0.5)" : "2px solid white",
+                borderRadius: 20, padding: "18px 22px", cursor: "pointer",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.12)", textAlign: "left",
+                transition: "transform 0.1s",
+              }}
+              onMouseDown={e => (e.currentTarget.style.transform = "scale(0.97)")}
+              onMouseUp={e => (e.currentTarget.style.transform = "scale(1)")}
+              onTouchStart={e => (e.currentTarget.style.transform = "scale(0.97)")}
+              onTouchEnd={e => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              <div style={{ fontSize: 44, lineHeight: 1 }}>{child.avatarEmoji || "🌟"}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, color: doneToday ? "rgba(255,255,255,0.9)" : "#1a1a2e" }}>
+                  {child.name}
+                </div>
+                <div style={{ fontSize: 13, color: doneToday ? "rgba(255,255,255,0.75)" : "#888", marginTop: 2 }}>
+                  {doneToday ? "✅ Done today — great work!" : `⭐ ${child.stars ?? 0} stars · 🔥 ${child.streak ?? 0} streak`}
+                </div>
+              </div>
+              <div style={{ fontSize: 22, color: doneToday ? "rgba(255,255,255,0.7)" : "#ff9a3c" }}>
+                {doneToday ? "🏆" : "▶"}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -965,10 +1033,8 @@ export default function AppPage() {
     }
   }, [isDemo, userFetched, user]);
 
-  // Merge DB child profile into local state
-  useEffect(() => {
-    if (!children?.length) return;
-    const child = children[0] as any;
+  // Load a specific child's data into app state
+  function loadChild(child: any) {
     setChildId(child.id);
     setAppState(prev => ({
       ...prev,
@@ -977,20 +1043,29 @@ export default function AppPage() {
       schoolTime: child.schoolTime ?? prev.schoolTime,
       reward: child.reward ?? prev.reward,
       enabledTasks: child.enabledTasks ? JSON.parse(child.enabledTasks) : prev.enabledTasks,
-      avatarEmoji: (child as any).avatarEmoji ?? prev.avatarEmoji,
+      avatarEmoji: child.avatarEmoji ?? prev.avatarEmoji,
       language: (child.language as Language) ?? prev.language,
       stars: child.stars ?? prev.stars,
       streak: child.streak ?? prev.streak,
       completedDays: child.completedDays ? JSON.parse(child.completedDays) : prev.completedDays,
     }));
-    // Store server-side last completed date — tamper-proof source of truth
     const serverDate = child.lastCompletedDate ? new Date(child.lastCompletedDate).toDateString() : null;
     setServerLastCompleted(serverDate);
     const todayStr = new Date().toDateString();
-    if (child.name && screen === "onboarding") {
-      setScreen(serverDate === todayStr ? "done-today" : "main");
-    } else if (serverDate === todayStr && screen === "main") {
-      setScreen("done-today");
+    setScreen(serverDate === todayStr ? "done-today" : "main");
+  }
+
+  // Merge DB child profile into local state
+  useEffect(() => {
+    if (!children?.length) return;
+    if (children.length === 1) {
+      // Only one child — load automatically as before
+      loadChild(children[0]);
+    } else {
+      // Multiple children — show picker (unless we already have a selected child for this session)
+      if (!childId) {
+        setScreen("child-select");
+      }
     }
   }, [children]);
 
@@ -1085,11 +1160,19 @@ export default function AppPage() {
         </div>
       )}
       {screen === "onboarding" && <Onboarding onComplete={handleOnboardingComplete} />}
+      {screen === "child-select" && children && (
+        <ChildSelector children={children as any[]} onSelect={loadChild} />
+      )}
       {screen === "main" && (
         <MainScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} />
       )}
       {screen === "win" && (
-        <WinScreen state={appState} onParent={goParent} onNext={handleNewMorning} />
+        <WinScreen
+          state={appState}
+          onParent={goParent}
+          onNext={handleNewMorning}
+          onSwitchChild={children && children.length > 1 ? () => { setChildId(null); setScreen("child-select"); } : undefined}
+        />
       )}
       {screen === "done-today" && (
         <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 32, background: "linear-gradient(180deg,#fff8ee 0%,#ffecd2 100%)" }}>
@@ -1114,6 +1197,14 @@ export default function AppPage() {
               <div style={{ fontSize: 12, fontWeight: 700, color: "#a07850", textTransform: "uppercase", letterSpacing: 1 }}>Day Streak</div>
             </div>
           </div>
+          {children && children.length > 1 && (
+            <button
+              onClick={() => { setChildId(null); setScreen("child-select"); }}
+              style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "14px 36px", borderRadius: 50, border: "none", cursor: "pointer", background: "white", color: "#ff9a3c", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", marginBottom: 12 }}
+            >
+              👦 Switch Child
+            </button>
+          )}
           <button
             onClick={goParent}
             style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "14px 36px", borderRadius: 50, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white", boxShadow: "0 6px 20px rgba(255,95,31,0.35)" }}
