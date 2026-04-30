@@ -1214,22 +1214,34 @@ export default function AppPage() {
               <div style={{ fontSize: 12, fontWeight: 700, color: "#a07850", textTransform: "uppercase", letterSpacing: 1 }}>Day Streak</div>
             </div>
           </div>
-          {children && children.length > 1 ? (
-            <>
-              <button
-                onClick={() => { setChildId(null); setScreen("child-select"); }}
-                style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, padding: "18px 48px", borderRadius: 50, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white", boxShadow: "0 6px 24px rgba(255,95,31,0.4)", marginBottom: 16, letterSpacing: 0.5 }}
-              >
-                🌟 Next Child's Turn!
-              </button>
-              <button
-                onClick={goParent}
-                style={{ fontFamily: "'Fredoka One',cursive", fontSize: 15, padding: "10px 28px", borderRadius: 50, border: "2px solid #f0d5b0", cursor: "pointer", background: "transparent", color: "#a07850" }}
-              >
-                Parent Dashboard →
-              </button>
-            </>
-          ) : (
+          {children && children.length > 1 ? (() => {
+            const todayStr = new Date().toDateString();
+            const pending = (children as any[]).filter(c =>
+              c.id !== childId &&
+              (!c.lastCompletedDate || new Date(c.lastCompletedDate).toDateString() !== todayStr)
+            );
+            const btnLabel = pending.length === 1
+              ? `🌟 ${pending[0].name}'s Turn!`
+              : pending.length > 1
+                ? `🌟 ${pending.map((c: any) => c.name).join(" & ")}'s Turn!`
+                : "🌟 Next Child's Turn!";
+            return (
+              <>
+                <button
+                  onClick={() => { setChildId(null); setScreen("child-select"); }}
+                  style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, padding: "18px 48px", borderRadius: 50, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white", boxShadow: "0 6px 24px rgba(255,95,31,0.4)", marginBottom: 16, letterSpacing: 0.5 }}
+                >
+                  {btnLabel}
+                </button>
+                <button
+                  onClick={goParent}
+                  style={{ fontFamily: "'Fredoka One',cursive", fontSize: 15, padding: "10px 28px", borderRadius: 50, border: "2px solid #f0d5b0", cursor: "pointer", background: "transparent", color: "#a07850" }}
+                >
+                  Parent Dashboard →
+                </button>
+              </>
+            );
+          })() : (
             <button
               onClick={goParent}
               style={{ fontFamily: "'Fredoka One',cursive", fontSize: 18, padding: "14px 36px", borderRadius: 50, border: "none", cursor: "pointer", background: "linear-gradient(135deg,#ff9a3c,#ff5f1f)", color: "white", boxShadow: "0 6px 20px rgba(255,95,31,0.35)" }}
