@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const FROM = process.env.RESEND_FROM_EMAIL || "GlowJo <noreply@myglowjo.fit>";
+const FROM = process.env.RESEND_FROM_EMAIL || "GlowJo <noreply@getglowjo.com>";
 
 interface EmailOptions {
   to: string;
