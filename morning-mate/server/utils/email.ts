@@ -93,12 +93,13 @@ export async function sendEmail({ to, subject, template, data }: EmailOptions) {
 
   const html = emailTemplates[template]?.(data) || "";
 
-  try {
-    const result = await resend.emails.send({ from: FROM, to, subject, html });
-    console.log(`✅ Email sent to ${to}:`, result.data?.id);
-    return { success: true };
-  } catch (error) {
-    console.error(`❌ Resend error:`, error);
-    throw error;
+  const { data: emailData, error } = await resend.emails.send({ from: FROM, to, subject, html });
+
+  if (error) {
+    console.error(`❌ Resend error sending to ${to}:`, error);
+    throw new Error(`Resend failed: ${error.message}`);
   }
+
+  console.log(`✅ Email sent to ${to}:`, emailData?.id);
+  return { success: true };
 }
