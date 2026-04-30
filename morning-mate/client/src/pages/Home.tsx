@@ -607,32 +607,63 @@ export default function Home() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px,1fr))", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: 24 }}>
             {[
-              { name: "Freemium", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", highlight: false, badge: null, tier: null },
-              { name: "GlowJo", features: ["Everything in Free", "Up to 4 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning", "🎙️ Mum's Voice — record your own", "🧩 SEND-friendly mode for additional needs", "🧒 Multi-child mornings — seamless handoff", "⭐ Stars, streaks & weekly rewards", "📊 Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", highlight: true, badge: "⭐ Full Access", tier: "starter" },
+              { name: "Freemium", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", style: "free", badge: null, tier: null },
+              { name: "GlowJo", features: ["Everything in Free", "Up to 4 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning", "🎙️ Mum's Voice — record your own", "🧩 SEND-friendly mode for additional needs", "🧒 Multi-child mornings — seamless handoff", "⭐ Stars, streaks & weekly rewards", "📊 Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", style: "coral", badge: "⭐ Most Popular", tier: "starter" },
+              { name: "GlowJo +", features: ["Everything in GlowJo", "🌙 Night Mode — full bedtime routine", "🌟 Moony mascot & starry theme", "📖 Personalised bedtime story", "🎵 Calming ambient night music", "🚀 First access to new features"], cta: "Get GlowJo +", style: "night", badge: "🌙 Night Edition", tier: "plus" },
             ].map((plan, i) => {
-              const isGlowJo = plan.tier === "starter";
-              const priceDisplay = !isGlowJo
-                ? "Free forever"
-                : billingPeriod === "month"
-                ? "$9.99/month"
-                : "$79.99/year";
-              const subText = isGlowJo && billingPeriod === "year"
-                ? "Just $6.67/month — 2 months free! 🎉"
-                : isGlowJo
-                ? "Billed monthly, cancel anytime"
+              const isStarter = plan.tier === "starter";
+              const isPlus = plan.tier === "plus";
+              const isNight = plan.style === "night";
+              const isCoral = plan.style === "coral";
+
+              const priceDisplay = isStarter
+                ? billingPeriod === "month" ? "$9.99/month" : "$79.99/year"
+                : isPlus
+                ? billingPeriod === "month" ? "$14.99/month" : "$119.99/year"
+                : "Free forever";
+
+              const subText = isStarter
+                ? billingPeriod === "year" ? "Just $6.67/month — 2 months free! 🎉" : "Billed monthly, cancel anytime"
+                : isPlus
+                ? billingPeriod === "year" ? "Just $10/month — 2 months free! 🎉" : "Billed monthly, cancel anytime"
                 : null;
 
+              const cardBg = isCoral
+                ? "linear-gradient(135deg,var(--coral),var(--sunrise-mid))"
+                : isNight
+                ? "linear-gradient(135deg,#0d0d2b,#1a0a2e)"
+                : "rgba(255,255,255,0.06)";
+              const cardBorder = isCoral
+                ? "2px solid rgba(255,255,255,0.4)"
+                : isNight
+                ? "2px solid rgba(167,139,250,0.4)"
+                : "1px solid rgba(255,255,255,0.12)";
+              const cardScale = isCoral ? "scale(1.05)" : "scale(1)";
+              const cardShadow = isCoral
+                ? "0 12px 40px rgba(0,0,0,0.3)"
+                : isNight
+                ? "0 12px 40px rgba(88,28,220,0.25)"
+                : "0 4px 16px rgba(0,0,0,0.15)";
+              const badgeBg = isCoral ? "white" : isNight ? "linear-gradient(135deg,#7c3aed,#4c1d95)" : "var(--yellow)";
+              const badgeColor = isCoral ? "var(--coral)" : "white";
+              const nameColor = isCoral || isNight ? "white" : "var(--cream)";
+              const priceColor = isCoral ? "white" : isNight ? "#c4b5fd" : "var(--yellow)";
+              const featColor = isCoral ? "rgba(255,255,255,0.95)" : isNight ? "rgba(200,185,240,0.9)" : "rgba(255,248,238,0.75)";
+              const checkColor = isCoral ? "white" : isNight ? "#a78bfa" : "var(--yellow)";
+              const btnBg = isCoral ? "white" : isNight ? "linear-gradient(135deg,#7c3aed,#4c1d95)" : "rgba(255,255,255,0.18)";
+              const btnColor = isCoral ? "var(--coral)" : "white";
+
               return (
-              <div key={i} style={{ position: "relative", background: plan.highlight ? "linear-gradient(135deg,var(--coral),var(--sunrise-mid))" : "rgba(255,255,255,0.06)", border: plan.highlight ? "2px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: "36px 28px 28px", textAlign: "center", transform: plan.highlight ? "scale(1.05)" : "scale(1)", transition: "transform 0.2s", boxShadow: plan.highlight ? "0 12px 40px rgba(0,0,0,0.3)" : "0 4px 16px rgba(0,0,0,0.15)" }}>
+              <div key={i} style={{ position: "relative", background: cardBg, border: cardBorder, borderRadius: 20, padding: "36px 28px 28px", textAlign: "center", transform: cardScale, transition: "transform 0.2s", boxShadow: cardShadow }}>
                 {plan.badge && (
-                  <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: plan.highlight ? "white" : "var(--yellow)", color: plan.highlight ? "var(--coral)" : "#333", borderRadius: 30, padding: "4px 16px", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>
+                  <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: badgeBg, color: badgeColor, borderRadius: 30, padding: "4px 16px", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>
                     {plan.badge}
                   </div>
                 )}
-                <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 26, marginBottom: 6, color: plan.highlight ? "white" : "var(--cream)" }}>{plan.name}</div>
-                <div style={{ fontSize: 34, fontWeight: 900, color: plan.highlight ? "white" : "var(--yellow)" }}>{priceDisplay}</div>
+                <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 26, marginBottom: 6, color: nameColor }}>{plan.name}</div>
+                <div style={{ fontSize: 34, fontWeight: 900, color: priceColor }}>{priceDisplay}</div>
                 {subText && (
                   <div style={{ fontSize: 12, fontWeight: 700, color: billingPeriod === "year" ? "#a7f3d0" : "rgba(255,255,255,0.7)", marginTop: 4, marginBottom: 20 }}>
                     {subText}
@@ -641,16 +672,16 @@ export default function Home() {
                 <div style={{ height: subText ? 0 : 24 }} />
                 <div style={{ textAlign: "left", marginBottom: 28 }}>
                   {plan.features.map((feat, j) => (
-                    <div key={j} style={{ fontSize: 14, marginBottom: 10, color: plan.highlight ? "rgba(255,255,255,0.95)" : "rgba(255,248,238,0.75)", display: "flex", alignItems: "flex-start", gap: 8 }}>
-                      <span style={{ color: plan.highlight ? "white" : "var(--yellow)", fontWeight: 700, flexShrink: 0 }}>✓</span>
+                    <div key={j} style={{ fontSize: 14, marginBottom: 10, color: featColor, display: "flex", alignItems: "flex-start", gap: 8 }}>
+                      <span style={{ color: checkColor, fontWeight: 700, flexShrink: 0 }}>✓</span>
                       {feat}
                     </div>
                   ))}
                 </div>
                 <button
                   disabled={loadingTier !== null}
-                  onClick={() => plan.tier === null ? handleFreeStart() : handleCheckout(plan.tier as "starter")}
-                  style={{ width: "100%", padding: "13px 24px", borderRadius: 30, border: "none", fontFamily: "'Fredoka One',cursive", fontSize: 16, fontWeight: 700, cursor: loadingTier !== null ? "wait" : "pointer", background: plan.highlight ? "white" : "rgba(255,255,255,0.18)", color: plan.highlight ? "var(--coral)" : "white", transition: "opacity 0.2s", opacity: loadingTier !== null && loadingTier !== plan.tier ? 0.5 : 1 }}
+                  onClick={() => plan.tier === null ? handleFreeStart() : handleCheckout(plan.tier as "starter" | "plus" | "gold")}
+                  style={{ width: "100%", padding: "13px 24px", borderRadius: 30, border: "none", fontFamily: "'Fredoka One',cursive", fontSize: 16, fontWeight: 700, cursor: loadingTier !== null ? "wait" : "pointer", background: btnBg, color: btnColor, transition: "opacity 0.2s", opacity: loadingTier !== null && loadingTier !== plan.tier ? 0.5 : 1 }}
                 >
                   {plan.tier !== null && loadingTier === plan.tier ? "Opening Stripe…" : plan.cta}
                 </button>
