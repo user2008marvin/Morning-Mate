@@ -849,6 +849,32 @@ export default function ParentDashboard() {
 
         <UpgradeCard tier={tier} />
 
+        {/* Sensory Aids cross-promo */}
+        <a
+          href="https://www.getsensoryaids.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: "block", textDecoration: "none", marginTop: "8px" }}
+        >
+          <div style={{
+            background: "linear-gradient(135deg, #e0f7fa, #b2ebf2)",
+            borderRadius: "20px", padding: "18px 20px",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+            display: "flex", alignItems: "center", gap: 14,
+            border: "1.5px solid rgba(0,172,193,0.2)",
+          }}>
+            <div style={{ fontSize: 36, lineHeight: 1, flexShrink: 0 }}>🧩</div>
+            <div>
+              <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: "1rem", color: "#00838f", marginBottom: 2 }}>
+                Looking for sensory resources?
+              </div>
+              <div style={{ fontSize: "0.82rem", color: "#00696f", lineHeight: 1.4 }}>
+                Visit <strong>getsensoryaids.com</strong> — our SEND shop for tools, toys and aids that help kids thrive. ↗
+              </div>
+            </div>
+          </div>
+        </a>
+
         <div style={{ background: "white", borderRadius: "20px", padding: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginTop: "8px" }}>
           <div style={{ fontSize: "1.1rem", color: "#1a1a2e", marginBottom: "14px" }}>⚙️ Account</div>
           <div style={{ fontSize: "0.9rem", color: "#666", marginBottom: "8px" }}>📧 {user.email ?? "No email on file"}</div>
