@@ -55,7 +55,7 @@ export async function sendEmail({ to, subject, template, data }: EmailOptions) {
         <h2>🎉 Welcome to GlowJo, ${data.userName}!</h2>
         <p>Your subscription is active until <strong>${data.currentPeriodEnd}</strong>.</p>
         <p>Enjoy happy music every morning, bilingual routines, and Mum's Voice recording!</p>
-        <a href="${process.env.APP_URL || "https://myglowjo.fit"}" style="display: inline-block; padding: 12px 24px; background: #ff5f1f; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px;">Open GlowJo →</a>
+        <a href="${process.env.APP_URL || "https://getglowjo.com"}" style="display: inline-block; padding: 12px 24px; background: #ff5f1f; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px;">Open GlowJo →</a>
       </div>
     `,
     "subscription-canceled": (data) => `
