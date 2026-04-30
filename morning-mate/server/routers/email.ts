@@ -14,7 +14,7 @@ export const emailRouter = router({
     )
     .mutation(async ({ input }) => {
       try {
-        const verificationLink = `${process.env.APP_URL || "https://myglowjo.fit"}/verify?code=${input.verificationCode}`;
+        const verificationLink = `${process.env.APP_URL || "https://getglowjo.com"}/verify?code=${input.verificationCode}`;
 
         await sendEmail({
           to: input.email,
