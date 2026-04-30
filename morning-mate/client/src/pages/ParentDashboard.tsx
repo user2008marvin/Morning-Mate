@@ -210,11 +210,18 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
   );
   const [tasks, setTasks] = useState<boolean[]>(defaultTasks);
   const [avatarEmoji, setAvatarEmoji] = useState(child?.avatarEmoji ?? AVATARS[0]);
+  const [sendMode, setSendMode] = useState(() =>
+    child?.id ? localStorage.getItem(`gj_send_${child.id}`) === "1" : false
+  );
 
   const toggleTask = (i: number) => setTasks(prev => { const n = [...prev]; n[i] = !n[i]; return n; });
   const finalReward = customReward.trim() || reward;
   const handleSave = () => {
     if (!name.trim()) { toast.error("Name is required"); return; }
+    if (child?.id) {
+      if (sendMode) localStorage.setItem(`gj_send_${child.id}`, "1");
+      else localStorage.removeItem(`gj_send_${child.id}`);
+    }
     onSave({ id: child?.id, name: name.trim(), age: age ? parseInt(age) : undefined, schoolTime: schoolTime || undefined, reward: finalReward || undefined, enabledTasks: JSON.stringify(tasks), avatarEmoji: avatarEmoji || undefined });
   };
 
@@ -297,6 +304,28 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
             ))}
           </div>
         </div>
+        {child?.id && (
+          <div style={{ marginBottom: "20px", background: sendMode ? "#f0f7ff" : "#fafafa", border: `2px solid ${sendMode ? "#4facfe" : "#eee"}`, borderRadius: "16px", padding: "14px 16px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#1a1a2e" }}>🧩 SEND Mode</div>
+                <div style={{ fontSize: "0.78rem", color: "#888", marginTop: 3 }}>Calmer voice · no flashing · no music · Now & Next view</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSendMode(v => !v)}
+                style={{
+                  minWidth: 56, height: 30, borderRadius: 20, border: "none", cursor: "pointer",
+                  background: sendMode ? "linear-gradient(135deg, #4facfe, #00f2fe)" : "#ddd",
+                  color: "white", fontWeight: 700, fontSize: "0.8rem",
+                  transition: "background 0.2s",
+                }}
+              >
+                {sendMode ? "ON" : "OFF"}
+              </button>
+            </div>
+          </div>
+        )}
         <div style={{ display: "flex", gap: "12px" }}>
           <button onClick={onClose} style={{ flex: 1, padding: "14px", borderRadius: "14px", border: "2px solid #eee", background: "white", color: "#666", fontSize: "1rem", cursor: "pointer", fontFamily: "'Fredoka One', cursive" }}>Cancel</button>
           <button onClick={handleSave} style={{ flex: 2, padding: "14px", borderRadius: "14px", border: "none", background: "linear-gradient(135deg, #4facfe, #00f2fe)", color: "white", fontSize: "1rem", cursor: "pointer", fontFamily: "'Fredoka One', cursive" }}>Save</button>
