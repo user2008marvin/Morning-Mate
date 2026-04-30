@@ -76,11 +76,24 @@ export const appRouter = router({
       .input(z.object({ email: z.string().email() }))
       .mutation(async ({ input, ctx }) => {
         const user = await db.getUserByEmail(input.email);
-        // Always return success to prevent email enumeration
-        if (!user || !user.passwordHash) return { success: true };
+
+        // No account with this email — return success silently to prevent email enumeration
+        if (!user) return { success: true };
+
+        // OAuth users (GitHub, Google, etc.) have no password hash.
+        // Tell them clearly to use their original sign-in method instead.
+        if (!user.passwordHash) {
+          const method = user.loginMethod || "your social account (GitHub/Google)";
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `This account uses ${method} to sign in. Please use the "${method}" button on the sign-in screen instead of a password reset.`,
+          });
+        }
+
         const token = crypto.randomBytes(32).toString("hex");
         const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
         await db.setResetToken(user.id, token, expiry);
+
         // Use APP_URL env var first (Railway / reverse-proxy safe).
         // Fall back to reconstructing from the request host for local dev.
         let baseUrl = (process.env.APP_URL || "").replace(/\/$/, "");
@@ -91,6 +104,7 @@ export const appRouter = router({
         }
         const resetLink = `${baseUrl}/reset-password?token=${token}`;
         console.log(`[Auth] Password reset requested for ${input.email} — link: ${resetLink}`);
+
         try {
           await sendEmail({
             to: input.email,
@@ -100,8 +114,13 @@ export const appRouter = router({
           });
           console.log(`[Auth] Reset email sent to ${input.email}`);
         } catch (e) {
-          console.warn("[Auth] Could not send reset email (check MAILGUN config). Link above is still valid:", e);
+          console.error("[Auth] Failed to send reset email via Resend:", e);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "We couldn't send the reset email right now. Please try again in a moment.",
+          });
         }
+
         return { success: true };
       }),
 
