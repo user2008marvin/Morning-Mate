@@ -27,19 +27,38 @@ interface Task {
   sticker: string;
 }
 
-async function nightSpeak(text: string, lang: Language = "en") {
+// Soft night music — calmest available tracks played at low volume
+let _nightMusicAudio: HTMLAudioElement | null = null;
+const NIGHT_MUSIC_POOL = ["/music/sweet.mp3", "/music/bright-wish.mp3", "/music/carefree.mp3", "/music/cookie.mp3", "/music/vacation.mp3"];
+
+function startNightMusic() {
+  try {
+    if (_nightMusicAudio && !_nightMusicAudio.paused) return;
+    const src = NIGHT_MUSIC_POOL[new Date().getDay() % NIGHT_MUSIC_POOL.length];
+    _nightMusicAudio = new Audio(src);
+    _nightMusicAudio.loop = true;
+    _nightMusicAudio.volume = 0.15;
+    _nightMusicAudio.play().catch(() => {});
+  } catch {}
+}
+
+function stopNightMusic() {
+  if (_nightMusicAudio) {
+    _nightMusicAudio.pause();
+    _nightMusicAudio.currentTime = 0;
+    _nightMusicAudio = null;
+  }
+}
+
+// Fire-and-forget speech — no cancel inside; caller cancels when needed
+function nightSpeak(text: string, lang: Language = "en") {
   try {
     if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    await new Promise<void>(resolve => {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang === "es" ? "es-ES" : "en-GB";
-      utterance.pitch = 1.0;
-      utterance.rate = 0.8;
-      utterance.onend = () => resolve();
-      utterance.onerror = () => resolve();
-      window.speechSynthesis.speak(utterance);
-    });
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang === "es" ? "es-ES" : "en-GB";
+    utterance.pitch = 1.0;
+    utterance.rate = 0.8;
+    window.speechSynthesis.speak(utterance);
   } catch {}
 }
 
@@ -178,21 +197,33 @@ export function NightScreen({
   const [celebrating, setCelebrating] = useState<number | null>(null);
   const startedRef = useRef(false);
 
+  // Start music and first prompt on mount; stop everything on unmount
   useEffect(() => {
+    if (!sendMode) startNightMusic();
     if (!startedRef.current && enabledTasks.length > 0) {
       startedRef.current = true;
       const t = enabledTasks[0];
-      nightSpeak(state.language === "es" ? t.prompt_es : t.prompt_en, state.language);
+      // Cancel any leftover speech, then speak first prompt after brief delay
+      window.speechSynthesis?.cancel();
+      setTimeout(() => nightSpeak(state.language === "es" ? t.prompt_es : t.prompt_en, state.language), 600);
       setActive(0);
     }
+    return () => {
+      stopNightMusic();
+      window.speechSynthesis?.cancel();
+    };
   }, []);
 
   const handleTap = (idx: number) => {
     if (completed[idx]) return;
     const t = enabledTasks[idx];
+
+    // Cancel prompt speech, then speak completion phrase
+    window.speechSynthesis?.cancel();
     nightSpeak(state.language === "es" ? t.voice_es : t.voice_en, state.language);
     setCelebrating(idx);
 
+    // Mark task done after 1s
     setTimeout(() => {
       const next = [...completed];
       next[idx] = true;
@@ -203,13 +234,16 @@ export function NightScreen({
       if (nextIdx < enabledTasks.length) {
         setActive(nextIdx);
         const nextTask = enabledTasks[nextIdx];
+        // Wait 2.5s from tap so completion phrase has time to finish, then speak next prompt
         setTimeout(() => {
+          window.speechSynthesis?.cancel();
           nightSpeak(state.language === "es" ? nextTask.prompt_es : nextTask.prompt_en, state.language);
-        }, 600);
+        }, 1500);
       } else {
+        stopNightMusic();
         setTimeout(() => onWin(enabledTasks.length), 700);
       }
-    }, 900);
+    }, 1000);
   };
 
   return (
