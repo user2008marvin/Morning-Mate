@@ -615,6 +615,8 @@ function MainScreen({
   function handleSkipTask() {
     if (!currentTask) return;
     stopKidsMusic();
+    try { window.speechSynthesis.cancel(); } catch {}
+    if (_speakAudio) { _speakAudio.pause(); _speakAudio = null; }
     const nextIdx = taskIdx + 1;
     if (nextIdx >= totalTasks) {
       clearInterval(ringTimer.current);
@@ -650,15 +652,48 @@ function MainScreen({
         </div>
       </div>
 
-      {/* Mascot */}
-      <div style={{ textAlign: "center", marginTop: 8 }}>
-        <div style={{ fontSize: 56, animation: "mascot-bounce 1.5s ease-in-out infinite alternate" }}>
-          {!started ? "😴" : taskIdx >= totalTasks ? "🏆" : "😄"}
+      {/* Mascot + language toggle flanking Sunny */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: 8, gap: 12 }}>
+        {/* EN button */}
+        <button onClick={() => onUpdateState({ language: "en" })} style={{
+          padding: "8px 14px", borderRadius: 20,
+          border: `2px solid ${state.language === "en" ? "#ffd700" : "rgba(255,255,255,0.2)"}`,
+          background: state.language === "en" ? "rgba(255,215,0,0.2)" : "transparent",
+          color: state.language === "en" ? "#ffd700" : "rgba(255,255,255,0.35)",
+          fontSize: 13, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap"
+        }}>🇬🇧 EN</button>
+
+        {/* Sunny */}
+        <div style={{ textAlign: "center", flex: "0 0 auto" }}>
+          <div style={{ fontSize: 56, animation: "mascot-bounce 1.5s ease-in-out infinite alternate" }}>
+            {!started ? "😴" : taskIdx >= totalTasks ? "🏆" : "😄"}
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 800, color: "#ffd700", letterSpacing: 1, marginTop: -4 }}>SUNNY ☀️</div>
         </div>
-        <div style={{ fontSize: 11, fontWeight: 800, color: "#ffd700", letterSpacing: 1, marginTop: -4 }}>SUNNY ☀️</div>
-        <div style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 16, padding: "8px 16px", marginTop: 8, fontSize: 14, fontWeight: 700, color: "white", maxWidth: 260 }}>
-          {!started ? `Good morning, ${state.childName || "superstar"}! 🌟` : currentTask ? `${currentTask.emoji} ${currentTask.label}` : "You did it! 🏆"}
-        </div>
+
+        {/* ES button */}
+        {bilingualEnabled ? (
+          <button onClick={() => onUpdateState({ language: "es" })} style={{
+            padding: "8px 14px", borderRadius: 20,
+            border: `2px solid ${state.language === "es" ? "#ffd700" : "rgba(255,255,255,0.2)"}`,
+            background: state.language === "es" ? "rgba(255,215,0,0.2)" : "transparent",
+            color: state.language === "es" ? "#ffd700" : "rgba(255,255,255,0.35)",
+            fontSize: 13, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap"
+          }}>🇪🇸 ES</button>
+        ) : (
+          <button onClick={() => alert("🌍 Bilingual mode is available on the GlowJo plan!\n\nGo to getglowjo.com and upgrade for just $4.99/mo to unlock English + Spanish.")} title="Upgrade to unlock bilingual mode" style={{
+            padding: "8px 14px", borderRadius: 20,
+            border: "2px solid rgba(255,255,255,0.15)",
+            background: "transparent",
+            color: "rgba(255,255,255,0.25)",
+            fontSize: 13, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap"
+          }}>🔒 ES</button>
+        )}
+      </div>
+
+      {/* Task label bubble */}
+      <div style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 16, padding: "8px 16px", marginTop: 8, fontSize: 14, fontWeight: 700, color: "white", maxWidth: 260, textAlign: "center" }}>
+        {!started ? `Good morning, ${state.childName || "superstar"}! 🌟` : currentTask ? `${currentTask.emoji} ${currentTask.label}` : "You did it! 🏆"}
       </div>
 
       {!started && weather && (
@@ -776,34 +811,6 @@ function MainScreen({
           <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 16, color: "#ff9a3c" }}>{weekDone}/7</div>
           <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>THIS WEEK</div>
         </div>
-      </div>
-
-      {/* Language toggle — bilingual is Plus/Gold only */}
-      <div style={{ display: "flex", gap: 8, marginTop: 12, alignItems: "center" }}>
-        <button onClick={() => onUpdateState({ language: "en" })} style={{
-          padding: "6px 14px", borderRadius: 20,
-          border: `2px solid ${state.language === "en" ? "#ffd700" : "rgba(255,255,255,0.2)"}`,
-          background: state.language === "en" ? "rgba(255,215,0,0.2)" : "transparent",
-          color: state.language === "en" ? "#ffd700" : "rgba(255,255,255,0.4)",
-          fontSize: 12, fontWeight: 800, cursor: "pointer"
-        }}>🇬🇧 EN</button>
-        {bilingualEnabled ? (
-          <button onClick={() => onUpdateState({ language: "es" })} style={{
-            padding: "6px 14px", borderRadius: 20,
-            border: `2px solid ${state.language === "es" ? "#ffd700" : "rgba(255,255,255,0.2)"}`,
-            background: state.language === "es" ? "rgba(255,215,0,0.2)" : "transparent",
-            color: state.language === "es" ? "#ffd700" : "rgba(255,255,255,0.4)",
-            fontSize: 12, fontWeight: 800, cursor: "pointer"
-          }}>🇪🇸 ES</button>
-        ) : (
-          <button onClick={() => alert("🌍 Bilingual mode is available on the GlowJo plan!\n\nGo to getglowjo.com and upgrade for just $4.99/mo to unlock English + Spanish.")} title="Upgrade to unlock bilingual mode" style={{
-            padding: "6px 14px", borderRadius: 20,
-            border: "2px solid rgba(255,255,255,0.15)",
-            background: "transparent",
-            color: "rgba(255,255,255,0.25)",
-            fontSize: 12, fontWeight: 800, cursor: "pointer"
-          }}>🔒 ES</button>
-        )}
       </div>
 
       {/* Parent link + account controls */}
