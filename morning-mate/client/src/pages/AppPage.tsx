@@ -162,6 +162,9 @@ function unlockAudioContext() {
 // Keep a reference so the audio element isn't garbage-collected mid-play
 let _speakAudio: HTMLAudioElement | null = null;
 
+// SEND mode flag — set when loading a child profile; slows speech rate
+let _sendModeActive = false;
+
 async function speak(text: string, lang: Language = "en", voiceKey?: string) {
   // ── Mum's Voice — check for custom recording first ──
   if (voiceKey) {
@@ -255,7 +258,7 @@ async function speak(text: string, lang: Language = "en", voiceKey?: string) {
       // Warmer, more natural settings — neural voices ignore pitch/rate so this mainly affects older voices
       // Spanish TTS voices run naturally faster — drop rate to match perceived English speed
       utterance.pitch = 1.1;
-      utterance.rate = lang === "es" ? 0.9 : 0.95;
+      utterance.rate = _sendModeActive ? 0.75 : (lang === "es" ? 0.9 : 0.95);
       window.speechSynthesis.speak(utterance);
     } catch {}
 }
@@ -486,11 +489,12 @@ function Onboarding({ onComplete }: { onComplete: (state: Partial<AppState>) => 
 
 // ── MAIN KID SCREEN ──
 function MainScreen({
-  state, onWin, onParent, onUpdateState, bilingualEnabled
+  state, onWin, onParent, onUpdateState, bilingualEnabled, sendMode
 }: {
   state: AppState; onWin: (starsEarned: number) => void;
   onParent: () => void; onUpdateState: (updates: Partial<AppState>) => void;
   bilingualEnabled: boolean;
+  sendMode: boolean;
 }) {
   const { tier } = useSubscription();
   const musicEnabled = tier !== "freemium";
@@ -561,7 +565,7 @@ function MainScreen({
     playTaskCompleteSound();
     if (completion) speak(completion, state.language, `completion_${currentTask.label}`);
     if (navigator.vibrate) navigator.vibrate([80, 30, 80]);
-    if (confettiRef.current) spawnConfetti(confettiRef.current);
+    if (!sendMode && confettiRef.current) spawnConfetti(confettiRef.current);
 
     // Flash sticker on the circle for 1 second
     setFlashSticker(currentTask.sticker);
@@ -603,7 +607,7 @@ function MainScreen({
     }
 
     const shouldPlayFullMusic = musicEnabled || freemiumMusicRef.current === true;
-    if (shouldPlayFullMusic || taskLabel === "WAKE UP!") startKidsMusic(taskLabel);
+    if (!sendMode && (shouldPlayFullMusic || taskLabel === "WAKE UP!")) startKidsMusic(taskLabel);
 
     let p = 0;
     ringTimer.current = setInterval(() => {
@@ -695,6 +699,17 @@ function MainScreen({
       <div style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 16, padding: "8px 16px", marginTop: 8, fontSize: 14, fontWeight: 700, color: "white", maxWidth: 260, textAlign: "center" }}>
         {!started ? `Good morning, ${state.childName || "superstar"}! 🌟` : currentTask ? `${currentTask.emoji} ${currentTask.label}` : "You did it! 🏆"}
       </div>
+
+      {/* SEND mode: Now & Next chip */}
+      {sendMode && started && currentTask && taskIdx + 1 < totalTasks && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, background: "rgba(255,255,255,0.12)", borderRadius: 20, padding: "6px 14px", fontSize: 13, fontWeight: 700 }}>
+          <span style={{ color: "rgba(255,255,255,0.5)" }}>Now</span>
+          <span style={{ color: "white" }}>{currentTask.emoji}</span>
+          <span style={{ color: "rgba(255,255,255,0.35)" }}>→</span>
+          <span style={{ color: "rgba(255,255,255,0.5)" }}>Next</span>
+          <span style={{ color: "#ffd700" }}>{activeTasks[taskIdx + 1].emoji} {activeTasks[taskIdx + 1].label}</span>
+        </div>
+      )}
 
       {!started && weather && (
         <div style={{ marginTop: 10, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 20, padding: "6px 16px", fontSize: 13, fontWeight: 700, color: "white" }}>
@@ -855,12 +870,15 @@ function DeleteAccountLink() {
 }
 
 // ── WIN SCREEN ──
-function WinScreen({ state, onParent, onNext, onSwitchChild }: { state: AppState; onParent: () => void; onNext: () => void; onSwitchChild?: () => void }) {
+function WinScreen({ state, onParent, onNext, onSwitchChild, sendMode }: { state: AppState; onParent: () => void; onNext: () => void; onSwitchChild?: () => void; sendMode?: boolean }) {
   const confettiRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (confettiRef.current) spawnConfetti(confettiRef.current);
-    speak("You've done it! You are absolutely brilliant and Sunny is so incredibly proud of you today! Now give us all a GlowJo thumbs up!", state.language);
+    if (!sendMode && confettiRef.current) spawnConfetti(confettiRef.current);
+    const msg = sendMode
+      ? `Well done, ${state.childName}! You completed your whole morning routine. You should feel very proud!`
+      : "You've done it! You are absolutely brilliant and Sunny is so incredibly proud of you today! Now give us all a GlowJo thumbs up!";
+    speak(msg, state.language);
   }, []);
 
   const weekDone = state.weekDays.filter(Boolean).length;
@@ -1017,6 +1035,7 @@ export default function AppPage() {
     return "main";
   });
   const [childId, setChildId] = useState<number | null>(null);
+  const [sendMode, setSendMode] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { tier } = useSubscription();
   const bilingualEnabled = tier !== "freemium";
@@ -1043,6 +1062,10 @@ export default function AppPage() {
   // Load a specific child's data into app state
   function loadChild(child: any) {
     setChildId(child.id);
+    // Load SEND mode preference for this child
+    const sm = localStorage.getItem(`gj_send_${child.id}`) === "1";
+    setSendMode(sm);
+    _sendModeActive = sm;
     setAppState(prev => ({
       ...prev,
       childName: child.name ?? prev.childName,
@@ -1186,13 +1209,14 @@ export default function AppPage() {
         <ChildSelector children={children as any[]} onSelect={loadChild} />
       )}
       {screen === "main" && (
-        <MainScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} />
+        <MainScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} sendMode={sendMode} />
       )}
       {screen === "win" && (
         <WinScreen
           state={appState}
           onParent={goParent}
           onNext={handleNewMorning}
+          sendMode={sendMode}
           onSwitchChild={children && children.length > 1 ? () => { setChildId(null); setScreen("child-select"); } : undefined}
         />
       )}
