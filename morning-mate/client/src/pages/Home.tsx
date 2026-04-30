@@ -610,16 +610,16 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px,1fr))", gap: 24 }}>
             {[
               { name: "Freemium", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", highlight: false, badge: null, tier: null },
-              { name: "GlowJo", features: ["Everything in Free", "Up to 3 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning (7 days)", "🎙️ Mum's Voice — record your own", "⭐ Stars, streaks & weekly rewards", "Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", highlight: true, badge: "⭐ Full Access", tier: "starter" },
+              { name: "GlowJo", features: ["Everything in Free", "Up to 4 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning", "🎙️ Mum's Voice — record your own", "🧩 SEND-friendly mode for additional needs", "🧒 Multi-child mornings — seamless handoff", "⭐ Stars, streaks & weekly rewards", "📊 Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", highlight: true, badge: "⭐ Full Access", tier: "starter" },
             ].map((plan, i) => {
               const isGlowJo = plan.tier === "starter";
               const priceDisplay = !isGlowJo
                 ? "Free forever"
                 : billingPeriod === "month"
-                ? "$4.99/month"
-                : "$39.99/year";
+                ? "$9.99/month"
+                : "$79.99/year";
               const subText = isGlowJo && billingPeriod === "year"
-                ? "Just $3.33/month — 2 months free! 🎉"
+                ? "Just $6.67/month — 2 months free! 🎉"
                 : isGlowJo
                 ? "Billed monthly, cancel anytime"
                 : null;
