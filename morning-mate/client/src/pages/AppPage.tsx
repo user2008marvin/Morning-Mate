@@ -9,6 +9,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { getRecording } from "@/lib/voiceRecordings";
 import { AuthModal } from "@/components/AuthModal";
 import { fetchWeather, WeatherResult } from "@/lib/weather";
+import { NightScreen, NightWinScreen, RoutineModeToggle } from "./NightRoutine";
 
 // ── CONSTANTS ──
 const TASKS_EN = [
@@ -1036,6 +1037,9 @@ export default function AppPage() {
   });
   const [childId, setChildId] = useState<number | null>(null);
   const [sendMode, setSendMode] = useState(false);
+  const [routineMode, setRoutineMode] = useState<"morning" | "night">(() =>
+    (localStorage.getItem("gj_routine_mode") as "morning" | "night") || "morning"
+  );
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { tier } = useSubscription();
   const bilingualEnabled = tier !== "freemium";
@@ -1209,9 +1213,30 @@ export default function AppPage() {
         <ChildSelector children={children as any[]} onSelect={loadChild} />
       )}
       {screen === "main" && (
-        <MainScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} sendMode={sendMode} />
+        <>
+          <div style={{ position: "fixed", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
+            <RoutineModeToggle
+              mode={routineMode}
+              onChange={m => { setRoutineMode(m); localStorage.setItem("gj_routine_mode", m); }}
+            />
+          </div>
+          {routineMode === "night" ? (
+            <NightScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} sendMode={sendMode} />
+          ) : (
+            <MainScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} sendMode={sendMode} />
+          )}
+        </>
       )}
-      {screen === "win" && (
+      {screen === "win" && routineMode === "night" && (
+        <NightWinScreen
+          state={appState}
+          onParent={goParent}
+          onNext={handleNewMorning}
+          sendMode={sendMode}
+          onSwitchChild={children && children.length > 1 ? () => { setChildId(null); setScreen("child-select"); } : undefined}
+        />
+      )}
+      {screen === "win" && routineMode === "morning" && (
         <WinScreen
           state={appState}
           onParent={goParent}
