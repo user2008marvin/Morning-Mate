@@ -269,7 +269,7 @@ export function NightScreen({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "20px 0 0",
+          padding: "64px 0 0",
           position: "relative",
           zIndex: 10,
         }}
