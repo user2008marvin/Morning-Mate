@@ -94,7 +94,7 @@ Or type your own reward in the box below — e.g. "Trampoline Park" or "Stay up 
 
 The chosen reward is shown to the child on the weekly progress bar during their morning routine.
 
-### Mum's Voice *(GlowJo subscribers only)*
+### Parents' Voice *(GlowJo subscribers only)*
 Record your own voice for each task. When the child reaches that task, they hear your voice instead of the built-in text-to-speech.
 
 - Tap 🎙️ **Record** next to any task
@@ -162,7 +162,7 @@ Stars and streaks are saved to your account when logged in and sync across devic
 | 2 free music days/month | ✅ | — |
 | Unlimited daily music | — | ✅ |
 | Bilingual (EN + ES) | — | ✅ |
-| Mum's Voice recordings | — | ✅ |
+| Parents' Voice recordings | — | ✅ |
 | Progress saved to account | ✅ (logged in) | ✅ |
 
 ### How to Upgrade
@@ -176,7 +176,7 @@ Go to the Parent Dashboard and tap **Upgrade to GlowJo**. You will be taken to a
 - **Let them hold the phone**: Ownership matters. Kids engage more when they are in control.
 - **Celebrate the win screen**: Make a fuss when they finish — the app cheers, you cheer too.
 - **Use the weekly reward**: Talk about it each morning ("Remember, if you do this all week we get Pizza Night!").
-- **Record Mum's Voice**: Kids respond better to a familiar voice. Even a short 5-second message works wonders.
+- **Record Parents' Voice**: Kids respond better to a familiar voice. Even a short 5-second message works wonders.
 - **Tonight's Prep**: Do the checklist the night before — a prepared morning is a calmer morning.
 
 ---
