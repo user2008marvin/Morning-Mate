@@ -229,6 +229,8 @@ function DemoPhone({ lang = "en" }: { lang?: "en" | "es" }) {
 export default function Home() {
   const [, navigate] = useLocation();
   const [email, setEmail] = useState("");
+  const [emailStatus, setEmailStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [emailError, setEmailError] = useState("");
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [pendingTier, setPendingTier] = useState<"starter" | "plus" | "gold" | null>(null);
   const [pendingNav, setPendingNav] = useState<string | null>(null);
@@ -268,20 +270,23 @@ export default function Home() {
   const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
 
   const handleEmailCapture = async () => {
+    setEmailError("");
     if (!email.trim()) {
-      toast.error("Please enter your email");
+      setEmailError("Please enter your email address");
       return;
     }
     if (!validateEmail(email)) {
-      toast.error("Please enter a valid email address");
+      setEmailError("Please enter a valid email address");
       return;
     }
+    setEmailStatus("loading");
     try {
       await emailMutation.mutateAsync({ email });
-      toast.success("Thanks! Check your email for updates.");
+      setEmailStatus("success");
       setEmail("");
     } catch (error) {
-      toast.error("Failed to capture email. Please try again.");
+      setEmailStatus("error");
+      setEmailError("Something went wrong — please try again.");
     }
   };
 
@@ -704,19 +709,39 @@ export default function Home() {
           <p style={{ fontSize: 18, color: "rgba(255,255,255,0.9)", marginBottom: 24 }}>
             Get tips, updates, and exclusive offers delivered to your inbox.
           </p>
-          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ flex: 1, padding: "12px 16px", borderRadius: 30, border: "none", fontSize: 14, fontFamily: "'Nunito', sans-serif" }}
-            />
-            <button onClick={handleEmailCapture} style={{ padding: "12px 28px", borderRadius: 30, border: "none", background: "white", color: "var(--coral)", fontFamily: "'Fredoka One',cursive", fontWeight: 900, cursor: "pointer", transition: "transform 0.15s" }}>
-              Join
-            </button>
-          </div>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>We respect your privacy. Unsubscribe anytime.</p>
+          {emailStatus === "success" ? (
+            <div style={{ background: "rgba(255,255,255,0.2)", border: "2px solid rgba(255,255,255,0.6)", borderRadius: 20, padding: "24px 32px", display: "inline-block" }}>
+              <div style={{ fontSize: 36, marginBottom: 8 }}>🎉</div>
+              <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, color: "white", marginBottom: 4 }}>You're in!</div>
+              <div style={{ fontSize: 15, color: "rgba(255,255,255,0.9)" }}>Check your inbox — we'll be in touch soon.</div>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                <input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(""); if (emailStatus === "error") setEmailStatus("idle"); }}
+                  onKeyDown={(e) => e.key === "Enter" && handleEmailCapture()}
+                  style={{ flex: 1, padding: "12px 16px", borderRadius: 30, border: emailError ? "2px solid rgba(255,200,200,0.9)" : "none", fontSize: 14, fontFamily: "'Nunito', sans-serif", outline: "none" }}
+                />
+                <button
+                  onClick={handleEmailCapture}
+                  disabled={emailStatus === "loading"}
+                  style={{ padding: "12px 28px", borderRadius: 30, border: "none", background: "white", color: "var(--coral)", fontFamily: "'Fredoka One',cursive", fontWeight: 900, cursor: emailStatus === "loading" ? "wait" : "pointer", transition: "opacity 0.15s", opacity: emailStatus === "loading" ? 0.7 : 1, whiteSpace: "nowrap" }}
+                >
+                  {emailStatus === "loading" ? "Joining…" : "Join"}
+                </button>
+              </div>
+              {emailError && (
+                <div style={{ fontSize: 13, color: "rgba(255,220,220,1)", fontWeight: 700, marginBottom: 8, background: "rgba(0,0,0,0.15)", borderRadius: 20, padding: "6px 16px", display: "inline-block" }}>
+                  {emailError}
+                </div>
+              )}
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", marginTop: emailError ? 6 : 0 }}>We respect your privacy. Unsubscribe anytime.</p>
+            </>
+          )}
         </div>
       </section>
 
