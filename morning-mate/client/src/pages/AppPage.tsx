@@ -28,8 +28,8 @@ const TASKS_EN = [
     prompt_es: "¡Hora de cepillar esos dientes y mostrar esa sonrisa brillante!",
     halfway_en: "Keep going — you are on your way to your gold star!",
     halfway_es: "¡Sigue así! ¡Estás en camino a tu estrella de oro!",
-    voice_en: "",
-    voice_es: "",
+    voice_en: "Brilliant! Those teeth are sparkling clean — well done, superstar!",
+    voice_es: "¡Brillante! ¡Esos dientes están relucientes — muy bien hecho, superestrella!",
   },
   {
     emoji: "🛁", label: "SHOWER TIME!", sticker: "🌟",
@@ -777,18 +777,18 @@ function MainScreen({
         <span style={{ fontSize: 24 }}>{state.reward.split(" ")[0]}</span>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>WEEKLY GOAL</div>
-          <div style={{ display: "flex", gap: 6 }}>
-            {[0, 1, 2, 3, 4].map(i => (
+          <div style={{ display: "flex", gap: 4 }}>
+            {[0, 1, 2, 3, 4, 5, 6].map(i => (
               <div key={i} style={{
-                width: 28, height: 28, borderRadius: "50%",
+                width: 24, height: 24, borderRadius: "50%",
                 background: i < weekDone ? "#ffd700" : "rgba(255,255,255,0.15)",
                 border: `2px solid ${i < weekDone ? "#ffd700" : "rgba(255,255,255,0.2)"}`,
-                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10
               }}>{i < weekDone ? "⭐" : ""}</div>
             ))}
           </div>
         </div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "#ffd700" }}>{weekDone}/5</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#ffd700" }}>{weekDone}/7</div>
       </div>
 
       {/* Freemium upsell nudge — shown below weekly stars */}
@@ -916,12 +916,12 @@ function WinScreen({ state, onParent, onNext, onSwitchChild, sendMode }: { state
       <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 16, padding: "12px 24px", marginTop: 16, fontSize: 16, fontWeight: 700, color: "white" }}>
         You're one step closer to {state.reward}!
       </div>
-      <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 12 }}>
-        {[0, 1, 2, 3, 4].map(i => (
+      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 12 }}>
+        {[0, 1, 2, 3, 4, 5, 6].map(i => (
           <div key={i} style={{
-            width: 32, height: 32, borderRadius: "50%",
+            width: 24, height: 24, borderRadius: "50%",
             background: i < weekDone ? "white" : "rgba(255,255,255,0.3)",
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10
           }}>{i < weekDone ? "⭐" : ""}</div>
         ))}
       </div>
@@ -1122,29 +1122,40 @@ export default function AppPage() {
   function handleWin(starsEarned: number) {
     const today = new Date().getDate();
     const todayStr = new Date().toDateString();
-    const dayOfWeek = new Date().getDay(); // 0=Sun … 6=Sat
+    const dayOfWeek = new Date().getDay();
     const newCompletedDays = appState.completedDays.includes(today)
       ? appState.completedDays : [...appState.completedDays, today];
-    const newStreak = appState.lastDate !== todayStr ? appState.streak + 1 : appState.streak;
-    const newStars = appState.stars + starsEarned;
-    // Mark today's slot in the weekly star strip
     const newWeekDays = [...appState.weekDays] as boolean[];
     newWeekDays[dayOfWeek] = true;
+
+    // Night routine — add stars but do NOT stamp lastDate or increment streak
+    if (routineMode === "night") {
+      const newStars = appState.stars + starsEarned;
+      const updates = { stars: newStars, weekDays: newWeekDays };
+      updateState(updates);
+      if (childId) {
+        syncProgress.mutate({ childId, stars: newStars, streak: appState.streak, completedDays: newCompletedDays });
+      }
+      setScreen("win");
+      return;
+    }
+
+    // Morning routine — full logic
+    const newStreak = appState.lastDate !== todayStr ? appState.streak + 1 : appState.streak;
+    const newStars = appState.stars + starsEarned;
     const updates = {
       stars: newStars,
       streak: newStreak,
       completedDays: newCompletedDays,
       weekDays: newWeekDays,
       lastDate: todayStr,
-      stickersUnlocked: [...appState.stickersUnlocked, WIN_STICKERS[Math.min(appState.stars, WIN_STICKERS.length - 1)]]
+      stickersUnlocked: [...new Set([...appState.stickersUnlocked, WIN_STICKERS[Math.min(appState.stars, WIN_STICKERS.length - 1)]])]
     };
     updateState(updates);
-    // Sync to DB if authenticated — markCompletedToday stamps lastCompletedDate server-side
     if (childId) {
-      const todayStr2 = new Date().toDateString();
       syncProgress.mutate(
         { childId, stars: newStars, streak: newStreak, completedDays: newCompletedDays, markCompletedToday: true },
-        { onSuccess: () => { setServerLastCompleted(todayStr2); refetchChildren(); } }
+        { onSuccess: () => { setServerLastCompleted(todayStr); refetchChildren(); } }
       );
     }
     setScreen("win");
@@ -1155,8 +1166,10 @@ export default function AppPage() {
   }
 
   function handleNewMorning() {
+    // Night routine always goes back to main — no lockout
+    if (routineMode === "night") { setScreen("main"); return; }
+
     const todayStr = new Date().toDateString();
-    // Use server date if available (tamper-proof), fall back to local
     const alreadyDone = serverLastCompleted
       ? serverLastCompleted === todayStr
       : appState.lastDate === todayStr;
