@@ -45,8 +45,8 @@ export default function PrivacyPolicy() {
           When you create an account we store your <strong>email address</strong> and a securely hashed (bcrypt) password. We use this solely to authenticate you and to send transactional emails (e.g. password reset). We do not send marketing emails without your explicit opt-in.
         </Block>
 
-        <Block title="4. Voice recordings (Mum's Voice)">
-          If you use the Mum's Voice feature, your recordings are stored <strong>locally on your device only</strong>, in your browser's IndexedDB storage. They are never uploaded to our servers and are never accessible to anyone other than you. Clearing your browser data removes them permanently.
+        <Block title="4. Voice recordings (Parents' Voice)">
+          If you use the Parents' Voice feature, your recordings are stored <strong>locally on your device only</strong>, in your browser's IndexedDB storage. They are never uploaded to our servers and are never accessible to anyone other than you. Clearing your browser data removes them permanently.
         </Block>
 
         <Block title="5. COPPA compliance (United States — children under 13)">
