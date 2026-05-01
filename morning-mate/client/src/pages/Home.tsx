@@ -534,7 +534,7 @@ export default function Home() {
               { icon: "🎵", title: "Happy Music", text: "A different song every day keeps mornings fun and fresh.", badge: "GLOWJO" },
               { icon: "🌍", title: "Bilingual", text: "English + Spanish. Perfect for multilingual families.", badge: "GLOWJO" },
               { icon: "🔒", title: "Parent Dashboard", text: "PIN-protected parent view with progress tracking.", badge: "FREE" },
-              { icon: "🎙️", title: "Mum's Voice", text: "Record your own voice for each task. Kids love hearing you instead of AI!", badge: "GLOWJO" },
+              { icon: "🎙️", title: "Parents' Voice", text: "Record your own voice for each task. Kids love hearing you instead of AI!", badge: "GLOWJO" },
               { icon: "⭐", title: "Stars & Rewards", text: "Kids earn stars every morning and unlock custom rewards.", badge: "FREE" },
             ].map((feat, i) => (
               <div key={i} className="reveal" style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, padding: 24, backdropFilter: "blur(8px)", transition: "transform 0.2s" }}>
@@ -610,7 +610,7 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: 24 }}>
             {[
               { name: "Freemium", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", style: "free", badge: null, tier: null },
-              { name: "GlowJo", features: ["Everything in Free", "Up to 4 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning", "🎙️ Mum's Voice — record your own", "🧩 SEND-friendly mode for additional needs", "🧒 Multi-child mornings — seamless handoff", "⭐ Stars, streaks & weekly rewards", "📊 Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", style: "coral", badge: "⭐ Most Popular", tier: "starter" },
+              { name: "GlowJo", features: ["Everything in Free", "Up to 4 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning", "🎙️ Parents' Voice — record your own", "🧩 SEND-friendly mode for additional needs", "🧒 Multi-child mornings — seamless handoff", "⭐ Stars, streaks & weekly rewards", "📊 Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", style: "coral", badge: "⭐ Most Popular", tier: "starter" },
               { name: "GlowJo +", features: ["Everything in GlowJo", "🌙 Night Mode — full bedtime routine", "🌟 Moony mascot & starry theme", "📖 Personalised bedtime story", "🎵 Calming ambient night music", "🚀 First access to new features"], cta: "Get GlowJo +", style: "night", badge: "🌙 Night Edition", tier: "plus" },
             ].map((plan, i) => {
               const isStarter = plan.tier === "starter";
