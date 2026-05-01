@@ -509,7 +509,7 @@ function VoiceSlotRow({ taskLabel, slot, label }: { taskLabel: string; slot: Voi
 function MumsVoice() {
   return (
     <div style={{ background: "white", borderRadius: 20, padding: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginTop: 16 }}>
-      <div style={{ fontSize: "1.1rem", color: "#1a1a2e", marginBottom: 4 }}>🎙️ Mum's Voice</div>
+      <div style={{ fontSize: "1.1rem", color: "#1a1a2e", marginBottom: 4 }}>🎙️ Parents' Voice</div>
       <div style={{ fontSize: "0.82rem", color: "#888", marginBottom: 16 }}>
         Record your own voice for each task. Kids love hearing you!<br />
         Tap <strong>Record</strong>, speak your message, then tap <strong>Stop</strong>.
@@ -814,7 +814,7 @@ export default function ParentDashboard() {
                 <div style={{ fontSize: 24 }}>🔴</div>
                 <div>
                   <div style={{ fontWeight: 700, color: "#cc2222", fontSize: "0.95rem" }}>Your subscription has expired</div>
-                  <div style={{ fontSize: "0.8rem", color: "#666", marginTop: 4 }}>Renew now to restore music, Mum's Voice, and all GlowJo features.</div>
+                  <div style={{ fontSize: "0.8rem", color: "#666", marginTop: 4 }}>Renew now to restore music, Parents' Voice, and all GlowJo features.</div>
                 </div>
               </div>
             );
