@@ -27,8 +27,8 @@ export default function Privacy() {
           GlowJo is used by parents and carers on behalf of children. <strong>We do not knowingly collect data directly from children.</strong> All accounts are created and managed by adults. The only child-related data stored is what a parent enters (first name, age, school time, reward). We keep this data only for as long as your account exists.
         </Section>
 
-        <Section title="Voice recordings (Mum's Voice)">
-          If you use the Mum's Voice feature, your voice recordings are stored <strong>locally on your device only</strong> using your browser's IndexedDB storage. They are never uploaded to our servers. Clearing your browser data or deleting the app will permanently remove them.
+        <Section title="Voice recordings (Parents' Voice)">
+          If you use the Parents' Voice feature, your voice recordings are stored <strong>locally on your device only</strong> using your browser's IndexedDB storage. They are never uploaded to our servers. Clearing your browser data or deleting the app will permanently remove them.
         </Section>
 
         <Section title="How we use your data">
