@@ -152,17 +152,17 @@ const SECTIONS = [
             ))}
           </div>
         </Sub>
-        <Sub title="🎙️ Mum's Voice (GlowJo subscribers)">
+        <Sub title="🎙️ Parents' Voice (GlowJo subscribers)">
           <p style={{ marginBottom: 10 }}>
-            Mum's Voice <strong>replaces Sunny's voice</strong> during the morning routine. The app checks for your
+            Parents' Voice <strong>replaces Sunny's voice</strong> during the morning routine. The app checks for your
             recording first — if one exists for that task, it plays yours. If not, it falls back to Sunny.
           </p>
           <table style={tableStyle}>
-            <thead><tr><Th>What Mum records</Th><Th>What the child hears</Th></tr></thead>
+            <thead><tr><Th>What parents record</Th><Th>What the child hears</Th></tr></thead>
             <tbody>
               <tr style={{ background: "#f9f9f9" }}><Td>Nothing (default)</Td><Td>Sunny's voice ☀️</Td></tr>
-              <tr><Td>A recording for "Wake Up!"</Td><Td>Mum's voice 🎙️</Td></tr>
-              <tr style={{ background: "#f9f9f9" }}><Td>Recordings for all 6 tasks</Td><Td>Mum's voice throughout 💛</Td></tr>
+              <tr><Td>A recording for "Wake Up!"</Td><Td>Your voice 🎙️</Td></tr>
+              <tr style={{ background: "#f9f9f9" }}><Td>Recordings for all 6 tasks</Td><Td>Your voice throughout 💛</Td></tr>
             </tbody>
           </table>
           <Note>
@@ -229,7 +229,7 @@ const SECTIONS = [
               ["2 free music days/month", "✅", "—"],
               ["Unlimited daily music", "—", "✅"],
               ["Bilingual (EN + ES)", "—", "✅"],
-              ["Mum's Voice recordings", "—", "✅"],
+              ["Parents' Voice recordings", "—", "✅"],
               ["Progress saved to account", "✅ (logged in)", "✅"],
             ].map(([f, fr, pa], i) => (
               <tr key={i} style={{ background: i % 2 === 0 ? "#f9f9f9" : "white" }}>
@@ -254,7 +254,7 @@ const SECTIONS = [
         <li><strong>Let them hold the phone</strong> — Ownership matters. Kids engage more when they're in control.</li>
         <li><strong>Celebrate the win screen</strong> — Make a fuss when they finish — the app cheers, you cheer too!</li>
         <li><strong>Use the weekly reward</strong> — Talk about it each morning ("Remember, if you do this all week we get Pizza Night!").</li>
-        <li><strong>Record Mum's Voice</strong> — Kids respond better to a familiar voice. Even 5 seconds works wonders.</li>
+        <li><strong>Record Parents' Voice</strong> — Kids respond better to a familiar voice. Even 5 seconds works wonders.</li>
         <li><strong>Tonight's Prep</strong> — Do the checklist the night before — a prepared morning is a calmer morning.</li>
       </ul>
     ),
