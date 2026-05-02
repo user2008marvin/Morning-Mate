@@ -230,9 +230,16 @@ export function NightScreen({
     if (!startedRef.current && enabledTasks.length > 0) {
       startedRef.current = true;
       const t = enabledTasks[0];
-      // Cancel any leftover speech, then speak first prompt after brief delay
       window.speechSynthesis?.cancel();
-      setTimeout(() => nightSpeak(state.language === "es" ? t.prompt_es : t.prompt_en, state.language), 600);
+      // Welcome message, then first task prompt after a pause
+      const welcome = state.language === "es"
+        ? `¿Estás listo para tu rutina nocturna, ${state.childName}?`
+        : `Are you ready for your nightly routine, ${state.childName}?`;
+      setTimeout(() => nightSpeak(welcome, state.language), 600);
+      setTimeout(() => {
+        window.speechSynthesis?.cancel();
+        nightSpeak(state.language === "es" ? t.prompt_es : t.prompt_en, state.language);
+      }, 4500);
       setActive(0);
     }
     return () => {
@@ -547,8 +554,13 @@ export function NightWinScreen({ state, onParent, onNext, onSwitchChild }: Night
       ? `¡Dulces sueños, ${state.childName}! 🌙`
       : `Sleep tight, ${state.childName}! 🌙`;
 
+  const spokenMessage =
+    state.language === "es"
+      ? `Dulces sueños, ${state.childName}.`
+      : `Sleep tight, ${state.childName}.`;
+
   useEffect(() => {
-    nightSpeak(message, state.language);
+    nightSpeak(spokenMessage, state.language);
   }, []);
 
   return (
