@@ -951,24 +951,27 @@ function WinScreen({ state, onParent, onNext, onSwitchChild, sendMode }: { state
 }
 
 // ── CHILD SELECTOR ──
-function ChildSelector({ children, onSelect }: {
+function ChildSelector({ children, onSelect, nightMode }: {
   children: any[];
   onSelect: (child: any) => void;
+  nightMode?: boolean;
 }) {
   const todayStr = new Date().toDateString();
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(180deg,#4facfe 0%,#ff9a3c 60%,#ff6b35 100%)",
+      background: nightMode
+        ? "linear-gradient(160deg, #0a0a1a 0%, #0d0d2b 40%, #1a0a2e 70%, #0f0f23 100%)"
+        : "linear-gradient(180deg,#4facfe 0%,#ff9a3c 60%,#ff6b35 100%)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       padding: "28px 20px", fontFamily: "'Nunito',sans-serif",
     }}>
-      <div style={{ fontSize: 56, marginBottom: 8 }}>☀️</div>
+      <div style={{ fontSize: 56, marginBottom: 8 }}>{nightMode ? "🌙" : "☀️"}</div>
       <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 28, color: "white", marginBottom: 6, textAlign: "center" }}>
-        Good morning!
+        {nightMode ? "Good evening!" : "Good morning!"}
       </div>
       <div style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", marginBottom: 32, textAlign: "center" }}>
-        Who's doing their morning routine today?
+        {nightMode ? "Who's doing their bedtime routine tonight?" : "Who's doing their morning routine today?"}
       </div>
       <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 14 }}>
         {children.map((child: any) => {
@@ -1223,7 +1226,7 @@ export default function AppPage() {
       )}
       {screen === "onboarding" && <Onboarding onComplete={handleOnboardingComplete} />}
       {screen === "child-select" && children && (
-        <ChildSelector children={children as any[]} onSelect={loadChild} />
+        <ChildSelector children={children as any[]} onSelect={loadChild} nightMode={routineMode === "night"} />
       )}
       {screen === "main" && (
         <>
