@@ -947,7 +947,7 @@ export default function ParentDashboard() {
                 background: tier === "freemium" ? "#f0f0f0" : "linear-gradient(135deg,#ff9a3c,#ff5f1f)",
                 color: tier === "freemium" ? "#888" : "white",
               }}>
-                {tier === "freemium" ? "Free" : "GlowJo ⭐ Active"}
+                {tier === "freemium" ? "Free" : tier === "gold" ? "GlowJo+ ⭐" : "GlowJo ⭐"}
               </span>
             )}
           </div>
