@@ -615,24 +615,22 @@ export default function Home() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: 24 }}>
             {[
               { name: "Freemium", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", style: "free", badge: null, tier: null },
-              { name: "GlowJo", features: ["Everything in Free", "Up to 4 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning", "🎙️ Parents' Voice — record your own", "🧩 SEND-friendly mode for additional needs", "🧒 Multi-child mornings — seamless handoff", "⭐ Stars, streaks & weekly rewards", "📊 Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", style: "coral", badge: "⭐ Most Popular", tier: "starter" },
-              { name: "GlowJo +", features: ["Everything in GlowJo", "🌙 Night Mode — full bedtime routine", "🌟 Moony mascot & starry theme", "📖 Personalised bedtime story", "🎵 Calming ambient night music", "🚀 First access to new features"], cta: "Get GlowJo +", style: "night", badge: "🌙 Night Edition", tier: "plus" },
+              { name: "GlowJo", features: ["Everything in Free", "Up to 3 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning", "🎙️ Parents' Voice — record your own", "🧩 SEND-friendly mode for additional needs", "🧒 Multi-child mornings — seamless handoff", "⭐ Stars, streaks & weekly rewards", "📊 Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", style: "coral", badge: "⭐ Most Popular", tier: "plus" },
+              { name: "GlowJo +", features: ["Everything in GlowJo", "Up to 5 child profiles", "🌙 Night Mode — full bedtime routine", "🌟 Moony mascot & starry theme", "📖 Personalised bedtime story", "🎵 Calming ambient night music", "🚀 First access to new features"], cta: "Get GlowJo +", style: "night", badge: "🌙 Night Edition", tier: "gold" },
             ].map((plan, i) => {
-              const isStarter = plan.tier === "starter";
-              const isPlus = plan.tier === "plus";
               const isNight = plan.style === "night";
               const isCoral = plan.style === "coral";
 
-              const priceDisplay = isStarter
-                ? billingPeriod === "month" ? "$9.99/month" : "$79.99/year"
-                : isPlus
-                ? billingPeriod === "month" ? "$14.99/month" : "$119.99/year"
+              const priceDisplay = isCoral
+                ? billingPeriod === "month" ? "$9.99/month" : "$99.90/year"
+                : isNight
+                ? billingPeriod === "month" ? "$14.99/month" : "$149.90/year"
                 : "Free forever";
 
-              const subText = isStarter
-                ? billingPeriod === "year" ? "Just $6.67/month — 2 months free! 🎉" : "Billed monthly, cancel anytime"
-                : isPlus
-                ? billingPeriod === "year" ? "Just $10/month — 2 months free! 🎉" : "Billed monthly, cancel anytime"
+              const subText = isCoral
+                ? billingPeriod === "year" ? "Just $8.33/month — 2 months free! 🎉" : "Billed monthly, cancel anytime"
+                : isNight
+                ? billingPeriod === "year" ? "Just $12.49/month — 2 months free! 🎉" : "Billed monthly, cancel anytime"
                 : null;
 
               const cardBg = isCoral
