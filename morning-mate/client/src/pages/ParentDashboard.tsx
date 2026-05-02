@@ -625,18 +625,6 @@ function EveningPrep() {
 
 const PLANS = [
   {
-    tier: "starter" as const,
-    backendTier: "starter" as const,
-    label: "GlowJo",
-    emoji: "⭐",
-    monthly: 4.99,
-    yearly: 49.90,
-    features: "1 child · AI voice · Happy music every task · Priority support",
-    color: "rgba(79,172,254,0.35)",
-    border: "rgba(79,172,254,0.7)",
-    badge: "POPULAR",
-  },
-  {
     tier: "pro" as const,
     backendTier: "plus" as const,
     label: "GlowJo",
