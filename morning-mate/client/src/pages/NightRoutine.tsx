@@ -184,11 +184,30 @@ interface NightScreenProps {
   sendMode: boolean;
 }
 
+const BEDTIME_STORIES_EN = [
+  `Once upon a time, a little star named {name} flew higher than all the others in the sky. Every task completed tonight added a new twinkle, and now the whole universe is glowing because of how brilliant {name} is. Close those eyes — the star dragons are waiting to take you on the most magical dream adventure.`,
+  `Deep in an enchanted forest, a brave explorer called {name} discovered a hidden trail that only the most determined children could find. Each bedtime task was a stepping stone along the path, and tonight every single one was conquered. The forest creatures are cheering, the fireflies are dancing, and now it's time to rest for tomorrow's adventure.`,
+  `Far across the Sleepy Sea, there is a golden island that only appears for children who finish their bedtime routine. Tonight {name} earned the map, sailed the waves, and landed on the shore. The island is filled with talking animals, chocolate rivers, and the softest beds made of clouds — and it's all waiting right behind those closing eyes.`,
+  `In the kingdom of Dreamville, the king and queen were searching for their most trusted knight. They heard about {name} — so kind, so hardworking, so brilliant at getting ready for bed. Tonight the crown is yours. Sleep tight, brave knight, for tomorrow brings a brand new quest.`,
+  `High up on Moon Mountain, a wise old owl watched {name} complete every single bedtime task without giving up. The owl nodded slowly and said — this one is special. So tonight the moon is shining just a little bit brighter, lighting the way to the most wonderful dreams imaginable.`,
+  `Once there was a young inventor called {name} who built a rocket out of bedtime tasks — one for every brush of teeth, every pyjama button, every tidy toy. Tonight the rocket is fully fuelled and ready for launch. Close your eyes, count to three, and blast off into the most spectacular dream galaxy ever seen.`,
+  `In a cosy little town where the clouds are made of candyfloss, everyone knew {name} as the kindest, most hardworking child around. Tonight the whole town gathered to watch the bedtime fireworks — one explosion of colour for every task completed. The grand finale lit up the sky, and now it's time to snuggle in and dream of that magical town.`,
+];
+
+const BEDTIME_STORIES_ES = [
+  `Érase una vez una pequeña estrella llamada {name} que voló más alto que todas las demás. Cada tarea completada esta noche añadió un nuevo brillo, y ahora el universo entero resplandece gracias a lo brillante que es {name}. Cierra los ojos — los dragones de las estrellas te esperan para llevarte a la aventura de sueños más mágica.`,
+  `En un bosque encantado, un valiente explorador llamado {name} descubrió un sendero escondido que solo los niños más decididos podían encontrar. Esta noche conquistó cada tarea como un campeón. Las criaturas del bosque están aplaudiendo y las luciérnagas bailando — ahora es hora de descansar.`,
+  `Al otro lado del Mar Dormido, hay una isla dorada que solo aparece para los niños que terminan su rutina nocturna. Esta noche {name} ganó el mapa, navegó las olas y llegó a la orilla. La isla está llena de animales parlantes y ríos de chocolate — todo esperando detrás de esos ojos que se cierran.`,
+  `En el reino de Pueblosueño, el rey y la reina buscaban a su caballero más valiente. Escucharon hablar de {name} — tan amable, tan trabajador, tan brillante. Esta noche la corona es tuya. Duerme bien, valiente caballero, mañana trae una nueva aventura.`,
+  `En lo alto de la Montaña Luna, un sabio búho observó a {name} completar cada tarea sin rendirse. El búho asintió lentamente y dijo — este niño es especial. Esta noche la luna brilla un poco más fuerte, iluminando el camino hacia los sueños más maravillosos.`,
+  `Había una joven inventora llamada {name} que construyó un cohete con tareas nocturnas. Esta noche el cohete está completamente cargado. Cierra los ojos, cuenta hasta tres, y despega hacia la galaxia de sueños más espectacular jamás vista.`,
+  `En un pequeño pueblo acogedor donde las nubes son de algodón de azúcar, todos conocían a {name} como el niño más amable y trabajador. Esta noche el pueblo entero se reunió para ver los fuegos artificiales de la rutina nocturna. Ahora es hora de acurrucarse y soñar con ese pueblo mágico.`,
+];
+
 function generateBedtimeStory(name: string, lang: Language): string {
-  if (lang === "es") {
-    return `Érase una vez, ${name} terminó todas sus tareas de la noche con mucho cuidado y amor. Las estrellas del cielo brillaron más fuerte que nunca para celebrar lo maravilloso que es. Ahora, mientras cierra los ojos, los sueños más dulces y mágicos ya vienen volando hacia él.`;
-  }
-  return `Once upon a time, ${name} finished every single bedtime task with such care and love. The stars in the sky shone just a little brighter tonight, because they were so proud of how wonderful ${name} is. Now, as those eyes grow heavy, the sweetest dreams are already floating gently through the door.`;
+  const day = new Date().getDay();
+  const pool = lang === "es" ? BEDTIME_STORIES_ES : BEDTIME_STORIES_EN;
+  return pool[day % pool.length].replaceAll("{name}", name);
 }
 
 export function NightScreen({
