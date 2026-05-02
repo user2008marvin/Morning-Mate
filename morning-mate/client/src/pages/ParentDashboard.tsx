@@ -624,7 +624,42 @@ function EveningPrep() {
 }
 
 const PLANS = [
-  { tier: "starter" as const, label: "GlowJo", emoji: "⭐", monthly: 4.99, yearly: 49.90, features: "3 children · AI voice · Happy music every task · Priority support", color: "rgba(79,172,254,0.35)", border: "rgba(79,172,254,0.7)", badge: "FULL ACCESS" },
+  {
+    tier: "starter" as const,
+    backendTier: "starter" as const,
+    label: "GlowJo",
+    emoji: "⭐",
+    monthly: 4.99,
+    yearly: 49.90,
+    features: "1 child · AI voice · Happy music every task · Priority support",
+    color: "rgba(79,172,254,0.35)",
+    border: "rgba(79,172,254,0.7)",
+    badge: "POPULAR",
+  },
+  {
+    tier: "pro" as const,
+    backendTier: "plus" as const,
+    label: "GlowJo",
+    emoji: "🌟",
+    monthly: 9.99,
+    yearly: 99.90,
+    features: "3 children · AI voice · Music · Bilingual EN+ES · Weekly rewards · Priority support",
+    color: "rgba(255,154,60,0.35)",
+    border: "rgba(255,154,60,0.7)",
+    badge: "MOST POPULAR",
+  },
+  {
+    tier: "glowjo_plus" as const,
+    backendTier: "gold" as const,
+    label: "GlowJo+",
+    emoji: "🏆",
+    monthly: 14.99,
+    yearly: 149.90,
+    features: "5 children · AI voice · Music · Bilingual · Night routine · SEND mode · Priority support",
+    color: "rgba(167,139,250,0.35)",
+    border: "rgba(167,139,250,0.7)",
+    badge: "BEST VALUE",
+  },
 ];
 
 function UpgradeCard({ tier }: { tier: string }) {
@@ -660,7 +695,7 @@ function UpgradeCard({ tier }: { tier: string }) {
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         {PLANS.map(plan => (
           <button key={plan.tier}
-            onClick={() => createCheckout.mutate({ tier: plan.tier, billingPeriod: period })}
+            onClick={() => createCheckout.mutate({ tier: plan.backendTier, billingPeriod: period })}
             disabled={createCheckout.isPending}
             style={{
               background: plan.color, color: "white",
