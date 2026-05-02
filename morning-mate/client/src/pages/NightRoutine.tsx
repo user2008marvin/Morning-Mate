@@ -184,6 +184,13 @@ interface NightScreenProps {
   sendMode: boolean;
 }
 
+function generateBedtimeStory(name: string, lang: Language): string {
+  if (lang === "es") {
+    return `Érase una vez, ${name} terminó todas sus tareas de la noche con mucho cuidado y amor. Las estrellas del cielo brillaron más fuerte que nunca para celebrar lo maravilloso que es. Ahora, mientras cierra los ojos, los sueños más dulces y mágicos ya vienen volando hacia él.`;
+  }
+  return `Once upon a time, ${name} finished every single bedtime task with such care and love. The stars in the sky shone just a little brighter tonight, because they were so proud of how wonderful ${name} is. Now, as those eyes grow heavy, the sweetest dreams are already floating gently through the door.`;
+}
+
 export function NightScreen({
   state,
   onWin,
@@ -195,6 +202,7 @@ export function NightScreen({
   const [completed, setCompleted] = useState<boolean[]>(Array(enabledTasks.length).fill(false));
   const [active, setActive] = useState<number | null>(null);
   const [celebrating, setCelebrating] = useState<number | null>(null);
+  const [showStory, setShowStory] = useState(false);
   const startedRef = useRef(false);
 
   // Start music and first prompt on mount; stop everything on unmount
@@ -218,12 +226,21 @@ export function NightScreen({
     if (completed[idx]) return;
     const t = enabledTasks[idx];
 
-    // Cancel prompt speech, then speak completion phrase
+    // Story Time — first tap shows the card and reads it aloud; don't complete yet
+    if (t.label === "Story Time" && !showStory) {
+      window.speechSynthesis?.cancel();
+      const story = generateBedtimeStory(state.childName, state.language);
+      nightSpeak(story, state.language);
+      setShowStory(true);
+      return;
+    }
+
+    // All other taps (or second tap on Story Time) — complete the task
+    setShowStory(false);
     window.speechSynthesis?.cancel();
     nightSpeak(state.language === "es" ? t.voice_es : t.voice_en, state.language);
     setCelebrating(idx);
 
-    // Mark task done after 1s
     setTimeout(() => {
       const next = [...completed];
       next[idx] = true;
@@ -234,7 +251,6 @@ export function NightScreen({
       if (nextIdx < enabledTasks.length) {
         setActive(nextIdx);
         const nextTask = enabledTasks[nextIdx];
-        // Wait 2.5s from tap so completion phrase has time to finish, then speak next prompt
         setTimeout(() => {
           window.speechSynthesis?.cancel();
           nightSpeak(state.language === "es" ? nextTask.prompt_es : nextTask.prompt_en, state.language);
@@ -353,6 +369,49 @@ export function NightScreen({
           zIndex: 10,
         }}
       >
+        {showStory && (
+          <div style={{
+            maxWidth: 420,
+            width: "100%",
+            marginBottom: 12,
+            padding: "24px 24px",
+            borderRadius: 24,
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(167,139,250,0.25)",
+            position: "relative",
+            zIndex: 10,
+            animation: "slideUp 0.5s ease forwards",
+          }}>
+            <div style={{
+              color: "rgba(196,181,253,0.7)",
+              fontSize: 11,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              marginBottom: 12,
+            }}>
+              ✦ Tonight's Story
+            </div>
+            <p style={{
+              color: "rgba(224,214,246,0.85)",
+              fontSize: 15,
+              lineHeight: 1.75,
+              margin: 0,
+              fontStyle: "italic",
+            }}>
+              {generateBedtimeStory(state.childName, state.language)}
+            </p>
+            <div style={{
+              marginTop: 16,
+              fontSize: 13,
+              color: "rgba(196,181,253,0.5)",
+              textAlign: "center",
+              letterSpacing: "0.05em",
+            }}>
+              Tap the task again when the story is done 🌙
+            </div>
+          </div>
+        )}
+
         {enabledTasks.map((task, idx) => {
           const done = completed[idx];
           const isActive = active === idx && !done;
@@ -452,13 +511,6 @@ export function NightScreen({
       </div>
     </div>
   );
-}
-
-function generateBedtimeStory(name: string, lang: Language): string {
-  if (lang === "es") {
-    return `Érase una vez, ${name} terminó todas sus tareas de la noche con mucho cuidado y amor. Las estrellas del cielo brillaron más fuerte que nunca para celebrar lo maravilloso que es. Ahora, mientras cierra los ojos, los sueños más dulces y mágicos ya vienen volando hacia él.`;
-  }
-  return `Once upon a time, ${name} finished every single bedtime task with such care and love. The stars in the sky shone just a little brighter tonight, because they were so proud of how wonderful ${name} is. Now, as those eyes grow heavy, the sweetest dreams are already floating gently through the door.`;
 }
 
 interface NightWinScreenProps {
