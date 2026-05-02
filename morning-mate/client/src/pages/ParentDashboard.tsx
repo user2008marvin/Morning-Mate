@@ -698,6 +698,13 @@ export default function ParentDashboard() {
   const { user, isLoading: authLoading } = useAuth();
   const { tier, daysUntilRenewal, cancelAtPeriodEnd, currentPeriodEnd } = useSubscription();
   const [editingChild, setEditingChild] = useState<Child | null | "new">(null);
+  const [isNightMode, setIsNightMode] = useState(() => localStorage.getItem("gj_routine_mode") === "night");
+
+  useEffect(() => {
+    const onStorage = () => setIsNightMode(localStorage.getItem("gj_routine_mode") === "night");
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   const { data: children = [], isLoading: childrenLoading, refetch } = trpc.app.getChildren.useQuery(undefined, { enabled: !!user });
 
@@ -867,7 +874,7 @@ export default function ParentDashboard() {
                 marginBottom: "16px",
               }}
             >
-              🌅 Start Morning Routine
+              {isNightMode ? "🌙 Start Night Routine" : "🌅 Start Morning Routine"}
             </button>
           </>
         )}
