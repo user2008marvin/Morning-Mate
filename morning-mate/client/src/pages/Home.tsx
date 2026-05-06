@@ -324,20 +324,12 @@ export default function Home() {
   const handleAuthSuccess = async () => {
     setAuthModalOpen(false);
     await meQuery.refetch();
-    const subResult = await subscriptionQuery.refetch();
     if (pendingTier) {
-      const tier = pendingTier;
       setPendingTier(null);
-      const activeSub = subResult.data;
-      const alreadyActive =
-        activeSub &&
-        activeSub.status === "active" &&
-        activeSub.tier !== "freemium";
-      if (alreadyActive) {
-        navigate("/app");
-        return;
-      }
-      await doCheckout(tier);
+      // Existing users who sign in are already customers — send them straight to the app.
+      // Brand-new users who registered via this flow will land on /app and can subscribe from there.
+      navigate("/app");
+      return;
     } else if (pendingNav) {
       const dest = pendingNav;
       setPendingNav(null);
