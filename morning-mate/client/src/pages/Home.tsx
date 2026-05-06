@@ -268,6 +268,7 @@ export default function Home() {
   const emailMutation = trpc.analytics.captureEmail.useMutation();
   const stripeCheckoutMutation = trpc.stripe.createCheckoutSession.useMutation();
   const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
+  const subscriptionQuery = trpc.subscription.get.useQuery(undefined, { enabled: !!meQuery.data, retry: false });
 
   const handleEmailCapture = async () => {
     setEmailError("");
@@ -323,9 +324,19 @@ export default function Home() {
   const handleAuthSuccess = async () => {
     setAuthModalOpen(false);
     await meQuery.refetch();
+    const subResult = await subscriptionQuery.refetch();
     if (pendingTier) {
       const tier = pendingTier;
       setPendingTier(null);
+      const activeSub = subResult.data;
+      const alreadyActive =
+        activeSub &&
+        activeSub.status === "active" &&
+        activeSub.tier !== "freemium";
+      if (alreadyActive) {
+        navigate("/app");
+        return;
+      }
       await doCheckout(tier);
     } else if (pendingNav) {
       const dest = pendingNav;
