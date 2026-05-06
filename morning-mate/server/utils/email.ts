@@ -51,11 +51,35 @@ export async function sendEmail({ to, subject, template, data }: EmailOptions) {
       </div>
     `,
     "subscription-welcome": (data) => `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>🎉 Welcome to GlowJo, ${data.userName}!</h2>
-        <p>Your subscription is active until <strong>${data.currentPeriodEnd}</strong>.</p>
-        <p>Enjoy happy music every morning, bilingual routines, and Parents' Voice recording!</p>
-        <a href="${process.env.APP_URL || "https://getglowjo.com"}" style="display: inline-block; padding: 12px 24px; background: #ff5f1f; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px;">Open GlowJo →</a>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fff8ee; border-radius: 16px; overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #ff9a3c, #ff5f1f); padding: 32px 24px; text-align: center;">
+          <div style="font-size: 56px; margin-bottom: 8px;">☀️</div>
+          <h1 style="color: white; font-size: 28px; margin: 0 0 8px;">You're a GlowJo subscriber!</h1>
+          <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 16px;">Welcome, ${data.userName} — mornings just got magical.</p>
+        </div>
+        <div style="padding: 28px 24px;">
+          <h2 style="color: #1a1a2e; font-size: 18px; margin: 0 0 16px;">What's unlocked for you ✨</h2>
+          <ul style="list-style: none; padding: 0; margin: 0 0 24px; color: #444; font-size: 15px; line-height: 2;">
+            <li>✅ Voice guidance — Sunny speaks every task aloud</li>
+            <li>✅ Happy background music, different track every day</li>
+            <li>✅ Bilingual — English &amp; Spanish in one tap</li>
+            <li>✅ Parents' Voice — record your own prompts</li>
+            <li>✅ SEND Mode — calmer experience for additional needs</li>
+            <li>✅ Multi-child handoff — seamless family mornings</li>
+          </ul>
+          <div style="background: #f0f4ff; border-radius: 12px; padding: 16px; margin-bottom: 24px; font-size: 14px; color: #555;">
+            <strong>🔄 Auto-renewal:</strong> Your subscription renews automatically each billing period. Your next renewal date is <strong>${data.currentPeriodEnd}</strong>.<br/><br/>
+            <strong>❌ Cancel anytime:</strong> Log in → Parent Dashboard → Account → Cancel Subscription. No fees, no hassle.
+          </div>
+          <div style="text-align: center;">
+            <a href="${process.env.APP_URL || "https://getglowjo.com"}/app" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #ff9a3c, #ff5f1f); color: white; text-decoration: none; border-radius: 30px; font-size: 16px; font-weight: bold; margin-bottom: 12px;">🚀 Start Morning Routine →</a>
+            <br/>
+            <a href="${process.env.APP_URL || "https://getglowjo.com"}/parent" style="display: inline-block; padding: 12px 24px; background: transparent; color: #ff5f1f; text-decoration: none; border: 2px solid #ff5f1f; border-radius: 30px; font-size: 14px;">👨‍👩‍👧 Set Up Children's Profiles</a>
+          </div>
+        </div>
+        <div style="background: #f5f5f5; padding: 16px 24px; text-align: center; font-size: 12px; color: #aaa;">
+          Questions? Reply to this email or visit <a href="${process.env.APP_URL || "https://getglowjo.com"}" style="color: #ff9a3c;">getglowjo.com</a>
+        </div>
       </div>
     `,
     "subscription-canceled": (data) => `
