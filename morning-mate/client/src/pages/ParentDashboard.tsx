@@ -67,6 +67,7 @@ function ChildCard({
   const tasks = child.enabledTasks ? JSON.parse(child.enabledTasks) : [true, true, true, true, true, true];
   const taskLabels = ["☀️ Wake Up", "🛁 Shower", "🥛 Breakfast", "🪥 Teeth", "🎒 Pack Bag", "🚀 Let's Go"];
   const enabledCount = (tasks as boolean[]).filter(Boolean).length;
+  const sendOn = child.id ? localStorage.getItem(`gj_send_${child.id}`) === "1" : false;
 
   return (
     <div style={{
@@ -90,13 +91,22 @@ function ChildCard({
           {canDelete && <button onClick={() => onDelete(child.id)} style={{ background: "#fff0f0", color: "#ff4444", border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontSize: "0.85rem" }}>🗑️</button>}
         </div>
       </div>
-      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "12px" }}>
+      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "10px" }}>
         {taskLabels.map((label, i) => (
           <span key={i} style={{ background: tasks[i] ? "#e8f5e9" : "#f5f5f5", color: tasks[i] ? "#2e7d32" : "#bbb", borderRadius: "8px", padding: "4px 8px", fontSize: "0.75rem" }}>{label}</span>
         ))}
-        {localStorage.getItem(`gj_send_${child.id}`) === "1" && (
-          <span style={{ background: "#e8f0ff", color: "#4facfe", borderRadius: "8px", padding: "4px 8px", fontSize: "0.75rem", fontWeight: 700 }}>🧩 SEND Mode ON</span>
-        )}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: sendOn ? "#eef6ff" : "#fafafa", border: `1.5px solid ${sendOn ? "#4facfe" : "#eee"}`, borderRadius: "12px", padding: "8px 12px", marginBottom: "12px" }}>
+        <div>
+          <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1a1a2e" }}>🧩 SEND Mode</span>
+          <span style={{ fontSize: "0.75rem", color: "#888", marginLeft: 8 }}>Calmer voice · no music · Now &amp; Next view</span>
+        </div>
+        <button
+          onClick={() => onEdit(child)}
+          style={{ background: sendOn ? "linear-gradient(135deg,#4facfe,#00f2fe)" : "#ddd", color: "white", border: "none", borderRadius: "16px", padding: "4px 14px", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer" }}
+        >
+          {sendOn ? "ON" : "OFF"} · Edit
+        </button>
       </div>
       <div style={{ display: "flex", gap: "16px" }}>
         <div style={{ textAlign: "center" }}>
