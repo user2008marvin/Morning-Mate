@@ -1,5 +1,5 @@
 # GlowJo — User Manual
-**Version 2.0 | getglowjo.com**
+**Version 2.1 | getglowjo.com**
 
 ---
 
@@ -56,6 +56,8 @@ Each task appears one at a time. The child taps the big button when they have co
 ### Weekly Star Strip
 Below the task button, seven circles represent the full week (Monday–Sunday). Each circle fills with a ⭐ when the child completes their routine on that day.
 
+The strip **resets automatically every Monday** so each week starts fresh. When a child fills all 7 stars in a week, the Win Screen shows a special **🏆 Full Week!** celebration banner and congratulates them on earning their weekly reward.
+
 ### Finishing the Routine
 When all tasks are done, Sunny celebrates and the screen transitions to the **Win Screen**.
 
@@ -66,6 +68,7 @@ When all tasks are done, Sunny celebrates and the screen transitions to the **Wi
 After completing all tasks the child sees:
 - A trophy 🏆 and confetti celebration
 - Their progress towards the weekly reward
+- A **🏆 FULL WEEK!** banner if they completed all 7 days this week
 - Options to **Share** the achievement on WhatsApp, visit the **Parent Dashboard**, or start a **New Morning**
 
 ---
@@ -76,6 +79,8 @@ Switch to Night Routine by tapping the **☀️ / 🌙 toggle** at the top of th
 
 The app transforms into a dark, star-filled sky theme with calming music and gentler voice prompts to help children wind down.
 
+> **Note:** The routine always starts in **Morning Mode** when you open the app or pick a child. Tap the toggle to switch to night mode — this means a previous night-mode session won't accidentally carry over.
+
 ### Night Tasks
 The default bedtime routine includes:
 
@@ -84,8 +89,12 @@ The default bedtime routine includes:
 | 🛁 Bath Time | Warm bath to relax |
 | 🪥 Brush Teeth | Nighttime brush |
 | 👕 Pyjamas On | Getting cosy |
+| 📦 Tidy Up | Putting toys away |
 | 📚 Story Time | Bedtime story (see below) |
 | 💡 Lights Off | All done — sleep tight! |
+
+### Night Routine Voice
+When the night routine starts, Moony greets your child with: *"Are you ready for your nightly routine, [name]?"* before reading the first task aloud.
 
 ### Story Time ✨
 When the child reaches **Story Time**:
@@ -93,10 +102,23 @@ When the child reaches **Story Time**:
 2. **Second tap** — once the story is finished, tap the task again to complete it and move on to Lights Off.
 
 ### Night Win Screen
-After all bedtime tasks are done, Moony says goodnight and the win screen shows the full bedtime story so you can read it together if you like.
+After all bedtime tasks are done, Moony says *"Sleep tight, [name]"* and the win screen shows the full bedtime story so you can read it together if you like.
 
 ### Parent Dashboard — Night Mode
 The **Start Routine** button in the Parent Dashboard automatically shows "🌙 Start Night Routine" or "🌅 Start Morning Routine" depending on which mode is currently active.
+
+---
+
+## Multi-Child Families
+
+If you have more than one child profile set up, the app shows a **child picker** screen when opened:
+
+- **Morning mode**: "Good evening! Who's doing their bedtime routine tonight?" with a 🌙 moon background.
+- **Night mode**: "Good evening! Who's doing their bedtime routine tonight?" with a dark background.
+
+Each child keeps their own stars, streak, SEND mode setting, and progress independently.
+
+After one child finishes, a **Switch Child** button appears so the next sibling can take their turn.
 
 ---
 
@@ -105,22 +127,26 @@ The **Start Routine** button in the Parent Dashboard automatically shows "🌙 S
 Go to **getglowjo.com/parent** (or tap **Parent Dashboard** on the win screen or app menu).
 
 ### Child Profiles
-Tap the **pencil icon ✏️** to edit a child's profile:
+Each child card shows:
+- Their avatar, name, age, and active tasks
+- A **🧩 SEND Mode** row showing whether SEND Mode is currently OFF or ON
+
+Tap **✏️ Edit** to:
 - Change their name, age, or school time
 - Pick or change the **weekly reward**
 - Toggle which tasks are included
-- Enable **SEND Mode** (see below)
+- Toggle **SEND Mode** on or off
 
 Tap **Add Child** (＋) to set up additional children (up to your plan limit).
 
 ### SEND Mode
-SEND Mode is designed for children with additional sensory or neurodivergent needs. When enabled for a child:
-- Calmer, softer voice
+SEND Mode is designed for children with additional sensory or neurodivergent needs. Each child card shows the SEND Mode status at a glance (OFF / ON). To change it, tap **✏️ Edit** on the child's card and toggle it inside.
+
+When SEND Mode is ON for a child:
+- Calmer, slower voice
 - No flashing or visual overload
 - No background music
 - A **Now & Next** panel shows the current task and what comes after
-
-Enable it from the child's edit screen in the Parent Dashboard.
 
 ### Choosing a Weekly Reward
 When editing a child's profile, tap one of the 12 preset rewards or type your own:
@@ -130,7 +156,7 @@ When editing a child's profile, tap one of the 12 preset rewards or type your ow
 🍫 Chocolate Treat · 🎨 Arts & Crafts · 🧸 New Toy/Book  
 🏊 Swimming Trip · 🎉 Friend Sleepover · 🍔 Burger Night
 
-The chosen reward is shown to the child on the weekly progress bar during their routine.
+The chosen reward is shown to the child on the weekly progress bar during their routine, and named on the **Full Week!** banner when they complete all 7 days.
 
 ### Parents' Voice *(GlowJo subscribers)*
 Record your own voice for each task. When the child reaches that task, they hear your voice instead of the built-in text-to-speech.
@@ -187,7 +213,9 @@ The app supports **English and Spanish** for both morning and night routines. Sw
 |---|---|
 | ⭐ (top left) | Total stars earned all time |
 | 🔥 (top right) | Current daily streak |
-| Weekly circles (Mon–Sun) | Days this week the routine was completed |
+| Weekly circles (Mon–Sun) | Days **this week** the routine was completed — resets every Monday |
+
+When all 7 circles are filled in a single week, the **🏆 Full Week!** celebration banner appears on the win screen, naming the reward earned.
 
 Stars and streaks are saved to your account and sync across devices when logged in.
 
@@ -202,6 +230,7 @@ Stars and streaks are saved to your account and sync across devices when logged 
 | Reward picker | ✅ | ✅ | ✅ |
 | Tonight's Prep checklist | ✅ | ✅ | ✅ |
 | Stars & weekly progress | ✅ | ✅ | ✅ |
+| Full Week celebration | ✅ | ✅ | ✅ |
 | 2 free music days/month | ✅ | — | — |
 | Unlimited daily music | — | ✅ | ✅ |
 | Bilingual (EN + ES) | — | ✅ | ✅ |
@@ -226,6 +255,7 @@ Annual billing is also available — save roughly 17% compared to monthly.
 - **Record Parents' Voice**: Kids respond better to a familiar voice. Even a short 5-second message works wonders.
 - **Tonight's Prep**: Do the checklist the night before — a prepared morning is a calmer morning.
 - **Night Routine**: Start the bedtime flow 30 minutes before lights-out for best results.
+- **SEND Mode**: Check each child card in the dashboard — the SEND Mode status is shown right there. Tap Edit to change it.
 
 ---
 
@@ -237,14 +267,23 @@ Most browsers block audio until the user taps something. Once your child taps th
 **My child's stars have reset**  
 Stars are saved locally in the browser. If you cleared browser data or switched devices, log in to restore your saved progress.
 
-**The win screen shows 0 stars for the week**  
-The weekly star strip resets each Monday. Stars earned that week will show correctly after the next completed routine.
+**The weekly star strip shows the wrong days**  
+The weekly star strip resets every Monday. Stars earned during the current week show correctly. If you see an old week's data, completing a routine on any day this week will automatically refresh the strip.
+
+**The app opened in Night Mode by mistake**  
+The app always resets to Morning Mode when you open it or pick a child. Use the ☀️/🌙 toggle at the top to switch modes.
+
+**I signed in and was sent to payment even though I already subscribe**  
+Signing in now takes you straight to the app. If you ever land on a payment page unexpectedly, go back and tap **Dashboard** in the navigation bar — you are already logged in.
 
 **I can't access the Parent Dashboard**  
 You must be logged in. Tap **Log In** at the top of the page.
 
 **The Story Time story is the same every night**  
 GlowJo has 7 different stories (one per day of the week). The story changes each evening at midnight.
+
+**I can't find SEND Mode**  
+SEND Mode is shown on every child card in the Parent Dashboard. Look for the **🧩 SEND Mode** row — it shows OFF or ON. Tap **Edit** on the card to toggle it.
 
 ---
 
