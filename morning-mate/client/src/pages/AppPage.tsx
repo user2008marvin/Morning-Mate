@@ -1069,6 +1069,9 @@ export default function AppPage() {
   // Load a specific child's data into app state
   function loadChild(child: any) {
     setChildId(child.id);
+    // Always start a new session in morning mode — user can switch via toggle
+    setRoutineMode("morning");
+    localStorage.setItem("gj_routine_mode", "morning");
     // Load SEND mode preference for this child
     const sm = localStorage.getItem(`gj_send_${child.id}`) === "1";
     setSendMode(sm);
