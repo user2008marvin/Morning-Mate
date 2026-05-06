@@ -94,6 +94,9 @@ function ChildCard({
         {taskLabels.map((label, i) => (
           <span key={i} style={{ background: tasks[i] ? "#e8f5e9" : "#f5f5f5", color: tasks[i] ? "#2e7d32" : "#bbb", borderRadius: "8px", padding: "4px 8px", fontSize: "0.75rem" }}>{label}</span>
         ))}
+        {localStorage.getItem(`gj_send_${child.id}`) === "1" && (
+          <span style={{ background: "#e8f0ff", color: "#4facfe", borderRadius: "8px", padding: "4px 8px", fontSize: "0.75rem", fontWeight: 700 }}>🧩 SEND Mode ON</span>
+        )}
       </div>
       <div style={{ display: "flex", gap: "16px" }}>
         <div style={{ textAlign: "center" }}>
