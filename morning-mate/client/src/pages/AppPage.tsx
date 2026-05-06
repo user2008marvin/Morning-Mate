@@ -92,6 +92,7 @@ interface AppState {
   language: Language;
   completedDays: number[];
   weekDays: boolean[];
+  weekStartDate: string;
   lastDate: string;
   stickersUnlocked: string[];
 }
@@ -108,6 +109,7 @@ const DEFAULT_STATE: AppState = {
   language: "en",
   completedDays: [],
   weekDays: [false, false, false, false, false, false, false],
+  weekStartDate: "",
   lastDate: "",
   stickersUnlocked: ["⭐"],
 };
@@ -925,6 +927,19 @@ function WinScreen({ state, onParent, onNext, onSwitchChild, sendMode }: { state
           }}>{i < weekDone ? "⭐" : ""}</div>
         ))}
       </div>
+      {weekDone >= 7 && (
+        <div style={{
+          background: "linear-gradient(135deg,#ffd700,#ffaa00)", borderRadius: 20,
+          padding: "14px 24px", marginTop: 12, textAlign: "center",
+          boxShadow: "0 6px 24px rgba(255,215,0,0.5)",
+          animation: "mascot-bounce 1.2s ease-in-out infinite alternate",
+        }}>
+          <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, color: "#1a1a2e" }}>🏆 FULL WEEK!</div>
+          <div style={{ fontSize: 13, color: "#1a1a2e", fontWeight: 700, marginTop: 2 }}>
+            7 out of 7 — {state.childName} smashed it! Enjoy {state.reward}! 🎉
+          </div>
+        </div>
+      )}
       <div style={{ fontSize: 14, color: "rgba(255,255,255,0.8)", marginTop: 8 }}>New sticker unlocked! {newSticker}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 20, width: "100%", maxWidth: 300 }}>
         <button onClick={() => share("whatsapp")} style={{
@@ -1125,19 +1140,31 @@ export default function AppPage() {
     setScreen("main");
   }
 
+  function getMondayStr() {
+    const d = new Date();
+    const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
+    const mon = new Date(d);
+    mon.setDate(d.getDate() + diff);
+    return mon.toDateString();
+  }
+
   function handleWin(starsEarned: number) {
     const today = new Date().getDate();
     const todayStr = new Date().toDateString();
     const dayOfWeek = new Date().getDay();
     const newCompletedDays = appState.completedDays.includes(today)
       ? appState.completedDays : [...appState.completedDays, today];
-    const newWeekDays = [...appState.weekDays] as boolean[];
+
+    // Reset the 7-day strip when a new week has started
+    const mondayStr = getMondayStr();
+    const isNewWeek = appState.weekStartDate !== mondayStr;
+    const newWeekDays = (isNewWeek ? [false, false, false, false, false, false, false] : [...appState.weekDays]) as boolean[];
     newWeekDays[dayOfWeek] = true;
 
     // Night routine — add stars but do NOT stamp lastDate or increment streak
     if (routineMode === "night") {
       const newStars = appState.stars + starsEarned;
-      const updates = { stars: newStars, weekDays: newWeekDays };
+      const updates = { stars: newStars, weekDays: newWeekDays, weekStartDate: getMondayStr() };
       updateState(updates);
       if (childId) {
         syncProgress.mutate({ childId, stars: newStars, streak: appState.streak, completedDays: newCompletedDays });
@@ -1154,6 +1181,7 @@ export default function AppPage() {
       streak: newStreak,
       completedDays: newCompletedDays,
       weekDays: newWeekDays,
+      weekStartDate: mondayStr,
       lastDate: todayStr,
       stickersUnlocked: [...new Set([...appState.stickersUnlocked, WIN_STICKERS[Math.min(appState.stars, WIN_STICKERS.length - 1)]])]
     };
