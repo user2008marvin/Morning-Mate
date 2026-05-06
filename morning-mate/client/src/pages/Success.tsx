@@ -97,14 +97,27 @@ export default function Success() {
         <p style={{ fontSize: "1.1rem", color: "#666", marginBottom: "8px" }}>
           Welcome to <strong>GlowJo {tierLabel[tier]}</strong>
         </p>
-        <p style={{ fontSize: "0.9rem", color: "#999", marginBottom: "8px" }}>
-          Your kids are going to love their new morning routine!
+        <p style={{ fontSize: "0.9rem", color: "#999", marginBottom: "12px" }}>
+          Your kids are going to love their new routine!
         </p>
         {tier !== "freemium" && (
-          <p style={{ fontSize: "0.85rem", color: "#ff9a3c", fontWeight: 700, marginBottom: "24px" }}>
-            🌍 Bilingual English + Spanish is now unlocked!
-          </p>
+          <div style={{ background: "#fff8ee", borderRadius: 16, padding: "12px 16px", marginBottom: "16px", textAlign: "left" }}>
+            <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#ff9a3c", marginBottom: 6, letterSpacing: 1 }}>WHAT'S UNLOCKED</div>
+            <div style={{ fontSize: "0.85rem", color: "#555", lineHeight: 1.7 }}>
+              ✅ Up to {tier === "gold" ? "5" : "3"} child profiles<br />
+              ✅ 🎤 Voice guidance — Sunny speaks every task<br />
+              ✅ 🌍 Bilingual — English + Spanish<br />
+              ✅ 🎵 Happy music every morning<br />
+              ✅ 🎙️ Parents' Voice recordings<br />
+              ✅ 🧩 SEND Mode for additional needs<br />
+              {tier === "gold" && <>✅ 🌙 Night Mode — full bedtime routine<br />✅ 📖 Personalised bedtime stories<br /></>}
+            </div>
+          </div>
         )}
+        <div style={{ background: "#f0f4ff", borderRadius: 12, padding: "10px 14px", marginBottom: "20px", fontSize: "0.8rem", color: "#555", textAlign: "left" }}>
+          🔄 <strong>Auto-renews</strong> monthly (or annually if you chose that). A confirmation email is on its way.<br />
+          ❌ <strong>Cancel anytime</strong> — go to Parent Dashboard → Account → Cancel Subscription.
+        </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <button
