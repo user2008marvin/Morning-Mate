@@ -644,9 +644,12 @@ export default function Home() {
                 : "Free forever";
 
               const subText = isCoral
-                ? billingPeriod === "year" ? "Just $8.33/month — 2 months free! 🎉" : "Billed monthly, cancel anytime"
+                ? billingPeriod === "year" ? "Just $8.33/month — 2 months free! 🎉" : "Billed monthly"
                 : isNight
-                ? billingPeriod === "year" ? "Just $12.49/month — 2 months free! 🎉" : "Billed monthly, cancel anytime"
+                ? billingPeriod === "year" ? "Just $12.49/month — 2 months free! 🎉" : "Billed monthly"
+                : null;
+              const annualHint = billingPeriod === "month"
+                ? isCoral ? "or $99.90/yr · save 2 months" : isNight ? "or $149.90/yr · save 2 months" : null
                 : null;
 
               const cardBg = isCoral
@@ -684,11 +687,19 @@ export default function Home() {
                 <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 26, marginBottom: 6, color: nameColor }}>{plan.name}</div>
                 <div style={{ fontSize: 34, fontWeight: 900, color: priceColor }}>{priceDisplay}</div>
                 {subText && (
-                  <div style={{ fontSize: 12, fontWeight: 700, color: billingPeriod === "year" ? "#a7f3d0" : "rgba(255,255,255,0.7)", marginTop: 4, marginBottom: 20 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: billingPeriod === "year" ? "#a7f3d0" : "rgba(255,255,255,0.7)", marginTop: 4 }}>
                     {subText}
                   </div>
                 )}
-                <div style={{ height: subText ? 0 : 24 }} />
+                {annualHint && (
+                  <button
+                    onClick={() => setBillingPeriod("year")}
+                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "rgba(255,255,255,0.45)", fontFamily: "'Nunito',sans-serif", fontWeight: 700, marginTop: 3, marginBottom: 0, padding: 0, textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: 2 }}
+                  >
+                    {annualHint}
+                  </button>
+                )}
+                <div style={{ height: 20 }} />
                 <div style={{ textAlign: "left", marginBottom: 28 }}>
                   {plan.features.map((feat, j) => (
                     <div key={j} style={{ fontSize: 14, marginBottom: 10, color: featColor, display: "flex", alignItems: "flex-start", gap: 8 }}>
@@ -709,7 +720,7 @@ export default function Home() {
             })}
           </div>
           <div style={{ marginTop: 32, fontSize: 14, color: "var(--mid)" }}>
-            No credit card required • Cancel anytime • Free to start
+            No credit card required • Free to start
           </div>
         </div>
       </section>
