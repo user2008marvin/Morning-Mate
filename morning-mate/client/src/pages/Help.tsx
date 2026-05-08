@@ -84,6 +84,21 @@ const SECTIONS = [
             </tbody>
           </table>
         </Step>
+        <Step n={4} title="Day 2 and Every Day After — No Sign-In Needed">
+          Once you have signed in on a device, <strong>GlowJo stays signed in automatically</strong> — your child can
+          open the app and tap to start their routine every morning without you needing to touch it. Just bookmark{" "}
+          <strong>getglowjo.com/app</strong> on the family tablet or phone and hand it to them directly.
+          <Note>
+            <strong>Each routine can only be completed once per day.</strong> If someone else opens the app after your
+            child has finished, they will see the "All done for today!" screen — there is nothing more they can play
+            or access.
+          </Note>
+          <Note>
+            <strong>Changing device or passing it on?</strong> Always sign out first — go to the Parent Dashboard
+            (tap ⚙️ in the app), scroll to the Account section, and tap <em>Sign Out</em>. This removes your account
+            from that device immediately.
+          </Note>
+        </Step>
       </>
     ),
   },
