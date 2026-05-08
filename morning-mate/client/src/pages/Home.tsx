@@ -339,14 +339,15 @@ export default function Home() {
     await meQuery.refetch();
     if (pendingTier) {
       setPendingTier(null);
-      // Existing users who sign in are already customers — send them straight to the app.
-      // Brand-new users who registered via this flow will land on /app and can subscribe from there.
       navigate("/app");
       return;
     } else if (pendingNav) {
       const dest = pendingNav;
       setPendingNav(null);
       navigate(dest);
+    } else {
+      // No specific pending action — always send the user to the app
+      navigate("/app");
     }
   };
 
