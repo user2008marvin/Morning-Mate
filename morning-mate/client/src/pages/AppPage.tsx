@@ -713,7 +713,7 @@ function MainScreen({
             fontSize: 13, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap"
           }}>🇪🇸 ES</button>
         ) : (
-          <button onClick={() => alert("🌍 Bilingual mode is available on the GlowJo plan!\n\nGo to getglowjo.com and upgrade for just $4.99/mo to unlock English + Spanish.")} title="Upgrade to unlock bilingual mode" style={{
+          <button onClick={() => alert("🌍 Bilingual mode is available on the GlowJo plan!\n\nGo to getglowjo.com and upgrade for just $9.99/mo to unlock English + Spanish.")} title="Upgrade to unlock bilingual mode" style={{
             padding: "8px 14px", borderRadius: 20,
             border: "2px solid rgba(255,255,255,0.15)",
             background: "transparent",
@@ -913,7 +913,7 @@ function WinScreen({ state, onParent, onNext, onSwitchChild, sendMode }: { state
   const newSticker = WIN_STICKERS[Math.min(state.stars, WIN_STICKERS.length - 1)];
 
   function share(type: "whatsapp" | "copy") {
-    const msg = `${state.childName} just crushed their morning routine on GlowJo! 🏆⭐ ${state.streak} day streak! Try it free: https://glowjo.app`;
+    const msg = `${state.childName} just crushed their morning routine on GlowJo! 🏆⭐ ${state.streak} day streak! Try it free: https://getglowjo.com`;
     if (type === "whatsapp") window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
     else { navigator.clipboard?.writeText(msg); alert("Link copied!"); }
   }
