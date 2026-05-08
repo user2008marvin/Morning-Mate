@@ -27,15 +27,14 @@ interface Task {
   sticker: string;
 }
 
-// Soft night music — calmest available tracks played at low volume
+// Calm night music — plays during night routine and SEND mode
 let _nightMusicAudio: HTMLAudioElement | null = null;
-const NIGHT_MUSIC_POOL = ["/music/sweet.mp3", "/music/bright-wish.mp3", "/music/carefree.mp3", "/music/cookie.mp3", "/music/vacation.mp3"];
+const NIGHT_MUSIC_TRACK = "/music/glowjo-night-calm.mp3";
 
 function startNightMusic() {
   try {
     if (_nightMusicAudio && !_nightMusicAudio.paused) return;
-    const src = NIGHT_MUSIC_POOL[new Date().getDay() % NIGHT_MUSIC_POOL.length];
-    _nightMusicAudio = new Audio(src);
+    _nightMusicAudio = new Audio(NIGHT_MUSIC_TRACK);
     _nightMusicAudio.loop = true;
     _nightMusicAudio.volume = 0.15;
     _nightMusicAudio.play().catch(() => {});
