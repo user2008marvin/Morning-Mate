@@ -10,7 +10,7 @@ import { saveRecording, getRecording, deleteRecording, getSupportedMimeType } fr
 const BG = "linear-gradient(180deg, #4facfe 0%, #ff9a3c 60%, #ff6b35 100%)";
 
 const TIER_LABELS: Record<string, string> = {
-  freemium: "Free", starter: "GlowJo ⭐", plus: "GlowJo ⭐", gold: "GlowJo ⭐",
+  freemium: "Free", starter: "GlowJo ⭐", plus: "GlowJo ⭐", gold: "GlowJo+ ⭐",
 };
 
 function LoginPrompt() {
@@ -670,7 +670,8 @@ function UpgradeCard({ tier }: { tier: string }) {
     onSuccess: (data) => { if (data.checkoutUrl) window.location.href = data.checkoutUrl; },
     onError: (err) => toast.error(err.message || "Failed to start checkout"),
   });
-  if (tier !== "freemium") return null;
+  if (tier === "gold") return null;
+  const upgradablePlans = tier === "plus" ? PLANS.filter(p => p.backendTier === "gold") : PLANS;
 
   return (
     <div style={{ background: "linear-gradient(135deg, #667eea, #764ba2)", borderRadius: "20px", padding: "20px", color: "white", marginBottom: "20px" }}>
@@ -695,7 +696,7 @@ function UpgradeCard({ tier }: { tier: string }) {
 
       {/* Plan buttons */}
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        {PLANS.map(plan => (
+        {upgradablePlans.map(plan => (
           <button key={plan.tier}
             onClick={() => createCheckout.mutate({ tier: plan.backendTier, billingPeriod: period })}
             disabled={createCheckout.isPending}
@@ -789,6 +790,7 @@ export default function ParentDashboard() {
       // Clear ALL local state so no trace of the old account can leak to a new one
       localStorage.removeItem("GJ_State_v1");
       localStorage.removeItem("gj_free_mornings");
+      localStorage.removeItem("gj_freemium_music_days");
       utils.app.getChildren.reset(); // clear cached children
       utils.auth.me.reset();
       navigate("/");
