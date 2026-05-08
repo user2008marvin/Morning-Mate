@@ -115,8 +115,7 @@ export default function Success() {
           </div>
         )}
         <div style={{ background: "#f0f4ff", borderRadius: 12, padding: "10px 14px", marginBottom: "20px", fontSize: "0.8rem", color: "#555", textAlign: "left" }}>
-          🔄 <strong>Auto-renews</strong> monthly (or annually if you chose that). A confirmation email is on its way.<br />
-          ❌ <strong>Cancel anytime</strong> — go to Parent Dashboard → Account → Cancel Subscription.
+          🔄 <strong>Auto-renews</strong> monthly (or annually if you chose that). A confirmation email is on its way.
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
