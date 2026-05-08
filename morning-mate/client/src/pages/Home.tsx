@@ -528,7 +528,7 @@ export default function Home() {
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 32, marginTop: 48 }}>
             {[
-              { num: "1", emoji: "📱", title: "Download", text: "Free app for iOS & Android. No account needed." },
+              { num: "1", emoji: "📱", title: "Open", text: "Works on any phone or tablet — straight in your browser. Free to start." },
               { num: "2", emoji: "🎮", title: "Set Up Tasks", text: "Choose 3–6 morning tasks. Kids see fun emojis, not chores." },
               { num: "3", emoji: "⭐", title: "Earn Stars", text: "Each task = stars. Streaks = rewards. Kids love it." },
             ].map((step, i) => (
@@ -626,7 +626,7 @@ export default function Home() {
                 style={{ padding: "8px 22px", borderRadius: 50, border: "none", cursor: "pointer", fontFamily: "'Nunito',sans-serif", fontWeight: 800, fontSize: 14, transition: "all 0.2s", background: billingPeriod === "year" ? "white" : "transparent", color: billingPeriod === "year" ? "var(--coral)" : "rgba(255,248,238,0.6)", display: "flex", alignItems: "center", gap: 6 }}
               >
                 Yearly
-                <span style={{ background: "#4ade80", color: "#14532d", fontSize: 10, fontWeight: 900, padding: "2px 8px", borderRadius: 20 }}>SAVE 33%</span>
+                <span style={{ background: "#4ade80", color: "#14532d", fontSize: 10, fontWeight: 900, padding: "2px 8px", borderRadius: 20 }}>SAVE 17%</span>
               </button>
             </div>
           </div>
