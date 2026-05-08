@@ -1142,10 +1142,9 @@ export default function AppPage() {
       // Only one child — load automatically as before
       loadChild(children[0]);
     } else {
-      // Multiple children — show picker (unless we already have a selected child for this session)
-      if (!childId) {
-        setScreen("child-select");
-      }
+      // Multiple children — always show picker so each sign-in starts fresh
+      setChildId(null);
+      setScreen("child-select");
     }
   }, [children]);
 
@@ -1248,11 +1247,17 @@ export default function AppPage() {
       localStorage.removeItem("gj_freemium_music_days");
       setAppState({ ...DEFAULT_STATE });
       saveState({ ...DEFAULT_STATE });
-      setServerLastCompleted(null); // prevent old completion date showing "done today" on new account
-      utils.app.getChildren.reset(); // clear cached children — prevents old name leaking in
+      setServerLastCompleted(null);
+      setChildId(null);
+      utils.app.getChildren.reset();
+      // New accounts have no children yet — go to onboarding setup
+      setScreen("onboarding");
+    } else {
+      // Existing user re-authenticating — reset child selection so the
+      // children useEffect picks the right screen (loadChild or child-select)
+      setChildId(null);
     }
     refetchUser();
-    setScreen("main");
   }
 
   // Block non-demo users from seeing the game until auth is confirmed.
