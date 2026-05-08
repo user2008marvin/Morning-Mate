@@ -72,12 +72,12 @@ export const TIER_CONFIG: Record<Tier, TierConfig> = {
   plus: {
     name: "plus",
     displayName: "Plus",
-    price: 7.99,
+    price: 9.99,
     billingPeriod: "month",
-    yearlyPrice: 64,
+    yearlyPrice: 99.90,
     description: "Perfect for siblings",
     features: {
-      childProfiles: 2,
+      childProfiles: 3,
       voiceEncouragement: true,
       bilingualMode: true,
       parentDashboard: "full",
@@ -93,12 +93,12 @@ export const TIER_CONFIG: Record<Tier, TierConfig> = {
   gold: {
     name: "gold",
     displayName: "Gold",
-    price: 12.99,
+    price: 14.99,
     billingPeriod: "month",
-    yearlyPrice: 119,
+    yearlyPrice: 149.90,
     description: "Everything for the whole family",
     features: {
-      childProfiles: 4,
+      childProfiles: 5,
       voiceEncouragement: true,
       bilingualMode: true,
       parentDashboard: "full",
