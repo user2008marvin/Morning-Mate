@@ -117,7 +117,7 @@ export function InteractiveDemo({ isOpen, onClose }: { isOpen: boolean; onClose:
           >
             Get Started Free
           </button>
-          <p className="text-xs text-gray-500 text-center mt-2">No credit card required • Cancel anytime</p>
+          <p className="text-xs text-gray-500 text-center mt-2">No credit card required • Free to start</p>
         </div>
       </div>
     </div>
