@@ -633,7 +633,7 @@ export default function Home() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px,1fr))", gap: 24, maxWidth: 720, margin: "0 auto" }}>
             {[
-              { name: "Free", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", style: "free", badge: null, tier: null },
+              { name: "Free", features: ["Up to 2 child profiles", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", style: "free", badge: null, tier: null },
               { name: "GlowJo", features: ["Everything in Free", "Up to 5 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning", "🌙 Night Mode — full bedtime routine", "🌟 Moony mascot & personalised bedtime stories", "🎵 Calming ambient night music", "🎙️ Parents' Voice — record your own", "🧩 SEND-friendly mode for additional needs", "🧒 Multi-child handoff — seamless family mornings", "⭐ Stars, streaks & weekly rewards"], cta: "Get GlowJo", style: "coral", badge: "⭐ Everything Included", tier: "plus" },
             ].map((plan, i) => {
               const isCoral = plan.style === "coral";
