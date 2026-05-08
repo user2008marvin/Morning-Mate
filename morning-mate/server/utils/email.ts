@@ -68,8 +68,7 @@ export async function sendEmail({ to, subject, template, data }: EmailOptions) {
             <li>✅ Multi-child handoff — seamless family mornings</li>
           </ul>
           <div style="background: #f0f4ff; border-radius: 12px; padding: 16px; margin-bottom: 24px; font-size: 14px; color: #555;">
-            <strong>🔄 Auto-renewal:</strong> Your subscription renews automatically each billing period. Your next renewal date is <strong>${data.currentPeriodEnd}</strong>.<br/><br/>
-            <strong>❌ Cancel anytime:</strong> Log in → Parent Dashboard → Account → Cancel Subscription. No fees, no hassle.
+            <strong>🔄 Auto-renewal:</strong> Your subscription renews automatically each billing period. Your next renewal date is <strong>${data.currentPeriodEnd}</strong>.
           </div>
           <div style="text-align: center;">
             <a href="${process.env.APP_URL || "https://getglowjo.com"}/app" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #ff9a3c, #ff5f1f); color: white; text-decoration: none; border-radius: 30px; font-size: 16px; font-weight: bold; margin-bottom: 12px;">🚀 Start Morning Routine →</a>
