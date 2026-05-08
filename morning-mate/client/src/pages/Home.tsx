@@ -338,8 +338,10 @@ export default function Home() {
     setAuthModalOpen(false);
     await meQuery.refetch();
     if (pendingTier) {
+      const tier = pendingTier;
       setPendingTier(null);
-      navigate("/app");
+      // User signed in specifically to subscribe — now start the actual Stripe checkout
+      doCheckout(tier);
       return;
     } else if (pendingNav) {
       const dest = pendingNav;
