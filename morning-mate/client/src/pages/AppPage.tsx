@@ -1289,7 +1289,16 @@ export default function AppPage() {
       {screen === "child-select" && children && (
         <ChildSelector children={children as any[]} onSelect={loadChild} nightMode={routineMode === "night"} />
       )}
-      {screen === "main" && (
+      {screen === "main" && childId === null && !isDemo && (
+        <div style={{
+          minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+          background: "linear-gradient(180deg,#4facfe 0%,#ff9a3c 60%,#ff6b35 100%)",
+        }}>
+          <div style={{ fontSize: 56, animation: "mascot-bounce 1.5s ease-in-out infinite alternate" }}>☀️</div>
+          <style>{`@keyframes mascot-bounce{from{transform:translateY(0)}to{transform:translateY(-12px)}}`}</style>
+        </div>
+      )}
+      {screen === "main" && (childId !== null || isDemo) && (
         <>
           <div style={{ position: "fixed", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
             <RoutineModeToggle
