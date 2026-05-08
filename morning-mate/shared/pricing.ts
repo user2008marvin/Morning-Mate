@@ -74,10 +74,10 @@ export const TIER_CONFIG: Record<Tier, TierConfig> = {
     displayName: "Plus",
     price: 9.99,
     billingPeriod: "month",
-    yearlyPrice: 99.90,
-    description: "Perfect for siblings",
+    yearlyPrice: 79.99,
+    description: "Everything for the whole family",
     features: {
-      childProfiles: 3,
+      childProfiles: 5,
       voiceEncouragement: true,
       bilingualMode: true,
       parentDashboard: "full",
