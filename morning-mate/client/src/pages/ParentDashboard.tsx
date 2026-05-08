@@ -806,7 +806,7 @@ export default function ParentDashboard() {
 
   if (!user) return <LoginPrompt />;
 
-  const maxChildren = tier === "freemium" ? 1 : tier === "gold" ? 5 : 3;
+  const maxChildren = tier === "freemium" ? 2 : 5;
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8faff", fontFamily: "'Fredoka One', cursive" }}>
