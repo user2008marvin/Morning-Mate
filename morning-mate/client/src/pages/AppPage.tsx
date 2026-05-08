@@ -326,6 +326,25 @@ function stopKidsMusic() {
   }
 }
 
+// Calm music for SEND Mode — same track as night routine
+let _sendMusicAudio: HTMLAudioElement | null = null;
+function startSendMusic() {
+  try {
+    if (_sendMusicAudio && !_sendMusicAudio.paused) return;
+    _sendMusicAudio = new Audio("/music/glowjo-night-calm.mp3");
+    _sendMusicAudio.loop = true;
+    _sendMusicAudio.volume = 0.12;
+    _sendMusicAudio.play().catch(() => {});
+  } catch {}
+}
+function stopSendMusic() {
+  if (_sendMusicAudio) {
+    _sendMusicAudio.pause();
+    _sendMusicAudio.currentTime = 0;
+    _sendMusicAudio = null;
+  }
+}
+
 // Play a short teaser of wake-up music for freemium users — fades out after 6 seconds
 let _teaserTimeout: ReturnType<typeof setTimeout> | null = null;
 let _teaserFadeInterval: ReturnType<typeof setInterval> | null = null;
@@ -526,6 +545,7 @@ function MainScreen({
   // Stop music AND speech when component unmounts
   useEffect(() => () => {
     stopKidsMusic();
+    stopSendMusic();
     clearInterval(ringTimer.current);
     try { window.speechSynthesis.cancel(); } catch {}
   }, []);
@@ -565,6 +585,7 @@ function MainScreen({
     if (!currentTask || flashSticker) return;
     const completion = state.language === "es" ? currentTask.voice_es : currentTask.voice_en;
     stopKidsMusic();
+    stopSendMusic();
     playTaskCompleteSound();
     if (completion) speak(completion, state.language, `completion_${currentTask.label}`);
     if (navigator.vibrate) navigator.vibrate([80, 30, 80]);
@@ -610,14 +631,18 @@ function MainScreen({
     }
 
     const shouldPlayFullMusic = musicEnabled || freemiumMusicRef.current === true;
-    if (!sendMode && (shouldPlayFullMusic || taskLabel === "WAKE UP!")) startKidsMusic(taskLabel);
+    if (sendMode) {
+      startSendMusic();
+    } else if (shouldPlayFullMusic || taskLabel === "WAKE UP!") {
+      startKidsMusic(taskLabel);
+    }
 
     let p = 0;
     ringTimer.current = setInterval(() => {
       p += 100 / seconds; setRingProgress(Math.min(p, 100));
     }, 1000);
   }
-  function resetRing() { clearInterval(ringTimer.current); setRingProgress(0); stopKidsMusic(); }
+  function resetRing() { clearInterval(ringTimer.current); setRingProgress(0); stopKidsMusic(); stopSendMusic(); }
 
   function handleSkipTask() {
     if (!currentTask) return;
