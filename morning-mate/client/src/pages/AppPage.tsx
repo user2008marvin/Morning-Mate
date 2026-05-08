@@ -991,10 +991,11 @@ function WinScreen({ state, onParent, onNext, onSwitchChild, sendMode }: { state
 }
 
 // ── CHILD SELECTOR ──
-function ChildSelector({ children, onSelect, nightMode }: {
+function ChildSelector({ children, onSelect, nightMode, onModeChange }: {
   children: any[];
   onSelect: (child: any) => void;
   nightMode?: boolean;
+  onModeChange?: (mode: "morning" | "night") => void;
 }) {
   const todayStr = new Date().toDateString();
   return (
@@ -1006,6 +1007,11 @@ function ChildSelector({ children, onSelect, nightMode }: {
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       padding: "28px 20px", fontFamily: "'Nunito',sans-serif",
     }}>
+      {onModeChange && (
+        <div style={{ marginBottom: 24 }}>
+          <RoutineModeToggle mode={nightMode ? "night" : "morning"} onChange={onModeChange} />
+        </div>
+      )}
       <div style={{ fontSize: 56, marginBottom: 8 }}>{nightMode ? "🌙" : "☀️"}</div>
       <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 28, color: "white", marginBottom: 6, textAlign: "center" }}>
         {nightMode ? "Good evening!" : "Good morning!"}
@@ -1287,7 +1293,12 @@ export default function AppPage() {
       )}
       {screen === "onboarding" && <Onboarding onComplete={handleOnboardingComplete} />}
       {screen === "child-select" && children && (
-        <ChildSelector children={children as any[]} onSelect={loadChild} nightMode={routineMode === "night"} />
+        <ChildSelector
+          children={children as any[]}
+          onSelect={loadChild}
+          nightMode={routineMode === "night"}
+          onModeChange={m => { setRoutineMode(m); localStorage.setItem("gj_routine_mode", m); }}
+        />
       )}
       {screen === "main" && childId === null && !isDemo && (
         <div style={{
