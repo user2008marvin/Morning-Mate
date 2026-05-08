@@ -1297,7 +1297,13 @@ export default function AppPage() {
           children={children as any[]}
           onSelect={loadChild}
           nightMode={routineMode === "night"}
-          onModeChange={m => { setRoutineMode(m); localStorage.setItem("gj_routine_mode", m); }}
+          onModeChange={m => {
+            if (m === "night" && tier === "freemium") {
+              alert("🌙 Night Mode is part of GlowJo+!\n\nUpgrade at getglowjo.com for just $14.99/month to unlock the full bedtime routine, Moony mascot, personalised bedtime stories, and calming night music.");
+              return;
+            }
+            setRoutineMode(m); localStorage.setItem("gj_routine_mode", m);
+          }}
         />
       )}
       {screen === "main" && childId === null && !isDemo && (
@@ -1314,7 +1320,13 @@ export default function AppPage() {
           <div style={{ position: "fixed", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: 9999 }}>
             <RoutineModeToggle
               mode={routineMode}
-              onChange={m => { setRoutineMode(m); localStorage.setItem("gj_routine_mode", m); }}
+              onChange={m => {
+                if (m === "night" && tier === "freemium") {
+                  alert("🌙 Night Mode is part of GlowJo+!\n\nUpgrade at getglowjo.com for just $14.99/month to unlock the full bedtime routine, Moony mascot, personalised bedtime stories, and calming night music.");
+                  return;
+                }
+                setRoutineMode(m); localStorage.setItem("gj_routine_mode", m);
+              }}
             />
           </div>
           {routineMode === "night" ? (
