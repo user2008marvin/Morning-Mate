@@ -1115,9 +1115,10 @@ export default function AppPage() {
   // Load a specific child's data into app state
   function loadChild(child: any) {
     setChildId(child.id);
-    // Always start a new session in morning mode — user can switch via toggle
-    setRoutineMode("morning");
-    localStorage.setItem("gj_routine_mode", "morning");
+    // Preserve the user's saved routine mode — don't reset to morning
+    // (Night mode gate is enforced by the RoutineModeToggle when switching)
+    const savedMode = (localStorage.getItem("gj_routine_mode") as "morning" | "night") || "morning";
+    setRoutineMode(savedMode);
     // Load SEND mode preference for this child
     const sm = localStorage.getItem(`gj_send_${child.id}`) === "1";
     setSendMode(sm);
@@ -1138,7 +1139,8 @@ export default function AppPage() {
     const serverDate = child.lastCompletedDate ? new Date(child.lastCompletedDate).toDateString() : null;
     setServerLastCompleted(serverDate);
     const todayStr = new Date().toDateString();
-    setScreen(serverDate === todayStr ? "done-today" : "main");
+    // If morning is done but user is in night mode, show main so they can do the night routine
+    setScreen(serverDate === todayStr && savedMode !== "night" ? "done-today" : "main");
   }
 
   // Merge DB child profile into local state
