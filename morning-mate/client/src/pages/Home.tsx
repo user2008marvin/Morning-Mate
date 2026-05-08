@@ -237,16 +237,26 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 520);
   const [songPlaying, setSongPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audio2Ref = useRef<HTMLAudioElement | null>(null);
 
   function toggleSong() {
-    if (!audioRef.current) {
-      audioRef.current = new Audio("/music/sunnys-song.mp3");
-      audioRef.current.onended = () => setSongPlaying(false);
-    }
     if (songPlaying) {
-      audioRef.current.pause();
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; }
+      if (audio2Ref.current) { audio2Ref.current.pause(); audio2Ref.current.currentTime = 0; }
       setSongPlaying(false);
     } else {
+      if (!audioRef.current) {
+        audioRef.current = new Audio("/music/sunnys-song.mp3");
+        audioRef.current.onended = () => {
+          if (!audio2Ref.current) {
+            audio2Ref.current = new Audio("/music/glowjo-hero-song.mp3");
+            audio2Ref.current.onended = () => setSongPlaying(false);
+          }
+          audio2Ref.current.currentTime = 0;
+          audio2Ref.current.play().catch(() => {});
+        };
+      }
+      audioRef.current.currentTime = 0;
       audioRef.current.play().catch(() => {});
       setSongPlaying(true);
     }
@@ -258,7 +268,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    return () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; } };
+    return () => {
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+      if (audio2Ref.current) { audio2Ref.current.pause(); audio2Ref.current = null; }
+    };
   }, []);
 
   const [weather, setWeather] = useState<WeatherResult | null>(null);
