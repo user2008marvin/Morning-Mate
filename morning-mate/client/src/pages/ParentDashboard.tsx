@@ -213,6 +213,7 @@ const PRESET_REWARDS = [
 ];
 
 function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSave: (data: Partial<Child> & { id?: number }) => void; onClose: () => void; }) {
+  const { tier: modalTier } = useSubscription();
   const defaultTasks = child?.enabledTasks ? JSON.parse(child.enabledTasks) : [true, true, true, true, true, true];
   const [name, setName] = useState(child?.name ?? "");
   const [age, setAge] = useState(child?.age?.toString() ?? "");
@@ -317,7 +318,7 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
             ))}
           </div>
         </div>
-        {child?.id && (
+        {child?.id && modalTier !== "freemium" && (
           <div style={{ marginBottom: "20px", background: sendMode ? "#f0f7ff" : "#fafafa", border: `2px solid ${sendMode ? "#4facfe" : "#eee"}`, borderRadius: "16px", padding: "14px 16px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
@@ -816,7 +817,7 @@ export default function ParentDashboard() {
 
   if (!user) return <LoginPrompt />;
 
-  const maxChildren = tier === "freemium" ? 1 : 3;
+  const maxChildren = tier === "freemium" ? 1 : tier === "gold" ? 5 : 3;
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8faff", fontFamily: "'Fredoka One', cursive" }}>
