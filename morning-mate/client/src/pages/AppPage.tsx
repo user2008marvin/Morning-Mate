@@ -1293,9 +1293,9 @@ export default function AppPage() {
             />
           </div>
           {routineMode === "night" ? (
-            <NightScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} sendMode={sendMode} />
+            <NightScreen key={`night-${childId}`} state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} sendMode={sendMode} />
           ) : (
-            <MainScreen state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} sendMode={sendMode} />
+            <MainScreen key={`morning-${childId}`} state={appState} onWin={handleWin} onParent={goParent} onUpdateState={updateState} bilingualEnabled={bilingualEnabled} sendMode={sendMode} />
           )}
         </>
       )}
