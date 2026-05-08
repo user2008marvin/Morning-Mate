@@ -998,26 +998,76 @@ function ChildSelector({ children, onSelect, nightMode, onModeChange }: {
   onModeChange?: (mode: "morning" | "night") => void;
 }) {
   const todayStr = new Date().toDateString();
+  const isNight = nightMode ?? false;
+
   return (
     <div style={{
       minHeight: "100vh",
-      background: nightMode
+      background: isNight
         ? "linear-gradient(160deg, #0a0a1a 0%, #0d0d2b 40%, #1a0a2e 70%, #0f0f23 100%)"
         : "linear-gradient(180deg,#4facfe 0%,#ff9a3c 60%,#ff6b35 100%)",
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      padding: "28px 20px", fontFamily: "'Nunito',sans-serif",
+      display: "flex", flexDirection: "column", alignItems: "center",
+      padding: "48px 20px 40px", fontFamily: "'Nunito',sans-serif",
+      transition: "background 0.4s ease",
     }}>
+
+      {/* Header */}
+      <div style={{ fontSize: 18, fontWeight: 700, color: "rgba(255,255,255,0.75)", marginBottom: 6, letterSpacing: 0.5, textTransform: "uppercase" }}>
+        GlowJo
+      </div>
+      <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 30, color: "white", marginBottom: 32, textAlign: "center" }}>
+        Which routine today?
+      </div>
+
+      {/* Big mode buttons */}
       {onModeChange && (
-        <div style={{ marginBottom: 24 }}>
-          <RoutineModeToggle mode={nightMode ? "night" : "morning"} onChange={onModeChange} />
+        <div style={{ display: "flex", gap: 14, marginBottom: 40, width: "100%", maxWidth: 360 }}>
+          <button
+            onClick={() => onModeChange("morning")}
+            style={{
+              flex: 1, padding: "22px 12px", borderRadius: 22, border: "none", cursor: "pointer",
+              background: !isNight ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.12)",
+              boxShadow: !isNight ? "0 6px 24px rgba(0,0,0,0.18)" : "none",
+              transform: !isNight ? "scale(1.04)" : "scale(1)",
+              transition: "all 0.25s ease",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+            }}
+          >
+            <div style={{ fontSize: 40 }}>☀️</div>
+            <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 17, color: !isNight ? "#ff5f1f" : "rgba(255,255,255,0.5)" }}>
+              Morning
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: !isNight ? "#ff9a3c" : "rgba(255,255,255,0.3)", letterSpacing: 0.5, textTransform: "uppercase" }}>
+              {!isNight ? "✓ Selected" : "Routine"}
+            </div>
+          </button>
+
+          <button
+            onClick={() => onModeChange("night")}
+            style={{
+              flex: 1, padding: "22px 12px", borderRadius: 22, border: "none", cursor: "pointer",
+              background: isNight ? "rgba(167,139,250,0.25)" : "rgba(255,255,255,0.12)",
+              boxShadow: isNight ? "0 6px 24px rgba(167,139,250,0.35)" : "none",
+              border: isNight ? "2px solid rgba(167,139,250,0.6)" : "2px solid transparent",
+              transform: isNight ? "scale(1.04)" : "scale(1)",
+              transition: "all 0.25s ease",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+            }}
+          >
+            <div style={{ fontSize: 40 }}>🌙</div>
+            <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 17, color: isNight ? "#c4b5fd" : "rgba(255,255,255,0.5)" }}>
+              Bedtime
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: isNight ? "#a78bfa" : "rgba(255,255,255,0.3)", letterSpacing: 0.5, textTransform: "uppercase" }}>
+              {isNight ? "✓ Selected" : "Routine"}
+            </div>
+          </button>
         </div>
       )}
-      <div style={{ fontSize: 56, marginBottom: 8 }}>{nightMode ? "🌙" : "☀️"}</div>
-      <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 28, color: "white", marginBottom: 6, textAlign: "center" }}>
-        {nightMode ? "Good evening!" : "Good morning!"}
-      </div>
-      <div style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", marginBottom: 32, textAlign: "center" }}>
-        {nightMode ? "Who's doing their bedtime routine tonight?" : "Who's doing their morning routine today?"}
+
+      {/* Child list */}
+      <div style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.65)", marginBottom: 14, textTransform: "uppercase", letterSpacing: 1 }}>
+        Who's playing?
       </div>
       <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 14 }}>
         {children.map((child: any) => {
@@ -1030,8 +1080,8 @@ function ChildSelector({ children, onSelect, nightMode, onModeChange }: {
               onClick={() => onSelect(child)}
               style={{
                 display: "flex", alignItems: "center", gap: 16,
-                background: doneToday ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.9)",
-                border: doneToday ? "2px solid rgba(255,255,255,0.5)" : "2px solid white",
+                background: doneToday ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.92)",
+                border: doneToday ? "2px solid rgba(255,255,255,0.4)" : "2px solid white",
                 borderRadius: 20, padding: "18px 22px", cursor: "pointer",
                 boxShadow: "0 4px 20px rgba(0,0,0,0.12)", textAlign: "left",
                 transition: "transform 0.1s",
@@ -1046,11 +1096,11 @@ function ChildSelector({ children, onSelect, nightMode, onModeChange }: {
                 <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 22, color: doneToday ? "rgba(255,255,255,0.9)" : "#1a1a2e" }}>
                   {child.name}
                 </div>
-                <div style={{ fontSize: 13, color: doneToday ? "rgba(255,255,255,0.75)" : "#888", marginTop: 2 }}>
-                  {doneToday ? "✅ Done today — great work!" : `⭐ ${child.stars ?? 0} stars · 🔥 ${child.streak ?? 0} streak`}
+                <div style={{ fontSize: 13, color: doneToday ? "rgba(255,255,255,0.7)" : "#888", marginTop: 2 }}>
+                  {doneToday ? "✅ Morning done — great work!" : `⭐ ${child.stars ?? 0} stars · 🔥 ${child.streak ?? 0} streak`}
                 </div>
               </div>
-              <div style={{ fontSize: 22, color: doneToday ? "rgba(255,255,255,0.7)" : "#ff9a3c" }}>
+              <div style={{ fontSize: 22, color: doneToday ? "rgba(255,255,255,0.6)" : (isNight ? "#a78bfa" : "#ff9a3c") }}>
                 {doneToday ? "🏆" : "▶"}
               </div>
             </button>
