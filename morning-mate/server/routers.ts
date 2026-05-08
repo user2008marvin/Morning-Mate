@@ -43,13 +43,17 @@ export const appRouter = router({
         if (!user) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to create account" });
         const token = await createSessionToken({ id: user.id, openId: user.openId, email: user.email, name: user.name, role: user.role as "user" | "admin" });
         setSessionCookie(ctx.res, token, ctx.req);
-        const baseUrl = `${ctx.req.protocol}://${ctx.req.get("host")}`;
+        const baseUrl = (process.env.APP_URL || "https://getglowjo.com").replace(/\/$/, "");
         sendEmail({
           to: input.email,
           subject: "Welcome to GlowJo ☀️",
           template: "welcome",
           data: { userName: input.name, appUrl: `${baseUrl}/app` },
-        }).catch(() => {});
+        }).then(() => {
+          console.log(`[Auth] Welcome email sent to ${input.email}`);
+        }).catch((err: unknown) => {
+          console.error(`[Auth] ❌ Welcome email failed for ${input.email}:`, err instanceof Error ? err.message : err);
+        });
         return { success: true, user: { id: user.id, name: user.name, email: user.email } };
       }),
 
