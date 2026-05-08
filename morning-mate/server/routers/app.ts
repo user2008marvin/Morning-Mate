@@ -36,10 +36,10 @@ export const appRouter = router({
       // Enforce child profile limits per tier
       if (existing.length >= maxProfiles) {
         const tierMessages: Record<string, string> = {
-          freemium: "Upgrade to GlowJo to add up to 3 child profiles",
-          starter: "You have reached the child limit on your plan. Upgrade to GlowJo+ for up to 5 profiles",
-          plus: "You have reached the 3-child limit on GlowJo. Upgrade to GlowJo+ for up to 5 child profiles",
-          gold: "You have reached the maximum of 5 child profiles on GlowJo+",
+          freemium: "Free accounts support up to 2 child profiles. Upgrade to GlowJo for up to 5 profiles",
+          starter: "Upgrade to GlowJo for up to 5 child profiles",
+          plus: "You have reached the maximum of 5 child profiles on GlowJo",
+          gold: "You have reached the maximum of 5 child profiles on GlowJo",
         };
         throw new Error(tierMessages[subscription.tier] ?? "Child profile limit reached — please upgrade your plan");
       }
