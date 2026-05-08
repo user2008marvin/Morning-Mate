@@ -139,7 +139,7 @@ export default function Success() {
               fontFamily: "'Fredoka One', cursive",
             }}
           >
-            🚀 Start Morning Routine
+            🚀 Open the App
           </button>
           <button
             onClick={() => navigate("/")}
