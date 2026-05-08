@@ -610,7 +610,7 @@ export default function Home() {
               Start free. Upgrade anytime.
             </h2>
             <p style={{ fontSize: 18, color: "rgba(255,248,238,0.7)", maxWidth: 600, margin: "0 auto 28px" }}>
-              Try Freemium free forever. Upgrade to unlock voice, bilingual, and more kids.
+              Try free forever. One simple plan unlocks everything — mornings, bedtimes, and beyond.
             </p>
 
             {/* Billing toggle */}
@@ -631,53 +631,41 @@ export default function Home() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px,1fr))", gap: 24, maxWidth: 720, margin: "0 auto" }}>
             {[
-              { name: "Freemium", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", style: "free", badge: null, tier: null },
-              { name: "GlowJo", features: ["Everything in Free", "Up to 3 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning", "🎙️ Parents' Voice — record your own", "🧩 SEND-friendly mode for additional needs", "🧒 Multi-child mornings — seamless handoff", "⭐ Stars, streaks & weekly rewards", "📊 Parent dashboard with progress tracking", "Priority support"], cta: "Get GlowJo", style: "coral", badge: "⭐ Most Popular", tier: "plus" },
-              { name: "GlowJo +", features: ["Everything in GlowJo", "Up to 5 child profiles", "🌙 Night Mode — full bedtime routine", "🌟 Moony mascot & starry theme", "📖 Personalised bedtime story", "🎵 Calming ambient night music", "🚀 First access to new features"], cta: "Get GlowJo +", style: "night", badge: "🌙 Night Edition", tier: "gold" },
+              { name: "Free", features: ["1 child profile", "Basic task tracking", "Parent dashboard", "2 days of happy music"], cta: "Get Started Free", style: "free", badge: null, tier: null },
+              { name: "GlowJo", features: ["Everything in Free", "Up to 5 child profiles", "🎤 AI voice guidance — Sunny speaks!", "🌍 Bilingual — English + Spanish", "🎵 Happy music every morning", "🌙 Night Mode — full bedtime routine", "🌟 Moony mascot & personalised bedtime stories", "🎵 Calming ambient night music", "🎙️ Parents' Voice — record your own", "🧩 SEND-friendly mode for additional needs", "🧒 Multi-child handoff — seamless family mornings", "⭐ Stars, streaks & weekly rewards"], cta: "Get GlowJo", style: "coral", badge: "⭐ Everything Included", tier: "plus" },
             ].map((plan, i) => {
-              const isNight = plan.style === "night";
               const isCoral = plan.style === "coral";
 
               const priceDisplay = isCoral
-                ? billingPeriod === "month" ? "$9.99/month" : "$99.90/year"
-                : isNight
-                ? billingPeriod === "month" ? "$14.99/month" : "$149.90/year"
+                ? billingPeriod === "month" ? "$9.99/month" : "$79.99/year"
                 : "Free forever";
 
               const subText = isCoral
-                ? billingPeriod === "year" ? "Just $8.33/month — 2 months free! 🎉" : "Billed monthly"
-                : isNight
-                ? billingPeriod === "year" ? "Just $12.49/month — 2 months free! 🎉" : "Billed monthly"
+                ? billingPeriod === "year" ? "Just $6.67/month — 4 months free! 🎉" : "Billed monthly"
                 : null;
-              const annualHint = billingPeriod === "month"
-                ? isCoral ? "or $99.90/yr · save 2 months" : isNight ? "or $149.90/yr · save 2 months" : null
+              const annualHint = billingPeriod === "month" && isCoral
+                ? "or $79.99/yr · save 4 months"
                 : null;
 
               const cardBg = isCoral
                 ? "linear-gradient(135deg,var(--coral),var(--sunrise-mid))"
-                : isNight
-                ? "linear-gradient(135deg,#0d0d2b,#1a0a2e)"
                 : "rgba(255,255,255,0.06)";
               const cardBorder = isCoral
                 ? "2px solid rgba(255,255,255,0.4)"
-                : isNight
-                ? "2px solid rgba(167,139,250,0.4)"
                 : "1px solid rgba(255,255,255,0.12)";
               const cardScale = isCoral ? "scale(1.05)" : "scale(1)";
               const cardShadow = isCoral
                 ? "0 12px 40px rgba(0,0,0,0.3)"
-                : isNight
-                ? "0 12px 40px rgba(88,28,220,0.25)"
                 : "0 4px 16px rgba(0,0,0,0.15)";
-              const badgeBg = isCoral ? "white" : isNight ? "linear-gradient(135deg,#7c3aed,#4c1d95)" : "var(--yellow)";
-              const badgeColor = isCoral ? "var(--coral)" : "white";
-              const nameColor = isCoral || isNight ? "white" : "var(--cream)";
-              const priceColor = isCoral ? "white" : isNight ? "#c4b5fd" : "var(--yellow)";
-              const featColor = isCoral ? "rgba(255,255,255,0.95)" : isNight ? "rgba(200,185,240,0.9)" : "rgba(255,248,238,0.75)";
-              const checkColor = isCoral ? "white" : isNight ? "#a78bfa" : "var(--yellow)";
-              const btnBg = isCoral ? "white" : isNight ? "linear-gradient(135deg,#7c3aed,#4c1d95)" : "rgba(255,255,255,0.18)";
+              const badgeBg = isCoral ? "white" : "var(--yellow)";
+              const badgeColor = isCoral ? "var(--coral)" : "var(--dark)";
+              const nameColor = isCoral ? "white" : "var(--cream)";
+              const priceColor = isCoral ? "white" : "var(--yellow)";
+              const featColor = isCoral ? "rgba(255,255,255,0.95)" : "rgba(255,248,238,0.75)";
+              const checkColor = isCoral ? "white" : "var(--yellow)";
+              const btnBg = isCoral ? "white" : "rgba(255,255,255,0.18)";
               const btnColor = isCoral ? "var(--coral)" : "white";
 
               return (
@@ -715,7 +703,7 @@ export default function Home() {
                   const userTier = subscriptionQuery.data?.tier;
                   const isCurrentPlan =
                     (plan.tier === null && (!userTier || userTier === "freemium")) ||
-                    (plan.tier !== null && userTier === plan.tier);
+                    (plan.tier !== null && (userTier === plan.tier || userTier === "gold" || userTier === "starter"));
                   if (isCurrentPlan && meQuery.data) {
                     return (
                       <button
