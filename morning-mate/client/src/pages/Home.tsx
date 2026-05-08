@@ -281,7 +281,7 @@ export default function Home() {
   const emailMutation = trpc.analytics.captureEmail.useMutation();
   const stripeCheckoutMutation = trpc.stripe.createCheckoutSession.useMutation();
   const meQuery = trpc.auth.me.useQuery(undefined, { retry: false });
-  const subscriptionQuery = trpc.subscription.get.useQuery(undefined, { enabled: !!meQuery.data, retry: false });
+  const subscriptionQuery = trpc.subscription.getSubscription.useQuery(undefined, { enabled: !!meQuery.data, retry: false });
 
   const handleEmailCapture = async () => {
     setEmailError("");
@@ -711,13 +711,31 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-                <button
-                  disabled={loadingTier !== null}
-                  onClick={() => plan.tier === null ? handleFreeStart() : handleCheckout(plan.tier as "starter" | "plus" | "gold")}
-                  style={{ width: "100%", padding: "13px 24px", borderRadius: 30, border: "none", fontFamily: "'Fredoka One',cursive", fontSize: 16, fontWeight: 700, cursor: loadingTier !== null ? "wait" : "pointer", background: btnBg, color: btnColor, transition: "opacity 0.2s", opacity: loadingTier !== null && loadingTier !== plan.tier ? 0.5 : 1 }}
-                >
-                  {plan.tier !== null && loadingTier === plan.tier ? "Opening Stripe…" : plan.cta}
-                </button>
+                {(() => {
+                  const userTier = subscriptionQuery.data?.tier;
+                  const isCurrentPlan =
+                    (plan.tier === null && (!userTier || userTier === "freemium")) ||
+                    (plan.tier !== null && userTier === plan.tier);
+                  if (isCurrentPlan && meQuery.data) {
+                    return (
+                      <button
+                        onClick={() => navigate("/app")}
+                        style={{ width: "100%", padding: "13px 24px", borderRadius: 30, border: "2px solid rgba(255,255,255,0.5)", fontFamily: "'Fredoka One',cursive", fontSize: 16, fontWeight: 700, cursor: "pointer", background: "rgba(255,255,255,0.15)", color: "white", transition: "opacity 0.2s" }}
+                      >
+                        ✓ Your Plan · Open App
+                      </button>
+                    );
+                  }
+                  return (
+                    <button
+                      disabled={loadingTier !== null}
+                      onClick={() => plan.tier === null ? handleFreeStart() : handleCheckout(plan.tier as "starter" | "plus" | "gold")}
+                      style={{ width: "100%", padding: "13px 24px", borderRadius: 30, border: "none", fontFamily: "'Fredoka One',cursive", fontSize: 16, fontWeight: 700, cursor: loadingTier !== null ? "wait" : "pointer", background: btnBg, color: btnColor, transition: "opacity 0.2s", opacity: loadingTier !== null && loadingTier !== plan.tier ? 0.5 : 1 }}
+                    >
+                      {plan.tier !== null && loadingTier === plan.tier ? "Opening Stripe…" : plan.cta}
+                    </button>
+                  );
+                })()}
               </div>
               );
             })}
