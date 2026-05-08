@@ -644,23 +644,11 @@ const PLANS = [
     label: "GlowJo",
     emoji: "🌟",
     monthly: 9.99,
-    yearly: 99.90,
-    features: "3 children · AI voice · Music · Bilingual EN+ES · Weekly rewards · Priority support",
+    yearly: 79.99,
+    features: "5 children · Morning & Night routines · AI voice · Bilingual EN+ES · Parents' Voice · SEND mode",
     color: "rgba(255,154,60,0.35)",
     border: "rgba(255,154,60,0.7)",
-    badge: "MOST POPULAR",
-  },
-  {
-    tier: "glowjo_plus" as const,
-    backendTier: "gold" as const,
-    label: "GlowJo+",
-    emoji: "🏆",
-    monthly: 14.99,
-    yearly: 149.90,
-    features: "5 children · AI voice · Music · Bilingual · Night routine · SEND mode · Priority support",
-    color: "rgba(167,139,250,0.35)",
-    border: "rgba(167,139,250,0.7)",
-    badge: "BEST VALUE",
+    badge: "EVERYTHING INCLUDED",
   },
 ];
 
@@ -670,13 +658,12 @@ function UpgradeCard({ tier }: { tier: string }) {
     onSuccess: (data) => { if (data.checkoutUrl) window.location.href = data.checkoutUrl; },
     onError: (err) => toast.error(err.message || "Failed to start checkout"),
   });
-  if (tier === "gold") return null;
-  const upgradablePlans = tier === "plus" ? PLANS.filter(p => p.backendTier === "gold") : PLANS;
+  if (tier !== "freemium") return null;
 
   return (
     <div style={{ background: "linear-gradient(135deg, #667eea, #764ba2)", borderRadius: "20px", padding: "20px", color: "white", marginBottom: "20px" }}>
-      <div style={{ fontSize: "1.3rem", fontWeight: "bold", marginBottom: "4px" }}>🌟 Upgrade GlowJo</div>
-      <p style={{ fontSize: "0.85rem", opacity: 0.9, marginBottom: "14px" }}>Multiple kids · British voice · Bilingual mode</p>
+      <div style={{ fontSize: "1.3rem", fontWeight: "bold", marginBottom: "4px" }}>🌟 Upgrade to GlowJo</div>
+      <p style={{ fontSize: "0.85rem", opacity: 0.9, marginBottom: "14px" }}>One plan · Everything included · Morning &amp; Night routines</p>
 
       {/* Monthly / Yearly toggle */}
       <div style={{ display: "flex", gap: "6px", marginBottom: "14px", background: "rgba(0,0,0,0.2)", borderRadius: "10px", padding: "4px", width: "fit-content" }}>
@@ -696,7 +683,7 @@ function UpgradeCard({ tier }: { tier: string }) {
 
       {/* Plan buttons */}
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        {upgradablePlans.map(plan => (
+        {PLANS.map(plan => (
           <button key={plan.tier}
             onClick={() => createCheckout.mutate({ tier: plan.backendTier, billingPeriod: period })}
             disabled={createCheckout.isPending}
