@@ -35,7 +35,7 @@ export const TIER_CONFIG: Record<Tier, TierConfig> = {
     billingPeriod: "month",
     description: "Limited free tier to try the app",
     features: {
-      childProfiles: 1,
+      childProfiles: 2,
       voiceEncouragement: false, // Text only
       bilingualMode: false, // English only
       parentDashboard: "none",
