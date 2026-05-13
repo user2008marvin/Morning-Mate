@@ -235,6 +235,15 @@ export function NightScreen({
   const startedRef = useRef(false);
   // Prevent double-taps or tapping while speech/animation is in progress
   const processingRef = useRef(false);
+  // Store intro timer IDs so we can cancel them the moment a child taps a task.
+  // Without this, the t=4.5s cancel fires mid-congrats and cuts the speech off.
+  const introTimer1 = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const introTimer2 = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function clearIntroTimers() {
+    if (introTimer1.current) { clearTimeout(introTimer1.current); introTimer1.current = null; }
+    if (introTimer2.current) { clearTimeout(introTimer2.current); introTimer2.current = null; }
+  }
 
   // startNightMusic already guards against duplicate instances — call it freely;
   // on first tap it retries in case the browser blocked autoplay on mount.
@@ -252,14 +261,15 @@ export function NightScreen({
       const welcome = state.language === "es"
         ? `¿Estás listo para tu rutina nocturna, ${state.childName}?`
         : `Are you ready for your bedtime routine, ${state.childName}?`;
-      setTimeout(() => nightSpeak(welcome, state.language), 600);
-      setTimeout(() => {
+      introTimer1.current = setTimeout(() => nightSpeak(welcome, state.language), 600);
+      introTimer2.current = setTimeout(() => {
         window.speechSynthesis?.cancel();
         nightSpeak(state.language === "es" ? t.prompt_es : t.prompt_en, state.language);
       }, 4500);
       setActive(0);
     }
     return () => {
+      clearIntroTimers();
       stopNightMusic();
       window.speechSynthesis?.cancel();
     };
@@ -268,6 +278,10 @@ export function NightScreen({
   const handleTap = (idx: number) => {
     // Block if already done or processing
     if (completed[idx] || processingRef.current) return;
+
+    // Cancel intro timers immediately — prevents the t=4.5s cancel from
+    // interrupting the congrats speech if the child taps within the first few seconds
+    clearIntroTimers();
 
     // On first tap, try to start music (handles autoplay-blocked browsers)
     tryStartMusic();
