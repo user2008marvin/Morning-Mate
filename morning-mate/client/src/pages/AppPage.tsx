@@ -1189,8 +1189,12 @@ export default function AppPage() {
     const serverDate = child.lastCompletedDate ? new Date(child.lastCompletedDate).toDateString() : null;
     setServerLastCompleted(serverDate);
     const todayStr = new Date().toDateString();
-    // If morning is done but user is in night mode, show main so they can do the night routine
-    setScreen(serverDate === todayStr && savedMode !== "night" ? "done-today" : "main");
+    // Check if night routine was already completed today for this child
+    const nightDoneToday = savedMode === "night" &&
+      localStorage.getItem(`gj_night_done_${child.id}`) === todayStr;
+    // Morning done (and not switching to night) OR night already done → show done screen
+    const morningDoneToday = serverDate === todayStr && savedMode !== "night";
+    setScreen(morningDoneToday || nightDoneToday ? "done-today" : "main");
   }
 
   // Merge DB child profile into local state
@@ -1249,6 +1253,8 @@ export default function AppPage() {
       const updates = { stars: newStars, weekDays: newWeekDays, weekStartDate: getMondayStr() };
       updateState(updates);
       if (childId) {
+        // Mark night routine done for this child today so they can't replay it
+        localStorage.setItem(`gj_night_done_${childId}`, todayStr);
         syncProgress.mutate({ childId, stars: newStars, streak: appState.streak, completedDays: newCompletedDays });
       }
       setScreen("win");
@@ -1282,8 +1288,16 @@ export default function AppPage() {
   }
 
   function handleNewMorning() {
-    // Night routine always goes back to main — no lockout
-    if (routineMode === "night") { setScreen("main"); return; }
+    if (routineMode === "night") {
+      // Night routine done — multi-child goes to picker, solo child goes to done screen
+      if (children && children.length > 1) {
+        setChildId(null);
+        setScreen("child-select");
+      } else {
+        setScreen("done-today");
+      }
+      return;
+    }
 
     const todayStr = new Date().toDateString();
     const alreadyDone = serverLastCompleted
@@ -1413,12 +1427,16 @@ export default function AppPage() {
             All done for today!
           </div>
           <div style={{ fontSize: 18, color: "#7a5c3a", fontWeight: 700, marginBottom: 8 }}>
-            {appState.childName} crushed this morning! ⭐
+            {routineMode === "night"
+              ? `${appState.childName} is all ready for bed! 🌙`
+              : `${appState.childName} crushed this morning! ⭐`}
           </div>
           <div style={{ fontSize: 15, color: "#a07850", lineHeight: 1.6, marginBottom: 32, maxWidth: 280 }}>
             {children && children.length > 1
               ? "Amazing work! Is another child ready for their turn?"
-              : "The next routine unlocks tomorrow morning. Come back then to keep the streak going!"}
+              : routineMode === "night"
+                ? "Sleep tight! Come back tomorrow for the next adventure."
+                : "The next routine unlocks tomorrow morning. Come back then to keep the streak going!"}
           </div>
           <div style={{ display: "flex", gap: 24, marginBottom: 36 }}>
             <div style={{ textAlign: "center" }}>
