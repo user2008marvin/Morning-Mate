@@ -235,12 +235,11 @@ export function NightScreen({
   const startedRef = useRef(false);
   // Prevent double-taps or tapping while speech/animation is in progress
   const processingRef = useRef(false);
-  const musicStartedRef = useRef(false);
 
+  // startNightMusic already guards against duplicate instances — call it freely;
+  // on first tap it retries in case the browser blocked autoplay on mount.
   function tryStartMusic() {
-    if (sendMode || musicStartedRef.current) return;
-    musicStartedRef.current = true;
-    startNightMusic();
+    if (!sendMode) startNightMusic();
   }
 
   // Start music and first prompt on mount; stop everything on unmount
