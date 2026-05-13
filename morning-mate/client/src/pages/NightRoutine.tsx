@@ -69,7 +69,7 @@ function nightSpeak(text: string, lang: Language = "en", onDone?: () => void) {
       utterance.onerror = () => onDone();
     }
     window.speechSynthesis.speak(utterance);
-  } catch { onDone?.(); }
+  } catch (_e) { onDone?.(); }
 }
 
 export const TASKS_NIGHT_EN: Task[] = [
