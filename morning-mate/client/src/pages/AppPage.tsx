@@ -1111,7 +1111,7 @@ function ChildSelector({ children, onSelect, nightMode, onModeChange }: {
 }
 
 // ── POST-SIGNUP PRICING SCREEN ──
-function PostSignupPricingScreen({ onContinueFree }: { onContinueFree: () => void }) {
+function PostSignupPricingScreen() {
   const stripeCheckout = trpc.stripe.createCheckoutSession.useMutation();
   const [loading, setLoading] = useState<string | null>(null);
   const [period, setPeriod] = useState<"month" | "year">("month");
@@ -1147,7 +1147,7 @@ function PostSignupPricingScreen({ onContinueFree }: { onContinueFree: () => voi
     <div style={{ minHeight: "100vh", background: "linear-gradient(180deg,#4facfe 0%,#ff9a3c 60%,#ff6b35 100%)", display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 20px 40px" }}>
       <div style={{ fontSize: 52, marginBottom: 8 }}>🌟</div>
       <div style={{ ...ff, fontSize: 28, color: "#fff", marginBottom: 4, textAlign: "center" }}>Welcome to GlowJo!</div>
-      <div style={{ fontSize: 15, color: "rgba(255,255,255,0.9)", marginBottom: 24, textAlign: "center" }}>Choose a plan to unlock everything, or start free.</div>
+      <div style={{ fontSize: 15, color: "rgba(255,255,255,0.9)", marginBottom: 24, textAlign: "center" }}>Subscribe to get started — cancel anytime.</div>
 
       {/* Billing toggle */}
       <div style={{ display: "flex", background: "rgba(255,255,255,0.25)", borderRadius: 30, padding: 3, marginBottom: 24, gap: 2 }}>
@@ -1182,10 +1182,6 @@ function PostSignupPricingScreen({ onContinueFree }: { onContinueFree: () => voi
         </div>
       ))}
 
-      {/* Free option */}
-      <button onClick={onContinueFree} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.8)", fontSize: 14, marginTop: 8, textDecoration: "underline" }}>
-        Continue with free plan
-      </button>
     </div>
   );
 }
@@ -1426,6 +1422,12 @@ export default function AppPage() {
     );
   }
 
+  // Subscription gate — signed-in users without an active subscription see the
+  // plan picker again. Skip if already on the pricing screen (new signup flow).
+  if (!isDemo && user && tier === "freemium" && screen !== "pricing") {
+    return <PostSignupPricingScreen />;
+  }
+
   return (
     <div style={{ maxWidth: 480, margin: "0 auto", minHeight: "100vh", position: "relative" }}>
       {isDemo && (
@@ -1436,7 +1438,7 @@ export default function AppPage() {
           </button>
         </div>
       )}
-      {screen === "pricing" && <PostSignupPricingScreen onContinueFree={() => setScreen("onboarding")} />}
+      {screen === "pricing" && <PostSignupPricingScreen />}
       {screen === "onboarding" && <Onboarding onComplete={handleOnboardingComplete} />}
       {screen === "child-select" && children && (
         <ChildSelector
