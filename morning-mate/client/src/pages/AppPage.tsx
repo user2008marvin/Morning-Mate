@@ -1111,7 +1111,9 @@ function ChildSelector({ children, onSelect, nightMode, onModeChange }: {
 }
 
 // ── POST-SIGNUP PRICING SCREEN ──
-function PostSignupPricingScreen() {
+// onContinueFree: present on new-signup screen so user can try 2 days free.
+// Omit it for the trial-expired paywall (no escape route).
+function PostSignupPricingScreen({ onContinueFree, trialExpired }: { onContinueFree?: () => void; trialExpired?: boolean }) {
   const stripeCheckout = trpc.stripe.createCheckoutSession.useMutation();
   const [loading, setLoading] = useState<string | null>(null);
   const [period, setPeriod] = useState<"month" | "year">("month");
@@ -1145,9 +1147,15 @@ function PostSignupPricingScreen() {
 
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(180deg,#4facfe 0%,#ff9a3c 60%,#ff6b35 100%)", display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 20px 40px" }}>
-      <div style={{ fontSize: 52, marginBottom: 8 }}>🌟</div>
-      <div style={{ ...ff, fontSize: 28, color: "#fff", marginBottom: 4, textAlign: "center" }}>Welcome to GlowJo!</div>
-      <div style={{ fontSize: 15, color: "rgba(255,255,255,0.9)", marginBottom: 24, textAlign: "center" }}>Subscribe to get started — cancel anytime.</div>
+      <div style={{ fontSize: 52, marginBottom: 8 }}>{trialExpired ? "⏰" : "🌟"}</div>
+      <div style={{ ...ff, fontSize: 26, color: "#fff", marginBottom: 4, textAlign: "center" }}>
+        {trialExpired ? "Your free trial has ended" : "Welcome to GlowJo!"}
+      </div>
+      <div style={{ fontSize: 15, color: "rgba(255,255,255,0.9)", marginBottom: 24, textAlign: "center" }}>
+        {trialExpired
+          ? "Subscribe to keep the streaks going — cancel anytime."
+          : "Subscribe now, or try free for 2 days."}
+      </div>
 
       {/* Billing toggle */}
       <div style={{ display: "flex", background: "rgba(255,255,255,0.25)", borderRadius: 30, padding: 3, marginBottom: 24, gap: 2 }}>
@@ -1158,30 +1166,36 @@ function PostSignupPricingScreen() {
         ))}
       </div>
 
-      {/* Plan cards */}
+      {/* Plan card */}
       {plans.map(plan => (
         <div key={plan.tier} style={{ width: "100%", maxWidth: 380, background: plan.bg, border: `2px solid ${plan.border}`, borderRadius: 20, padding: "20px 20px 16px", marginBottom: 14, boxShadow: "0 4px 20px rgba(0,0,0,0.15)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
             <span style={{ fontSize: 26 }}>{plan.emoji}</span>
-            <span style={{ ...ff, fontSize: 22, color: plan.color === "#fff" ? "#fff" : "#333" }}>{plan.name}</span>
-            <span style={{ ...ff, fontSize: 20, color: plan.color === "#fff" ? "#a78bfa" : "#ff5f1f", marginLeft: "auto" }}>{plan.price}</span>
+            <span style={{ ...ff, fontSize: 22, color: "#333" }}>{plan.name}</span>
+            <span style={{ ...ff, fontSize: 20, color: "#ff5f1f", marginLeft: "auto" }}>{plan.price}</span>
           </div>
-          {plan.sub && <div style={{ fontSize: 12, color: plan.color === "#fff" ? "rgba(255,255,255,0.6)" : "#999", marginBottom: 8, marginLeft: 36 }}>{plan.sub}</div>}
+          {plan.sub && <div style={{ fontSize: 12, color: "#999", marginBottom: 8, marginLeft: 36 }}>{plan.sub}</div>}
           <ul style={{ margin: "0 0 16px 36px", padding: 0, listStyle: "none" }}>
             {plan.features.map(f => (
-              <li key={f} style={{ fontSize: 13, color: plan.color === "#fff" ? "rgba(255,255,255,0.85)" : "#555", marginBottom: 3 }}>✓ {f}</li>
+              <li key={f} style={{ fontSize: 13, color: "#555", marginBottom: 3 }}>✓ {f}</li>
             ))}
           </ul>
           <button
             onClick={() => goCheckout(plan.tier)}
             disabled={loading === plan.tier}
-            style={{ ...ff, width: "100%", border: "none", borderRadius: 14, padding: "12px 0", fontSize: 16, cursor: loading === plan.tier ? "wait" : "pointer", background: plan.tier === "gold" ? "linear-gradient(90deg,#7c3aed,#a855f7)" : "linear-gradient(90deg,#ff9a3c,#ff5f1f)", color: "#fff", boxShadow: "0 3px 10px rgba(0,0,0,0.2)" }}
+            style={{ ...ff, width: "100%", border: "none", borderRadius: 14, padding: "12px 0", fontSize: 16, cursor: loading === plan.tier ? "wait" : "pointer", background: "linear-gradient(90deg,#ff9a3c,#ff5f1f)", color: "#fff", boxShadow: "0 3px 10px rgba(0,0,0,0.2)" }}
           >
             {loading === plan.tier ? "Please wait…" : `Start ${plan.name} →`}
           </button>
         </div>
       ))}
 
+      {/* Free trial link — only shown on new-signup screen, not on trial-expired wall */}
+      {onContinueFree && (
+        <button onClick={onContinueFree} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.85)", fontSize: 14, marginTop: 8, textDecoration: "underline" }}>
+          Try free for 2 days
+        </button>
+      )}
     </div>
   );
 }
@@ -1422,10 +1436,14 @@ export default function AppPage() {
     );
   }
 
-  // Subscription gate — signed-in users without an active subscription see the
-  // plan picker again. Skip if already on the pricing screen (new signup flow).
-  if (!isDemo && user && tier === "freemium" && screen !== "pricing") {
-    return <PostSignupPricingScreen />;
+  // Subscription gate — freemium users get 2 days free, then see the paywall.
+  // Skip if already on the pricing/onboarding screen (new signup flow).
+  if (!isDemo && user && tier === "freemium" && screen !== "pricing" && screen !== "onboarding") {
+    const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
+    const accountAge = user.createdAt ? Date.now() - new Date(user.createdAt as string).getTime() : TWO_DAYS_MS + 1;
+    if (accountAge > TWO_DAYS_MS) {
+      return <PostSignupPricingScreen trialExpired />;
+    }
   }
 
   return (
@@ -1438,7 +1456,7 @@ export default function AppPage() {
           </button>
         </div>
       )}
-      {screen === "pricing" && <PostSignupPricingScreen />}
+      {screen === "pricing" && <PostSignupPricingScreen onContinueFree={() => setScreen("onboarding")} />}
       {screen === "onboarding" && <Onboarding onComplete={handleOnboardingComplete} />}
       {screen === "child-select" && children && (
         <ChildSelector
