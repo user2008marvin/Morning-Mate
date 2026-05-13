@@ -76,7 +76,7 @@ const REWARDS = [
 
 const WIN_STICKERS = ["⭐", "🌟", "💫", "✨", "🎯", "🏆", "🦁", "🦊", "🐯", "🦅", "🌈", "🎨"];
 
-type Screen = "onboarding" | "child-select" | "main" | "win" | "done-today";
+type Screen = "onboarding" | "pricing" | "child-select" | "main" | "win" | "done-today";
 type Language = "en" | "es";
 
 interface AppState {
@@ -1110,6 +1110,97 @@ function ChildSelector({ children, onSelect, nightMode, onModeChange }: {
   );
 }
 
+// ── POST-SIGNUP PRICING SCREEN ──
+function PostSignupPricingScreen({ onContinueFree }: { onContinueFree: () => void }) {
+  const stripeCheckout = trpc.stripe.createCheckoutSession.useMutation();
+  const [loading, setLoading] = useState<string | null>(null);
+  const [period, setPeriod] = useState<"month" | "year">("month");
+
+  async function goCheckout(tier: "starter" | "plus" | "gold") {
+    setLoading(tier);
+    try {
+      const session = await stripeCheckout.mutateAsync({ tier, billingPeriod: period });
+      if (session?.checkoutUrl) window.location.href = session.checkoutUrl;
+    } catch (_e) {
+      alert("Something went wrong — please try again.");
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  const ff: React.CSSProperties = { fontFamily: "'Fredoka One', cursive" };
+  const plans = [
+    {
+      tier: "starter" as const,
+      name: "GlowJo",
+      emoji: "☀️",
+      color: "#ff9a3c",
+      bg: "linear-gradient(135deg,#fff8ee,#ffecd2)",
+      border: "#ff9a3c",
+      price: period === "month" ? "$9.99/mo" : "$79.99/yr",
+      sub: period === "year" ? "($6.67/mo)" : undefined,
+      features: ["Up to 5 child profiles", "Parents' Voice recording", "Bilingual EN/ES", "Stars & streaks"],
+    },
+    {
+      tier: "gold" as const,
+      name: "GlowJo +",
+      emoji: "🌙",
+      color: "#fff",
+      bg: "linear-gradient(135deg,#1a1a3e,#2d2060)",
+      border: "#7c3aed",
+      price: period === "month" ? "$14.99/mo" : "$119.99/yr",
+      sub: period === "year" ? "($10/mo)" : undefined,
+      features: ["Everything in GlowJo", "🌙 Night Mode", "Bedtime stories", "Calm ambient music", "Early access features"],
+    },
+  ];
+
+  return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(180deg,#4facfe 0%,#ff9a3c 60%,#ff6b35 100%)", display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 20px 40px" }}>
+      <div style={{ fontSize: 52, marginBottom: 8 }}>🌟</div>
+      <div style={{ ...ff, fontSize: 28, color: "#fff", marginBottom: 4, textAlign: "center" }}>Welcome to GlowJo!</div>
+      <div style={{ fontSize: 15, color: "rgba(255,255,255,0.9)", marginBottom: 24, textAlign: "center" }}>Choose a plan to unlock everything, or start free.</div>
+
+      {/* Billing toggle */}
+      <div style={{ display: "flex", background: "rgba(255,255,255,0.25)", borderRadius: 30, padding: 3, marginBottom: 24, gap: 2 }}>
+        {(["month", "year"] as const).map(p => (
+          <button key={p} onClick={() => setPeriod(p)} style={{ ...ff, border: "none", borderRadius: 27, padding: "7px 22px", cursor: "pointer", fontSize: 14, background: period === p ? "#fff" : "transparent", color: period === p ? "#ff5f1f" : "#fff", transition: "all 0.2s" }}>
+            {p === "month" ? "Monthly" : "Annual 🎉"}
+          </button>
+        ))}
+      </div>
+
+      {/* Plan cards */}
+      {plans.map(plan => (
+        <div key={plan.tier} style={{ width: "100%", maxWidth: 380, background: plan.bg, border: `2px solid ${plan.border}`, borderRadius: 20, padding: "20px 20px 16px", marginBottom: 14, boxShadow: "0 4px 20px rgba(0,0,0,0.15)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+            <span style={{ fontSize: 26 }}>{plan.emoji}</span>
+            <span style={{ ...ff, fontSize: 22, color: plan.color === "#fff" ? "#fff" : "#333" }}>{plan.name}</span>
+            <span style={{ ...ff, fontSize: 20, color: plan.color === "#fff" ? "#a78bfa" : "#ff5f1f", marginLeft: "auto" }}>{plan.price}</span>
+          </div>
+          {plan.sub && <div style={{ fontSize: 12, color: plan.color === "#fff" ? "rgba(255,255,255,0.6)" : "#999", marginBottom: 8, marginLeft: 36 }}>{plan.sub}</div>}
+          <ul style={{ margin: "0 0 16px 36px", padding: 0, listStyle: "none" }}>
+            {plan.features.map(f => (
+              <li key={f} style={{ fontSize: 13, color: plan.color === "#fff" ? "rgba(255,255,255,0.85)" : "#555", marginBottom: 3 }}>✓ {f}</li>
+            ))}
+          </ul>
+          <button
+            onClick={() => goCheckout(plan.tier)}
+            disabled={loading === plan.tier}
+            style={{ ...ff, width: "100%", border: "none", borderRadius: 14, padding: "12px 0", fontSize: 16, cursor: loading === plan.tier ? "wait" : "pointer", background: plan.tier === "gold" ? "linear-gradient(90deg,#7c3aed,#a855f7)" : "linear-gradient(90deg,#ff9a3c,#ff5f1f)", color: "#fff", boxShadow: "0 3px 10px rgba(0,0,0,0.2)" }}
+          >
+            {loading === plan.tier ? "Please wait…" : `Start ${plan.name} →`}
+          </button>
+        </div>
+      ))}
+
+      {/* Free option */}
+      <button onClick={onContinueFree} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.8)", fontSize: 14, marginTop: 8, textDecoration: "underline" }}>
+        Continue with free plan
+      </button>
+    </div>
+  );
+}
+
 // ── ROOT ──
 const DEMO_STATE: AppState = {
   ...DEFAULT_STATE,
@@ -1321,8 +1412,8 @@ export default function AppPage() {
       setServerLastCompleted(null);
       setChildId(null);
       utils.app.getChildren.reset();
-      // New accounts have no children yet — go to onboarding setup
-      setScreen("onboarding");
+      // New accounts — show plan picker before onboarding
+      setScreen("pricing");
     } else {
       // Existing user re-authenticating — reset child selection so the
       // children useEffect picks the right screen (loadChild or child-select)
@@ -1356,6 +1447,7 @@ export default function AppPage() {
           </button>
         </div>
       )}
+      {screen === "pricing" && <PostSignupPricingScreen onContinueFree={() => setScreen("onboarding")} />}
       {screen === "onboarding" && <Onboarding onComplete={handleOnboardingComplete} />}
       {screen === "child-select" && children && (
         <ChildSelector
