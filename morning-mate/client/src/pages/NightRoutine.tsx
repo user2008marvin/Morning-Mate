@@ -27,17 +27,23 @@ interface Task {
   sticker: string;
 }
 
-// Calm night music — plays during night routine and SEND mode
+// Calm night music — plays during night routine
 let _nightMusicAudio: HTMLAudioElement | null = null;
 const NIGHT_MUSIC_TRACK = "/music/glowjo-night-calm.mp3";
 
 function startNightMusic() {
   try {
     if (_nightMusicAudio && !_nightMusicAudio.paused) return;
-    _nightMusicAudio = new Audio(NIGHT_MUSIC_TRACK);
-    _nightMusicAudio.loop = true;
-    _nightMusicAudio.volume = 0.15;
-    _nightMusicAudio.play().catch(() => {});
+    // If a paused instance exists, just resume it
+    if (_nightMusicAudio && _nightMusicAudio.paused) {
+      _nightMusicAudio.play().catch(() => {});
+      return;
+    }
+    const audio = new Audio(NIGHT_MUSIC_TRACK);
+    audio.loop = true;
+    audio.volume = 0.15;
+    _nightMusicAudio = audio;
+    audio.play().catch(() => {});
   } catch {}
 }
 
@@ -49,16 +55,21 @@ function stopNightMusic() {
   }
 }
 
-// Fire-and-forget speech — no cancel inside; caller cancels when needed
-function nightSpeak(text: string, lang: Language = "en") {
+// Speak with optional onDone callback fired when speech ends (or fails).
+// Caller is responsible for cancelling before calling this.
+function nightSpeak(text: string, lang: Language = "en", onDone?: () => void) {
   try {
-    if (!("speechSynthesis" in window)) return;
+    if (!("speechSynthesis" in window)) { onDone?.(); return; }
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang === "es" ? "es-ES" : "en-GB";
     utterance.pitch = 1.0;
     utterance.rate = 0.8;
+    if (onDone) {
+      utterance.onend = () => onDone();
+      utterance.onerror = () => onDone();
+    }
     window.speechSynthesis.speak(utterance);
-  } catch {}
+  } catch { onDone?.(); }
 }
 
 export const TASKS_NIGHT_EN: Task[] = [
@@ -111,9 +122,9 @@ export const TASKS_NIGHT_EN: Task[] = [
     label: "Lights Off",
     emoji: "💤",
     prompt_en: "Time to turn the lights off and close your eyes!",
-    voice_en: "Sleep tight, superstar. You did an amazing job tonight!",
+    voice_en: "You did an absolutely amazing job tonight — every single task, done! Well done superstar!",
     prompt_es: "¡Hora de apagar las luces y cerrar los ojos!",
-    voice_es: "¡Dulces sueños, superestrella! ¡Lo hiciste genial esta noche!",
+    voice_es: "¡Lo hiciste genial esta noche! ¡Todas las tareas completadas, muy bien hecho superestrella!",
     sticker: "💤",
   },
 ];
@@ -222,18 +233,26 @@ export function NightScreen({
   const [celebrating, setCelebrating] = useState<number | null>(null);
   const [showStory, setShowStory] = useState(false);
   const startedRef = useRef(false);
+  // Prevent double-taps or tapping while speech/animation is in progress
+  const processingRef = useRef(false);
+  const musicStartedRef = useRef(false);
+
+  function tryStartMusic() {
+    if (sendMode || musicStartedRef.current) return;
+    musicStartedRef.current = true;
+    startNightMusic();
+  }
 
   // Start music and first prompt on mount; stop everything on unmount
   useEffect(() => {
-    if (!sendMode) startNightMusic();
+    tryStartMusic();
     if (!startedRef.current && enabledTasks.length > 0) {
       startedRef.current = true;
       const t = enabledTasks[0];
       window.speechSynthesis?.cancel();
-      // Welcome message, then first task prompt after a pause
       const welcome = state.language === "es"
         ? `¿Estás listo para tu rutina nocturna, ${state.childName}?`
-        : `Are you ready for your nightly routine, ${state.childName}?`;
+        : `Are you ready for your bedtime routine, ${state.childName}?`;
       setTimeout(() => nightSpeak(welcome, state.language), 600);
       setTimeout(() => {
         window.speechSynthesis?.cancel();
@@ -248,7 +267,12 @@ export function NightScreen({
   }, []);
 
   const handleTap = (idx: number) => {
-    if (completed[idx]) return;
+    // Block if already done or processing
+    if (completed[idx] || processingRef.current) return;
+
+    // On first tap, try to start music (handles autoplay-blocked browsers)
+    tryStartMusic();
+
     const t = enabledTasks[idx];
 
     // Story Time — first tap shows the card and reads it aloud; don't complete yet
@@ -260,31 +284,37 @@ export function NightScreen({
       return;
     }
 
-    // All other taps (or second tap on Story Time) — complete the task
+    // Lock further taps until speech finishes
+    processingRef.current = true;
     setShowStory(false);
-    window.speechSynthesis?.cancel();
-    nightSpeak(state.language === "es" ? t.voice_es : t.voice_en, state.language);
     setCelebrating(idx);
 
-    setTimeout(() => {
-      const next = [...completed];
-      next[idx] = true;
-      setCompleted(next);
-      setCelebrating(null);
+    window.speechSynthesis?.cancel();
+    const congratsText = state.language === "es" ? t.voice_es : t.voice_en;
+    const nextIdx = idx + 1;
 
-      const nextIdx = idx + 1;
+    nightSpeak(congratsText, state.language, () => {
+      // Speech has finished — now mark task done and advance
+      setCompleted(prev => {
+        const next = [...prev];
+        next[idx] = true;
+        return next;
+      });
+      setCelebrating(null);
+      processingRef.current = false;
+
       if (nextIdx < enabledTasks.length) {
         setActive(nextIdx);
         const nextTask = enabledTasks[nextIdx];
+        // Small pause before next prompt so child can absorb the transition
         setTimeout(() => {
-          window.speechSynthesis?.cancel();
           nightSpeak(state.language === "es" ? nextTask.prompt_es : nextTask.prompt_en, state.language);
-        }, 1500);
+        }, 500);
       } else {
         stopNightMusic();
-        setTimeout(() => onWin(enabledTasks.length), 700);
+        setTimeout(() => onWin(enabledTasks.length), 600);
       }
-    }, 1000);
+    });
   };
 
   return (
@@ -446,7 +476,7 @@ export function NightScreen({
           return (
             <div
               key={task.label}
-              onClick={() => !isLocked && handleTap(idx)}
+              onClick={() => !isLocked && !done && handleTap(idx)}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -463,7 +493,7 @@ export function NightScreen({
                   : isActive
                   ? "1.5px solid rgba(167,139,250,0.6)"
                   : "1.5px solid rgba(255,255,255,0.07)",
-                cursor: isLocked ? "default" : "pointer",
+                cursor: isLocked || done ? "default" : "pointer",
                 opacity: isLocked ? 0.35 : 1,
                 transform: isCelebrating ? "scale(1.04)" : "scale(1)",
                 transition: "all 0.25s ease",
@@ -559,7 +589,15 @@ export function NightWinScreen({ state, onParent, onNext, onSwitchChild }: Night
       : `Sleep tight, ${state.childName}.`;
 
   useEffect(() => {
-    nightSpeak(spokenMessage, state.language);
+    // Cancel any leftover speech from the routine, wait for screen transition, then speak
+    window.speechSynthesis?.cancel();
+    const timer = setTimeout(() => {
+      nightSpeak(spokenMessage, state.language);
+    }, 800);
+    return () => {
+      clearTimeout(timer);
+      window.speechSynthesis?.cancel();
+    };
   }, []);
 
   return (
@@ -607,238 +645,138 @@ export function NightWinScreen({ state, onParent, onNext, onSwitchChild }: Night
 
       <h1
         style={{
-          color: "#e9e3f7",
-          fontSize: 28,
-          fontWeight: 700,
-          marginTop: 24,
+          color: "#e2d9f3",
+          fontSize: 30,
+          fontWeight: 800,
+          marginTop: 20,
+          marginBottom: 6,
           textAlign: "center",
           position: "relative",
           zIndex: 10,
-          animation: "slideUp 0.6s ease forwards",
+          fontFamily: "'Fredoka One', cursive",
         }}
       >
         {message}
       </h1>
 
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          marginTop: 16,
-          marginBottom: 8,
-          position: "relative",
-          zIndex: 10,
-          animation: "slideUp 0.7s ease forwards",
-        }}
-      >
-        {Array.from({ length: Math.min(state.stars, 6) }).map((_, i) => (
-          <span key={i} style={{ fontSize: 22, animation: `popIn 0.4s ease ${i * 0.08}s both` }}>⭐</span>
-        ))}
-      </div>
+      <p style={{ color: "rgba(196,181,253,0.65)", fontSize: 14, marginBottom: 28, position: "relative", zIndex: 10 }}>
+        All bedtime tasks done ✦
+      </p>
 
       <div
         style={{
-          maxWidth: 400,
+          maxWidth: 380,
           width: "100%",
-          marginTop: 28,
-          padding: "28px",
+          padding: "24px",
           borderRadius: 24,
           background: "rgba(255,255,255,0.04)",
           border: "1px solid rgba(167,139,250,0.2)",
+          marginBottom: 32,
           position: "relative",
           zIndex: 10,
-          animation: "slideUp 0.8s ease forwards",
         }}
       >
-        <div
-          style={{
-            color: "rgba(196,181,253,0.7)",
-            fontSize: 11,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            marginBottom: 14,
-          }}
-        >
+        <div style={{ color: "rgba(196,181,253,0.6)", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 10 }}>
           ✦ Tonight's Story
         </div>
-        <p
-          style={{
-            color: "rgba(224,214,246,0.85)",
-            fontSize: 15,
-            lineHeight: 1.75,
-            margin: 0,
-            fontStyle: "italic",
-          }}
-        >
+        <p style={{ color: "rgba(224,214,246,0.8)", fontSize: 14, lineHeight: 1.75, margin: 0, fontStyle: "italic" }}>
           {story}
         </p>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-          marginTop: 32,
-          width: "100%",
-          maxWidth: 360,
-          position: "relative",
-          zIndex: 10,
-          animation: "slideUp 0.9s ease forwards",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%", maxWidth: 320, position: "relative", zIndex: 10 }}>
         <button
           onClick={onNext}
           style={{
-            background: "linear-gradient(135deg, #7c3aed, #4c1d95)",
+            fontFamily: "'Fredoka One', cursive",
+            fontSize: 18,
+            padding: "16px 32px",
+            borderRadius: 50,
             border: "none",
-            borderRadius: 18,
-            color: "#f3f0ff",
-            fontSize: 16,
-            fontFamily: "inherit",
-            fontWeight: 700,
-            padding: "17px 24px",
             cursor: "pointer",
-            boxShadow: "0 4px 24px rgba(124,58,237,0.4)",
+            background: "linear-gradient(135deg, #7c3aed, #a78bfa)",
+            color: "white",
+            boxShadow: "0 6px 24px rgba(124,58,237,0.4)",
           }}
         >
-          🌙 Done for Tonight
+          Done for Tonight 🌙
         </button>
-
         {onSwitchChild && (
           <button
             onClick={onSwitchChild}
             style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              borderRadius: 18,
-              color: "rgba(200,185,240,0.7)",
-              fontSize: 14,
-              fontFamily: "inherit",
-              padding: "14px 24px",
+              fontFamily: "'Fredoka One', cursive",
+              fontSize: 16,
+              padding: "14px 28px",
+              borderRadius: 50,
+              border: "2px solid rgba(167,139,250,0.4)",
               cursor: "pointer",
+              background: "rgba(167,139,250,0.1)",
+              color: "#c4b5fd",
             }}
           >
-            👶 Switch Child
+            🌟 Switch Child
           </button>
         )}
-
         <button
           onClick={onParent}
           style={{
-            background: "transparent",
-            border: "none",
-            color: "rgba(167,139,250,0.5)",
-            fontSize: 13,
-            fontFamily: "inherit",
-            padding: "8px",
+            fontFamily: "'Fredoka One', cursive",
+            fontSize: 14,
+            padding: "10px 24px",
+            borderRadius: 50,
+            border: "1px solid rgba(255,255,255,0.1)",
             cursor: "pointer",
+            background: "transparent",
+            color: "rgba(255,255,255,0.4)",
           }}
         >
-          ⚙️ Parent Settings
+          Parent Dashboard →
         </button>
       </div>
-
-      <style>{`
-        @keyframes twinkle {
-          0%, 100% { opacity: 0; transform: scale(0.6); }
-          50% { opacity: 0.9; transform: scale(1.2); }
-        }
-        @keyframes floatMoon {
-          0%, 100% { transform: translateY(0px) rotate(-5deg); }
-          50% { transform: translateY(-10px) rotate(5deg); }
-        }
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(18px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes popIn {
-          0% { opacity: 0; transform: scale(0.4); }
-          70% { transform: scale(1.2); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-        @keyframes glowPulse {
-          0%, 100% { box-shadow: 0 0 12px rgba(167,139,250,0.3); }
-          50% { box-shadow: 0 0 28px rgba(167,139,250,0.7); }
-        }
-      `}</style>
     </div>
   );
 }
 
+// ── Routine mode toggle pill (☀️ / 🌙) ──
 interface RoutineModeToggleProps {
   mode: "morning" | "night";
-  onChange: (m: "morning" | "night") => void;
+  onChange: (mode: "morning" | "night") => void;
 }
 
 export function RoutineModeToggle({ mode, onChange }: RoutineModeToggleProps) {
-  const isNight = mode === "night";
-
   return (
     <div
       style={{
         display: "inline-flex",
-        alignItems: "center",
-        borderRadius: 999,
+        background: "rgba(0,0,0,0.25)",
+        borderRadius: 50,
         padding: 4,
-        background: isNight
-          ? "linear-gradient(135deg, #0d0d2b, #1a0a2e)"
-          : "linear-gradient(135deg, #fef3c7, #fde68a)",
-        border: isNight
-          ? "1.5px solid rgba(167,139,250,0.35)"
-          : "1.5px solid rgba(251,191,36,0.5)",
-        boxShadow: isNight
-          ? "0 2px 14px rgba(88,28,220,0.25)"
-          : "0 2px 14px rgba(251,191,36,0.25)",
-        transition: "all 0.35s ease",
-        userSelect: "none",
+        gap: 2,
+        backdropFilter: "blur(10px)",
+        border: "1px solid rgba(255,255,255,0.15)",
       }}
     >
-      <button
-        onClick={() => onChange("morning")}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "7px 16px",
-          borderRadius: 999,
-          border: "none",
-          cursor: "pointer",
-          fontSize: 13,
-          fontFamily: "'Nunito', sans-serif",
-          fontWeight: 700,
-          transition: "all 0.3s ease",
-          background: !isNight ? "linear-gradient(135deg, #f59e0b, #fbbf24)" : "transparent",
-          color: !isNight ? "#7c2d12" : "rgba(167,139,250,0.55)",
-          boxShadow: !isNight ? "0 2px 10px rgba(245,158,11,0.4)" : "none",
-        }}
-      >
-        <span>☀️</span>
-        <span>Morning</span>
-      </button>
-
-      <button
-        onClick={() => onChange("night")}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "7px 16px",
-          borderRadius: 999,
-          border: "none",
-          cursor: "pointer",
-          fontSize: 13,
-          fontFamily: "'Nunito', sans-serif",
-          fontWeight: 700,
-          transition: "all 0.3s ease",
-          background: isNight ? "linear-gradient(135deg, #4c1d95, #7c3aed)" : "transparent",
-          color: isNight ? "#e9e3f7" : "rgba(120,53,15,0.45)",
-          boxShadow: isNight ? "0 2px 10px rgba(124,58,237,0.45)" : "none",
-        }}
-      >
-        <span>🌙</span>
-        <span>Night</span>
-      </button>
+      {(["morning", "night"] as const).map((m) => (
+        <button
+          key={m}
+          onClick={() => onChange(m)}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 50,
+            border: "none",
+            cursor: "pointer",
+            fontSize: 13,
+            fontWeight: 700,
+            fontFamily: "'Nunito', sans-serif",
+            background: mode === m ? "rgba(255,255,255,0.9)" : "transparent",
+            color: mode === m ? (m === "night" ? "#4c1d95" : "#ff5f1f") : "rgba(255,255,255,0.6)",
+            transition: "all 0.2s ease",
+          }}
+        >
+          {m === "morning" ? "☀️ Morning" : "🌙 Bedtime"}
+        </button>
+      ))}
     </div>
   );
 }
