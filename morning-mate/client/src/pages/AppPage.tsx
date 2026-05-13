@@ -1139,18 +1139,7 @@ function PostSignupPricingScreen({ onContinueFree }: { onContinueFree: () => voi
       border: "#ff9a3c",
       price: period === "month" ? "$9.99/mo" : "$79.99/yr",
       sub: period === "year" ? "($6.67/mo)" : undefined,
-      features: ["Up to 5 child profiles", "Parents' Voice recording", "Bilingual EN/ES", "Stars & streaks"],
-    },
-    {
-      tier: "gold" as const,
-      name: "GlowJo +",
-      emoji: "🌙",
-      color: "#fff",
-      bg: "linear-gradient(135deg,#1a1a3e,#2d2060)",
-      border: "#7c3aed",
-      price: period === "month" ? "$14.99/mo" : "$119.99/yr",
-      sub: period === "year" ? "($10/mo)" : undefined,
-      features: ["Everything in GlowJo", "🌙 Night Mode", "Bedtime stories", "Calm ambient music", "Early access features"],
+      features: ["Up to 5 child profiles", "🌙 Night Mode", "Parents' Voice recording", "Bilingual EN/ES", "Stars & streaks"],
     },
   ];
 
