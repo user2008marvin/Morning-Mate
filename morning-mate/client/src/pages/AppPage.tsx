@@ -1070,9 +1070,13 @@ function ChildSelector({ children, onSelect, nightMode, onModeChange }: {
       </div>
       <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 14 }}>
         {children.map((child: any) => {
-          const doneToday = child.lastCompletedDate
+          const morningDoneToday = child.lastCompletedDate
             ? new Date(child.lastCompletedDate).toDateString() === todayStr
             : false;
+          const nightDoneToday = localStorage.getItem(`gj_night_done_${child.id}`) === todayStr;
+          // In night mode: done = night completed. In morning mode: done = morning completed.
+          const doneToday = isNight ? nightDoneToday : morningDoneToday;
+          const doneLabel = isNight ? "🌙 Bedtime done — great work!" : "✅ Morning done — great work!";
           return (
             <button
               key={child.id}
@@ -1096,7 +1100,7 @@ function ChildSelector({ children, onSelect, nightMode, onModeChange }: {
                   {child.name}
                 </div>
                 <div style={{ fontSize: 13, color: doneToday ? "rgba(255,255,255,0.7)" : "#888", marginTop: 2 }}>
-                  {doneToday ? "✅ Morning done — great work!" : `⭐ ${child.stars ?? 0} stars · 🔥 ${child.streak ?? 0} streak`}
+                  {doneToday ? doneLabel : `⭐ ${child.stars ?? 0} stars · 🔥 ${child.streak ?? 0} streak`}
                 </div>
               </div>
               <div style={{ fontSize: 22, color: doneToday ? "rgba(255,255,255,0.6)" : (isNight ? "#a78bfa" : "#ff9a3c") }}>
