@@ -333,9 +333,7 @@ async function startServer() {
     const results: Record<string, any> = {};
     try {
       const tiers = [
-        { key: "starter", name: "GlowJo Starter", monthlyPrice: 499, yearlyPrice: 4990 },
-        { key: "plus",    name: "GlowJo Plus",    monthlyPrice: 999, yearlyPrice: 9990 },
-        { key: "gold",    name: "GlowJo Gold",    monthlyPrice: 1499, yearlyPrice: 14990 },
+        { key: "plus", name: "GlowJo Plus", monthlyPrice: 999, yearlyPrice: 9990 },
       ];
       for (const tier of tiers) {
         // Check if product already exists
