@@ -275,16 +275,8 @@ export const stripeRouter = router({
                 : typeof product === "object" && product !== null
                 ? (product as { id: string }).id : "";
 
-              // Map by product name (preferred) or by known product ID
-              const idMap: Record<string, "starter" | "plus" | "gold"> = {
-                "prod_UFv1lk6xTeRu0r": "starter",
-                "prod_UFv7wwXLIFTBhw": "plus",
-                "prod_UFvCIa9o0bg0Ei": "gold",
-              };
-              if (productName.includes("starter") || productName.includes("glowjo starter")) resolvedTier = "starter";
-              else if (productName.includes("plus") || productName.includes("glowjo plus")) resolvedTier = "plus";
-              else if (productName.includes("gold") || productName.includes("glowjo gold")) resolvedTier = "gold";
-              else if (productId && idMap[productId]) resolvedTier = idMap[productId];
+              // All GlowJo products map to plus — single paid tier
+              resolvedTier = "plus";
             } catch (tierErr) {
               console.warn(`[Stripe] Could not resolve tier for subscription ${subscription.id}:`, tierErr);
             }
