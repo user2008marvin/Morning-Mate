@@ -184,12 +184,7 @@ export const stripeRouter = router({
           const sub = subs.data[0];
           const product = sub.items.data[0]?.price?.product as Stripe.Product | undefined;
           const productId = typeof product === "string" ? product : product?.id;
-          const tierMap: Record<string, "starter" | "plus" | "gold"> = {
-            "prod_UFv1lk6xTeRu0r": "starter",
-            "prod_UFv7wwXLIFTBhw": "plus",
-            "prod_UFvCIa9o0bg0Ei": "gold",
-          };
-          const tier = productId ? (tierMap[productId] ?? "starter") : "starter";
+          const tier = "plus" as const; // all products map to single paid tier
 
           await db.updateSubscription(ctx.user.id, {
             tier,
