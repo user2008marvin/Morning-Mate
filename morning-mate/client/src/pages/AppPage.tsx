@@ -1293,12 +1293,14 @@ export default function AppPage() {
   // Merge DB child profile into local state
   useEffect(() => {
     if (!children?.length) return;
+    // don't interrupt win or done-today screens
+    if (screen === "win" || screen === "done-today") return;
+    // don't reload if already have a child loaded this session
+    if (childId !== null) return;
+
     if (children.length === 1) {
-      // Only one child — load automatically as before
       loadChild(children[0]);
     } else {
-      // Multiple children — always show picker so each sign-in starts fresh
-      setChildId(null);
       setScreen("child-select");
     }
   }, [children]);
