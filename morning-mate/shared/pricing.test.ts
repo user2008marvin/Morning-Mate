@@ -1,63 +1,80 @@
 import { describe, it, expect } from "vitest";
-import { hasFeatureAccess, getMaxChildProfiles, getMaxTasks, TIER_CONFIG } from "./pricing";
+import { hasFeatureAccess, getMaxChildProfiles, getMaxTasks, TIER_CONFIG, isPaidTier } from "./pricing";
 
-describe("Pricing Utilities", () => {
+describe("Pricing Utilities — 2-tier model (freemium + plus)", () => {
+
   describe("TIER_CONFIG", () => {
-    it("should have all 4 tiers defined", () => {
-      expect(Object.keys(TIER_CONFIG)).toHaveLength(4);
-      expect(TIER_CONFIG).toHaveProperty("freemium");
-      expect(TIER_CONFIG).toHaveProperty("starter");
-      expect(TIER_CONFIG).toHaveProperty("plus");
-      expect(TIER_CONFIG).toHaveProperty("gold");
+    it("freemium should have limited features", () => {
+      const f = TIER_CONFIG.freemium;
+      expect(f.price).toBe(0);
+      expect(f.features.childProfiles).toBe(2);
+      expect(f.features.maxTasks).toBe(6);
+      expect(f.features.voiceEncouragement).toBe(false);
+      expect(f.features.bilingualMode).toBe(false);
+      expect(f.features.momsVoiceMode).toBe(false);
+      expect(f.features.parentDashboard).toBe("none");
     });
 
-    it("freemium tier should have limited features", () => {
-      const freemium = TIER_CONFIG.freemium;
-      expect(freemium.price).toBe(0);
-      expect(freemium.features.childProfiles).toBe(1);
-      expect(freemium.features.maxTasks).toBe(3);
-      expect(freemium.features.voiceEncouragement).toBe(false);
-      expect(freemium.features.bilingualMode).toBe(false);
-      expect(freemium.features.parentDashboard).toBe("none");
+    it("plus should have all paid features", () => {
+      const p = TIER_CONFIG.plus;
+      expect(p.price).toBe(9.99);
+      expect(p.yearlyPrice).toBe(79.99);
+      expect(p.features.childProfiles).toBe(5);
+      expect(p.features.maxTasks).toBe(6);
+      expect(p.features.voiceEncouragement).toBe(true);
+      expect(p.features.bilingualMode).toBe(true);
+      expect(p.features.momsVoiceMode).toBe(true);
+      expect(p.features.parentDashboard).toBe("full");
+      expect(p.features.prioritySupport).toBe(true);
     });
 
-    it("gold tier should have all features", () => {
-      const gold = TIER_CONFIG.gold;
-      expect(gold.price).toBe(12.99);
-      expect(gold.features.childProfiles).toBe(4);
-      expect(gold.features.maxTasks).toBe(6);
-      expect(gold.features.voiceEncouragement).toBe(true);
-      expect(gold.features.pdfReports).toBe(true);
+    it("starter and gold should behave like plus (legacy compatibility)", () => {
+      expect(TIER_CONFIG.starter.features.childProfiles).toBe(5);
+      expect(TIER_CONFIG.gold.features.childProfiles).toBe(5);
+      expect(TIER_CONFIG.starter.features.voiceEncouragement).toBe(true);
+      expect(TIER_CONFIG.gold.features.voiceEncouragement).toBe(true);
+    });
+  });
+
+  describe("isPaidTier", () => {
+    it("freemium is not paid", () => {
+      expect(isPaidTier("freemium")).toBe(false);
+    });
+    it("plus is paid", () => {
+      expect(isPaidTier("plus")).toBe(true);
+    });
+    it("starter and gold are treated as paid", () => {
+      expect(isPaidTier("starter")).toBe(true);
+      expect(isPaidTier("gold")).toBe(true);
     });
   });
 
   describe("hasFeatureAccess", () => {
-    it("should return true for features enabled in tier", () => {
-      expect(hasFeatureAccess("starter", "voiceEncouragement")).toBe(true);
-      expect(hasFeatureAccess("gold", "pdfReports")).toBe(true);
-    });
-
-    it("should return false for features disabled in tier", () => {
+    it("freemium has no voice or bilingual", () => {
       expect(hasFeatureAccess("freemium", "voiceEncouragement")).toBe(false);
-      expect(hasFeatureAccess("starter", "pdfReports")).toBe(false);
+      expect(hasFeatureAccess("freemium", "bilingualMode")).toBe(false);
+      expect(hasFeatureAccess("freemium", "momsVoiceMode")).toBe(false);
+    });
+    it("plus has voice and bilingual", () => {
+      expect(hasFeatureAccess("plus", "voiceEncouragement")).toBe(true);
+      expect(hasFeatureAccess("plus", "bilingualMode")).toBe(true);
+      expect(hasFeatureAccess("plus", "momsVoiceMode")).toBe(true);
     });
   });
 
   describe("getMaxChildProfiles", () => {
-    it("should return correct max profiles for each tier", () => {
-      expect(getMaxChildProfiles("freemium")).toBe(1);
-      expect(getMaxChildProfiles("starter")).toBe(1);
-      expect(getMaxChildProfiles("plus")).toBe(2);
-      expect(getMaxChildProfiles("gold")).toBe(4);
+    it("freemium gets 2 profiles", () => {
+      expect(getMaxChildProfiles("freemium")).toBe(2);
+    });
+    it("plus gets 5 profiles", () => {
+      expect(getMaxChildProfiles("plus")).toBe(5);
     });
   });
 
   describe("getMaxTasks", () => {
-    it("should return correct max tasks for each tier", () => {
-      expect(getMaxTasks("freemium")).toBe(3);
-      expect(getMaxTasks("starter")).toBe(6);
+    it("all tiers get 6 tasks", () => {
+      expect(getMaxTasks("freemium")).toBe(6);
       expect(getMaxTasks("plus")).toBe(6);
-      expect(getMaxTasks("gold")).toBe(6);
     });
   });
 });
