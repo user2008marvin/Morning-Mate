@@ -227,7 +227,7 @@ export function NightScreen({
   bilingualEnabled,
   sendMode,
 }: NightScreenProps) {
-  const enabledTasks = TASKS_NIGHT_EN.filter((_, i) => state.enabledTasks[i] !== false);
+  const enabledTasks = TASKS_NIGHT_EN;
   const [completed, setCompleted] = useState<boolean[]>(Array(enabledTasks.length).fill(false));
   const [active, setActive] = useState<number | null>(null);
   const [celebrating, setCelebrating] = useState<number | null>(null);
