@@ -232,7 +232,7 @@ export default function Home() {
   const [emailStatus, setEmailStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [emailError, setEmailError] = useState("");
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [pendingTier, setPendingTier] = useState<"starter" | "plus" | "gold" | null>(null);
+  const [pendingTier, setPendingTier] = useState<"plus" | null>(null);
   const [pendingNav, setPendingNav] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 520);
   const [songPlaying, setSongPlaying] = useState(false);
@@ -307,7 +307,7 @@ export default function Home() {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const [billingPeriod, setBillingPeriod] = useState<"month" | "year">("month");
 
-  const doCheckout = async (tier: "starter" | "plus" | "gold") => {
+  const doCheckout = async (tier: "plus") => {
     setLoadingTier(tier);
     try {
       const session = await stripeCheckoutMutation.mutateAsync({ tier, billingPeriod });
@@ -325,7 +325,7 @@ export default function Home() {
     }
   };
 
-  const handleCheckout = (tier: "starter" | "plus" | "gold") => {
+  const handleCheckout = (tier: "plus") => {
     if (!meQuery.data) {
       setPendingTier(tier);
       setAuthModalOpen(true);
@@ -717,7 +717,7 @@ export default function Home() {
                   return (
                     <button
                       disabled={loadingTier !== null}
-                      onClick={() => plan.tier === null ? handleFreeStart() : handleCheckout(plan.tier as "starter" | "plus" | "gold")}
+                      onClick={() => plan.tier === null ? handleFreeStart() : handleCheckout("plus")}
                       style={{ width: "100%", padding: "13px 24px", borderRadius: 30, border: "none", fontFamily: "'Fredoka One',cursive", fontSize: 16, fontWeight: 700, cursor: loadingTier !== null ? "wait" : "pointer", background: btnBg, color: btnColor, transition: "opacity 0.2s", opacity: loadingTier !== null && loadingTier !== plan.tier ? 0.5 : 1 }}
                     >
                       {plan.tier !== null && loadingTier === plan.tier ? "Opening Stripe…" : plan.cta}
