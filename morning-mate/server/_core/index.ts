@@ -149,7 +149,7 @@ async function startServer() {
           }
 
           const userId = session.metadata?.userId ? parseInt(session.metadata.userId) : null;
-          const tier = session.metadata?.tier as "starter" | "plus" | "gold" | undefined;
+          const tier = "plus" as const; // always activate plus regardless of metadata
           if (userId && tier) {
             await updateSubscription(userId, {
               tier,
