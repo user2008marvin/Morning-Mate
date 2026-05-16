@@ -756,8 +756,10 @@ export default function ParentDashboard() {
     },
   });
 
+  const syncAttempted = useRef(false);
   useEffect(() => {
-    if (tier === "freemium" && user && !syncSubscription.isPending && !syncSubscription.isSuccess) {
+    if (tier === "freemium" && user && !syncAttempted.current) {
+      syncAttempted.current = true;
       syncSubscription.mutate();
     }
   }, [tier, user]);
