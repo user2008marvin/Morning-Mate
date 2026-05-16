@@ -1233,7 +1233,7 @@ export default function AppPage() {
     (localStorage.getItem("gj_routine_mode") as "morning" | "night") || "morning"
   );
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const { tier } = useSubscription();
+  const { tier, isLoading: subLoading } = useSubscription();
   const bilingualEnabled = tier !== "freemium";
 
   // Auth + child profile from DB
@@ -1441,8 +1441,9 @@ export default function AppPage() {
   }
 
   // Subscription gate — freemium users get 2 days free, then see the paywall.
+  // Skip while subscription is still loading to avoid a flash of the paywall.
   // Skip if already on the pricing/onboarding screen (new signup flow).
-  if (!isDemo && user && tier === "freemium" && screen !== "pricing" && screen !== "onboarding") {
+  if (!isDemo && !subLoading && user && tier === "freemium" && screen !== "pricing" && screen !== "onboarding") {
     const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
     const accountAge = user.createdAt ? Date.now() - new Date(user.createdAt as string).getTime() : TWO_DAYS_MS + 1;
     if (accountAge > TWO_DAYS_MS) {
