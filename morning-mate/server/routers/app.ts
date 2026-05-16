@@ -171,7 +171,7 @@ export const appRouter = router({
       return {
         stars: newStars,
         streak: newStreak,
-        completedToday: completedDays.includes(today),
+        completedToday: true,
       };
     }),
 });
