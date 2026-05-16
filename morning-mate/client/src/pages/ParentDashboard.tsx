@@ -65,7 +65,7 @@ function ChildCard({
   child: Child; onEdit: (c: Child) => void; onDelete: (id: number) => void; canDelete: boolean;
 }) {
   const tasks = child.enabledTasks ? JSON.parse(child.enabledTasks) : [true, true, true, true, true, true];
-  const taskLabels = ["☀️ Wake Up", "🛁 Shower", "🥛 Breakfast", "🪥 Teeth", "🎒 Pack Bag", "🚀 Let's Go"];
+  const taskLabels = ["☀️ Wake Up", "🪥 Brush Teeth", "🧼 Wash Face", "👕 Get Dressed", "👟 Shoes On", "🚀 Let's Go"];
   const enabledCount = (tasks as boolean[]).filter(Boolean).length;
   const sendOn = child.id ? localStorage.getItem(`gj_send_${child.id}`) === "1" : false;
 
