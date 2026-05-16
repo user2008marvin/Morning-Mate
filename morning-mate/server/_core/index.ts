@@ -15,14 +15,15 @@ import { serveStatic, setupVite } from "./vite";
 import { getUserByStripeCustomerId, getUserByStripeSubscriptionId, updateSubscription, cancelSubscription } from "../db";
 
 // Map Stripe product IDs → subscription tiers (product IDs are stable, unlike price IDs)
-const PRODUCT_TO_TIER: Record<string, "starter" | "plus" | "gold"> = {
-  "prod_UFv1lk6xTeRu0r": "starter", // GlowJo Starter — $4.99
-  "prod_UFv7wwXLIFTBhw": "plus",    // GlowJo Plus   — $9.99
-  "prod_UFvCIa9o0bg0Ei": "gold",    // GlowJo Gold   — $14.99
+// All existing product IDs map to plus — one paid tier
+const PRODUCT_TO_TIER: Record<string, "plus"> = {
+  "prod_UFv1lk6xTeRu0r": "plus",
+  "prod_UFv7wwXLIFTBhw": "plus",
+  "prod_UFvCIa9o0bg0Ei": "plus",
 };
 
-function tierFromProductId(productId: string): "starter" | "plus" | "gold" {
-  return PRODUCT_TO_TIER[productId] ?? "starter";
+function tierFromProductId(_productId: string): "plus" {
+  return "plus";
 }
 
 function isPortAvailable(port: number): Promise<boolean> {
