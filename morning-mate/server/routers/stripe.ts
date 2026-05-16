@@ -9,7 +9,7 @@ import * as db from "../db";
  * Syncs subscription data to database and sends email notifications
  */
 
-const rawStripeKey = (process.env.STRIPE_SECRET_KEY || "").replace(/^=+/, "").trim();
+const rawStripeKey = (process.env.STRIPE_SECRET_KEY || "sk_test_placeholder").replace(/^=+/, "").trim();
 const stripe = new Stripe(rawStripeKey);
 
 export const stripeRouter = router({
@@ -191,8 +191,8 @@ export const stripeRouter = router({
             stripeCustomerId: customer.id,
             stripeSubscriptionId: sub.id,
             status: "active",
-            currentPeriodEnd: sub.current_period_end
-              ? new Date(sub.current_period_end * 1000)
+            currentPeriodEnd: (sub as any).current_period_end
+              ? new Date((sub as any).current_period_end * 1000)
               : undefined,
           });
 
