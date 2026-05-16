@@ -1258,9 +1258,10 @@ export default function AppPage() {
   // Load a specific child's data into app state
   function loadChild(child: any) {
     setChildId(child.id);
-    // Preserve the user's saved routine mode — don't reset to morning
-    // (Night mode gate is enforced by the RoutineModeToggle when switching)
-    const savedMode = (localStorage.getItem("gj_routine_mode") as "morning" | "night") || "morning";
+    // Freemium users are always in morning mode — clear any stale night preference
+    const rawMode = (localStorage.getItem("gj_routine_mode") as "morning" | "night") || "morning";
+    const savedMode = (tier === "freemium" && rawMode === "night") ? "morning" : rawMode;
+    if (savedMode !== rawMode) localStorage.setItem("gj_routine_mode", "morning");
     setRoutineMode(savedMode);
     // Load SEND mode preference for this child
     const sm = localStorage.getItem(`gj_send_${child.id}`) === "1";
