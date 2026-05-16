@@ -13,7 +13,7 @@ export const appRouter = router({
 
   /**
    * Create a new child profile
-   * Respects tier limits (freemium: 1, starter: 1, plus: 2, gold: 4)
+   * Respects tier limits (freemium: 2, plus: 5; starter/gold treated as plus)
    */
   createChild: protectedProcedure
     .input(
@@ -37,7 +37,7 @@ export const appRouter = router({
       if (existing.length >= maxProfiles) {
         const tierMessages: Record<string, string> = {
           freemium: "Free accounts support up to 2 child profiles. Upgrade to GlowJo for up to 5 profiles",
-          starter: "Upgrade to GlowJo for up to 5 child profiles",
+          starter: "You have reached the maximum of 5 child profiles on GlowJo",
           plus: "You have reached the maximum of 5 child profiles on GlowJo",
           gold: "You have reached the maximum of 5 child profiles on GlowJo",
         };
