@@ -10,7 +10,7 @@ import { saveRecording, getRecording, deleteRecording, getSupportedMimeType } fr
 const BG = "linear-gradient(180deg, #4facfe 0%, #ff9a3c 60%, #ff6b35 100%)";
 
 const TIER_LABELS: Record<string, string> = {
-  freemium: "Free", starter: "GlowJo ⭐", plus: "GlowJo ⭐", gold: "GlowJo+ ⭐",
+  freemium: "Free", starter: "GlowJo ⭐", plus: "GlowJo ⭐", gold: "GlowJo ⭐",
 };
 
 function LoginPrompt() {
