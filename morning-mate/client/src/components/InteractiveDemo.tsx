@@ -11,12 +11,12 @@ export function InteractiveDemo({ isOpen, onClose }: { isOpen: boolean; onClose:
   const [stars, setStars] = useState(0);
 
   const tasks = [
-    { emoji: "☀️", label: "WAKE UP!", voice: "Rise and shine superstar!" },
-    { emoji: "🛁", label: "SHOWER TIME!", voice: "Clean champion coming through!" },
-    { emoji: "🥛", label: "EAT BREAKFAST!", voice: "Fuel up! You are a rocket!" },
-    { emoji: "🪥", label: "BRUSH TEETH!", voice: "Shiniest smile in the world!" },
-    { emoji: "🎒", label: "PACK YOUR BAG!", voice: "Zip it up! Ready to fly!" },
-    { emoji: "🚀", label: "LET'S GO!", voice: "Daily winner! You are LEGENDARY!" },
+    { emoji: "☀️", label: "WAKE UP!",        voice: "Rise and shine superstar!" },
+    { emoji: "🪥", label: "BRUSH TEETH!",    voice: "Shiniest smile in the world!" },
+    { emoji: "🧼", label: "WASH YOUR FACE!", voice: "Fresh face — looking amazing!" },
+    { emoji: "👕", label: "GET DRESSED!",    voice: "You look absolutely wonderful!" },
+    { emoji: "👟", label: "PUT ON SHOES!",   voice: "Shoes on — brilliant! Almost there!" },
+    { emoji: "🚀", label: "LET'S GO!",       voice: "Daily winner! You are LEGENDARY!" },
   ];
 
   const handleTaskComplete = () => {
