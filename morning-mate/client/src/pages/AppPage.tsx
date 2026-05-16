@@ -527,7 +527,7 @@ function MainScreen({
   const [countdown, setCountdown] = useState(getCountdown(state.schoolTime));
   const [ringProgress, setRingProgress] = useState(0);
   const [flashSticker, setFlashSticker] = useState<string | null>(null);
-  const ringTimer = useRef<ReturnType<typeof setInterval>>();
+  const ringTimer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const confettiRef = useRef<HTMLDivElement>(null);
   const halfwaySpoken = useRef(false);
 
@@ -579,7 +579,7 @@ function MainScreen({
     unlockAudioContext(); // pre-warm audio context on first gesture — fixes desktop Chrome async play
     if (!started) {
       setStarted(true);
-      startRing(activeTasks[0]?.timerSeconds ?? 180, activeTasks[0]?.label); return;
+      startRing(180, activeTasks[0]?.label); return;
     }
     if (!currentTask || flashSticker) return;
     const completion = state.language === "es" ? currentTask.voice_es : currentTask.voice_en;
@@ -1044,7 +1044,7 @@ function ChildSelector({ children, onSelect, nightMode, onModeChange }: {
           <button
             onClick={() => onModeChange("night")}
             style={{
-              flex: 1, padding: "22px 12px", borderRadius: 22, border: "none", cursor: "pointer",
+              flex: 1, padding: "22px 12px", borderRadius: 22, cursor: "pointer",
               background: isNight ? "rgba(167,139,250,0.25)" : "rgba(255,255,255,0.12)",
               boxShadow: isNight ? "0 6px 24px rgba(167,139,250,0.35)" : "none",
               border: isNight ? "2px solid rgba(167,139,250,0.6)" : "2px solid transparent",
@@ -1366,7 +1366,7 @@ export default function AppPage() {
       weekDays: newWeekDays,
       weekStartDate: mondayStr,
       lastDate: todayStr,
-      stickersUnlocked: [...new Set([...appState.stickersUnlocked, WIN_STICKERS[Math.min(appState.stars, WIN_STICKERS.length - 1)]])]
+      stickersUnlocked: Array.from(new Set([...appState.stickersUnlocked, WIN_STICKERS[Math.min(appState.stars, WIN_STICKERS.length - 1)]]))
     };
     updateState(updates);
     if (childId) {
@@ -1447,7 +1447,7 @@ export default function AppPage() {
   // Skip if already on the pricing/onboarding screen (new signup flow).
   if (!isDemo && !subLoading && user && tier === "freemium" && screen !== "pricing" && screen !== "onboarding") {
     const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
-    const accountAge = user.createdAt ? Date.now() - new Date(user.createdAt as string).getTime() : TWO_DAYS_MS + 1;
+    const accountAge = user.createdAt ? Date.now() - new Date(user.createdAt as unknown as string).getTime() : TWO_DAYS_MS + 1;
     if (accountAge > TWO_DAYS_MS) {
       return <PostSignupPricingScreen trialExpired />;
     }
