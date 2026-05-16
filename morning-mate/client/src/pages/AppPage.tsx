@@ -272,9 +272,9 @@ const TASK_MUSIC_POOL: Record<string, string[]> = {
   //                           Sun                          Mon                         Tue                           Wed                           Thu                          Fri                           Sat
   "WAKE UP!":       ["/music/jump-time.mp3",      "/music/cheery-monday.mp3",  "/music/brightly-fancy.mp3",  "/music/friday-morning.mp3",  "/music/carefree.mp3",       "/music/fun-in-a-bottle.mp3", "/music/happy-bee.mp3"       ],
   "BRUSH TEETH!":   ["/music/dancing-silly.mp3",  "/music/curious-kiddo.mp3",  "/music/comedy.mp3",          "/music/duck-duck-goose.mp3", "/music/happy-alley.mp3",    "/music/brain-dance.mp3",     "/music/funin-and-sunin.mp3" ],
-  "SHOWER TIME!":   ["/music/cute.mp3",           "/music/cookie.mp3",         "/music/happy-story.mp3",     "/music/bright-wish.mp3",     "/music/brain-dance.mp3",    "/music/carefree.mp3",        "/music/cheery-monday.mp3"   ],
+  "WASH YOUR FACE!":["/music/cute.mp3",           "/music/cookie.mp3",         "/music/happy-story.mp3",     "/music/bright-wish.mp3",     "/music/brain-dance.mp3",    "/music/carefree.mp3",        "/music/cheery-monday.mp3"   ],
   "GET DRESSED!":   ["/music/clap-and-sing.mp3",  "/music/sweet.mp3",          "/music/happy-story.mp3",     "/music/bright-wish.mp3",     "/music/play-date.mp3",      "/music/vacation.mp3",        "/music/brightly-fancy.mp3"  ],
-  "EAT BREAKFAST!": ["/music/good-morning.mp3",   "/music/vacation.mp3",       "/music/funin-and-sunin.mp3", "/music/happy-boy-theme.mp3", "/music/sweet.mp3",          "/music/whiskey-on-the-mississippi.mp3", "/music/winner.mp3"],
+  "PUT ON SHOES!":  ["/music/good-morning.mp3",   "/music/vacation.mp3",       "/music/funin-and-sunin.mp3", "/music/happy-boy-theme.mp3", "/music/sweet.mp3",          "/music/whiskey-on-the-mississippi.mp3", "/music/winner.mp3"],
   "LET'S GO!":      ["/music/chicken-chase.mp3",  "/music/winner.mp3",         "/music/carefree.mp3",        "/music/jump-time.mp3",       "/music/comedy.mp3",         "/music/happy-bee.mp3",       "/music/friday-morning.mp3"  ],
 };
 const DEFAULT_MUSIC_POOL = [
