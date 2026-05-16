@@ -30,13 +30,7 @@ export const stripeRouter = router({
       }
 
       // Look up product by name (works across any Stripe account)
-      const TIER_NAMES: Record<string, string> = {
-        starter: "GlowJo Starter",
-        plus:    "GlowJo Plus",
-        gold:    "GlowJo Gold",
-      };
-      const tierName = TIER_NAMES[input.tier];
-      if (!tierName) throw new Error(`Unknown tier: ${input.tier}`);
+      const tierName = "GlowJo Plus"; // single paid product in Stripe
 
       const allProducts = await stripe.products.list({ active: true, limit: 20 });
       const product = allProducts.data.find(
