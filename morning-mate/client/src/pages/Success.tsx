@@ -104,14 +104,15 @@ export default function Success() {
           <div style={{ background: "#fff8ee", borderRadius: 16, padding: "12px 16px", marginBottom: "16px", textAlign: "left" }}>
             <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#ff9a3c", marginBottom: 6, letterSpacing: 1 }}>WHAT'S UNLOCKED</div>
             <div style={{ fontSize: "0.85rem", color: "#555", lineHeight: 1.7 }}>
-              ✅ Up to 5 child profiles<br />
-              ✅ 🎤 Voice guidance — Sunny speaks every task<br />
-              ✅ 🌍 Bilingual — English + Spanish<br />
-              ✅ 🎵 Happy music every morning<br />
-              ✅ 🎙️ Parents' Voice recordings<br />
-              ✅ 🧩 SEND Mode for additional needs<br />
-              ✅ 🌙 Night Mode — full bedtime routine<br />
-              ✅ 📖 Personalised bedtime stories<br />
+              {[
+                "Up to 5 child profiles",
+                "🌙 Night Mode",
+                "Parents' Voice recording",
+                "Bilingual EN/ES",
+                "Stars & streaks",
+                "Happy music every task",
+                "Priority support",
+              ].map(f => <div key={f}>✅ {f}</div>)}
             </div>
           </div>
         )}
