@@ -703,7 +703,7 @@ export default function Home() {
                   const userTier = subscriptionQuery.data?.tier;
                   const isCurrentPlan =
                     (plan.tier === null && (!userTier || userTier === "freemium")) ||
-                    (plan.tier !== null && (userTier === plan.tier || userTier === "gold" || userTier === "starter"));
+                    (plan.tier !== null && userTier != null && userTier !== "freemium");
                   if (isCurrentPlan && meQuery.data) {
                     return (
                       <button
