@@ -48,16 +48,16 @@ export default function Success() {
   }, [status]);
 
   const tierEmoji: Record<string, string> = {
-    starter: "⭐",
     plus: "🌟",
-    gold: "🏆",
+    starter: "🌟",
+    gold: "🌟",
     freemium: "🎉",
   };
 
   const tierLabel: Record<string, string> = {
-    starter: "GlowJo",
     plus: "Plus",
-    gold: "Gold",
+    starter: "Plus",
+    gold: "Plus",
     freemium: "Free",
   };
 
@@ -104,13 +104,14 @@ export default function Success() {
           <div style={{ background: "#fff8ee", borderRadius: 16, padding: "12px 16px", marginBottom: "16px", textAlign: "left" }}>
             <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#ff9a3c", marginBottom: 6, letterSpacing: 1 }}>WHAT'S UNLOCKED</div>
             <div style={{ fontSize: "0.85rem", color: "#555", lineHeight: 1.7 }}>
-              ✅ Up to {tier === "gold" ? "5" : "3"} child profiles<br />
+              ✅ Up to 5 child profiles<br />
               ✅ 🎤 Voice guidance — Sunny speaks every task<br />
               ✅ 🌍 Bilingual — English + Spanish<br />
               ✅ 🎵 Happy music every morning<br />
               ✅ 🎙️ Parents' Voice recordings<br />
               ✅ 🧩 SEND Mode for additional needs<br />
-              {tier === "gold" && <>✅ 🌙 Night Mode — full bedtime routine<br />✅ 📖 Personalised bedtime stories<br /></>}
+              ✅ 🌙 Night Mode — full bedtime routine<br />
+              ✅ 📖 Personalised bedtime stories<br />
             </div>
           </div>
         )}
