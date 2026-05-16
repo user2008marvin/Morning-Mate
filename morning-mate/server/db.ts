@@ -147,7 +147,7 @@ export async function getDb() {
       if (cfg) {
         console.log(`[DB] Connecting with pool to ${cfg.host}:${cfg.port}/${cfg.database} (SSL enabled)`);
         const pool = mysql.createPool(cfg);
-        _db = drizzle(pool);
+        _db = drizzle(pool) as any;
       } else {
         console.log("[DB] Falling back to URL string connection");
         _db = drizzle(dbUrl);
