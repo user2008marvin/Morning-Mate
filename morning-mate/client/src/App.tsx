@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, Redirect } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthModalProvider } from "./contexts/AuthModalContext";
@@ -13,7 +13,6 @@ import ParentDashboard from "./pages/ParentDashboard";
 import Success from "./pages/Success";
 import Help from "./pages/Help";
 import ResetPassword from "./pages/ResetPassword";
-import Privacy from "./pages/Privacy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 function Router() {
   return (
@@ -24,7 +23,7 @@ function Router() {
       <Route path={"/parent"} component={ParentDashboard} />
       <Route path={"/success"} component={Success} />
       <Route path={"/help"} component={Help} />
-      <Route path={"/privacy"} component={Privacy} />
+      <Route path={"/privacy"}><Redirect to="/privacy-policy" /></Route>
       <Route path={"/privacy-policy"} component={PrivacyPolicy} />
       <Route path={"/reset-password"} component={ResetPassword} />
       <Route path={"/404"} component={NotFound} />
