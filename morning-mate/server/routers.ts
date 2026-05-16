@@ -107,7 +107,8 @@ export const appRouter = router({
           baseUrl = `${proto}://${host}`;
         }
         const resetLink = `${baseUrl}/reset-password?token=${token}`;
-        console.log(`[Auth] Password reset requested for ${input.email} — link: ${resetLink}`);
+        // FIX P0: Do not log the full reset URL — it contains a live token
+        console.log(`[Auth] Password reset requested for ${input.email}`);
 
         try {
           await sendEmail({
