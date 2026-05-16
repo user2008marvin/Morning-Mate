@@ -349,14 +349,8 @@ function EditChildModal({ child, onSave, onClose }: { child: Child | null; onSav
   );
 }
 
-const TASKS = [
-  { label: "WAKE UP!",       emoji: "☀️" },
-  { label: "BRUSH TEETH!",   emoji: "🪥" },
-  { label: "SHOWER TIME!",   emoji: "🛁" },
-  { label: "GET DRESSED!",   emoji: "👕" },
-  { label: "EAT BREAKFAST!", emoji: "🥛" },
-  { label: "LET'S GO!",      emoji: "🚀" },
-];
+import { MORNING_TASKS } from "@shared/morningTasks";
+const TASKS = MORNING_TASKS;
 
 type VoiceSlot = "prompt" | "completion";
 
