@@ -2,6 +2,7 @@ import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { getOrCreateSubscription, getUserSubscription, updateSubscription } from "../db";
 import { TIER_CONFIG, hasFeatureAccess } from "../../shared/pricing";
+import { TRPCError } from "@trpc/server";
 
 export const subscriptionRouter = router({
   /**
@@ -10,7 +11,6 @@ export const subscriptionRouter = router({
   getSubscription: protectedProcedure.query(async ({ ctx }) => {
     const subscription = await getOrCreateSubscription(ctx.user.id);
     const config = TIER_CONFIG[subscription.tier];
-
     return {
       tier: subscription.tier,
       status: subscription.status,
@@ -39,8 +39,8 @@ export const subscriptionRouter = router({
   }),
 
   /**
-   * Upgrade subscription (called after Stripe payment)
-   * This is called by the Stripe webhook
+   * upgradeSubscription is disabled for direct client calls.
+   * Tier changes are handled exclusively by Stripe webhooks.
    */
   upgradeSubscription: protectedProcedure
     .input(
@@ -50,15 +50,11 @@ export const subscriptionRouter = router({
         stripeSubscriptionId: z.string(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      await updateSubscription(ctx.user.id, {
-        tier: input.tier,
-        stripeCustomerId: input.stripeCustomerId,
-        stripeSubscriptionId: input.stripeSubscriptionId,
-        status: "active",
+    .mutation(() => {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Tier upgrades are handled by Stripe webhooks only. Direct calls are not permitted.",
       });
-
-      return { success: true };
     }),
 
   /**
@@ -69,12 +65,9 @@ export const subscriptionRouter = router({
     if (!subscription) {
       throw new Error("No subscription found");
     }
-
-    // Mark for cancellation at end of period
     await updateSubscription(ctx.user.id, {
       cancelAtPeriodEnd: 1,
     });
-
     return { success: true };
   }),
 
@@ -85,7 +78,6 @@ export const subscriptionRouter = router({
     await updateSubscription(ctx.user.id, {
       cancelAtPeriodEnd: 0,
     });
-
     return { success: true };
   }),
 });
