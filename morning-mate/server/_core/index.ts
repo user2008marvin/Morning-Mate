@@ -300,7 +300,12 @@ async function startServer() {
     });
   });
 
-  // Quick Stripe connection test — visit /api/stripe-test to see exactly what error Stripe returns
+  // Quick Stripe connection test — disabled in production
+  if (process.env.NODE_ENV === "production") {
+    app.use("/api/stripe-test", (_req, res) => {
+      res.status(403).json({ error: "Disabled in production." });
+    });
+  }
   app.get("/api/stripe-test", async (req, res) => {
     const stripeKey = (process.env.STRIPE_SECRET_KEY || "").replace(/^=+/, "").trim();
     if (!stripeKey) return res.json({ success: false, error: "STRIPE_SECRET_KEY not set" });
