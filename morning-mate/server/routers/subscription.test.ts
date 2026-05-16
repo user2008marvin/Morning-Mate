@@ -37,7 +37,7 @@ describe("subscriptionRouter", () => {
       const mockSubscription = {
         id: 1,
         userId: 1,
-        tier: "starter" as const,
+        tier: "plus" as const,
         status: "active" as const,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
@@ -53,10 +53,10 @@ describe("subscriptionRouter", () => {
       const caller = subscriptionRouter.createCaller(mockContext);
       const result = await caller.getSubscription();
 
-      expect(result).toHaveProperty("tier", "starter");
+      expect(result).toHaveProperty("tier", "plus");
       expect(result).toHaveProperty("status", "active");
       expect(result).toHaveProperty("features");
-      expect(result.features.childProfiles).toBe(1);
+      expect(result.features.childProfiles).toBe(5);
       expect(result.features.voiceEncouragement).toBe(true);
     });
   });
@@ -89,7 +89,7 @@ describe("subscriptionRouter", () => {
       const mockSubscription = {
         id: 1,
         userId: 1,
-        tier: "starter" as const,
+        tier: "freemium" as const,
         status: "active" as const,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
@@ -103,7 +103,7 @@ describe("subscriptionRouter", () => {
       vi.mocked(db.getOrCreateSubscription).mockResolvedValue(mockSubscription);
 
       const caller = subscriptionRouter.createCaller(mockContext);
-      const result = await caller.hasFeature("pdfReports");
+      const result = await caller.hasFeature("momsVoiceMode");
 
       expect(result).toBe(false);
     });
@@ -114,7 +114,7 @@ describe("subscriptionRouter", () => {
       const mockSubscription = {
         id: 1,
         userId: 1,
-        tier: "gold" as const,
+        tier: "plus" as const,
         status: "active" as const,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
@@ -130,26 +130,20 @@ describe("subscriptionRouter", () => {
       const caller = subscriptionRouter.createCaller(mockContext);
       const result = await caller.getMaxChildProfiles();
 
-      expect(result).toBe(4);
+      expect(result).toBe(5);
     });
   });
 
   describe("upgradeSubscription", () => {
-    it("should update subscription to new tier", async () => {
+    it("should reject direct calls — webhooks only", async () => {
       const caller = subscriptionRouter.createCaller(mockContext);
-      const result = await caller.upgradeSubscription({
-        tier: "gold",
-        stripeCustomerId: "cus_123",
-        stripeSubscriptionId: "sub_123",
-      });
-
-      expect(result).toEqual({ success: true });
-      expect(db.updateSubscription).toHaveBeenCalledWith(1, {
-        tier: "gold",
-        stripeCustomerId: "cus_123",
-        stripeSubscriptionId: "sub_123",
-        status: "active",
-      });
+      await expect(
+        caller.upgradeSubscription({
+          tier: "plus",
+          stripeCustomerId: "cus_123",
+          stripeSubscriptionId: "sub_123",
+        })
+      ).rejects.toThrow("Tier upgrades are handled by Stripe webhooks only.");
     });
   });
 
@@ -158,7 +152,7 @@ describe("subscriptionRouter", () => {
       const mockSubscription = {
         id: 1,
         userId: 1,
-        tier: "gold" as const,
+        tier: "plus" as const,
         status: "active" as const,
         stripeCustomerId: "cus_123",
         stripeSubscriptionId: "sub_123",
