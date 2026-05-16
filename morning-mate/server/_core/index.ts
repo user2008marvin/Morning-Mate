@@ -64,6 +64,14 @@ async function startServer() {
   // Railway sits behind a proxy — trust the X-Forwarded-For header
   app.set("trust proxy", 1);
 
+  // ==================== DISABLE SETUP ROUTES IN PRODUCTION ====================
+  // FIX P0: /setup-stripe and /setup-db must never run in production
+  if (process.env.NODE_ENV === "production") {
+    app.use(["/setup-stripe", "/setup-db"], (_req, res) => {
+      res.status(403).json({ error: "This endpoint is disabled in production." });
+    });
+  }
+
   // ==================== PUBLIC STATIC ASSET BYPASS ====================
   // MUST be first — before Helmet, CORS, auth, everything.
   // Serves manifest.json and other static assets with open CORS headers so
@@ -130,8 +138,15 @@ async function startServer() {
         console.log(`[Stripe] Webhook received: ${event.type}`);
 
         // checkout.session.completed — user just paid
+        // FIX P0: Only activate if payment is confirmed as paid
         if (event.type === "checkout.session.completed") {
           const session = event.data.object as any;
+
+          if (session.payment_status !== "paid") {
+            console.log(`[Stripe] Skipping activation — payment_status is ${session.payment_status}, not paid`);
+            return res.json({ received: true });
+          }
+
           const userId = session.metadata?.userId ? parseInt(session.metadata.userId) : null;
           const tier = session.metadata?.tier as "starter" | "plus" | "gold" | undefined;
           if (userId && tier) {
@@ -168,13 +183,18 @@ async function startServer() {
           }
         }
 
-        // subscription cancelled
+        // FIX P0: Set tier back to freemium on subscription deleted, not just status
         if (event.type === "customer.subscription.deleted") {
           const sub = event.data.object as any;
           const user = await getUserByStripeSubscriptionId(sub.id);
           if (user) {
-            await cancelSubscription(user.id);
-            console.log(`[Stripe] Cancelled subscription for user ${user.id}`);
+            await updateSubscription(user.id, {
+              tier: "freemium",
+              stripeSubscriptionId: undefined,
+              status: "canceled",
+              cancelAtPeriodEnd: 0,
+            });
+            console.log(`[Stripe] Subscription deleted — user ${user.id} reverted to freemium`);
           }
         }
 
