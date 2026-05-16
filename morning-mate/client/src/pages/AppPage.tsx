@@ -1122,7 +1122,7 @@ function PostSignupPricingScreen({ onContinueFree, trialExpired }: { onContinueF
   const [loading, setLoading] = useState<string | null>(null);
   const [period, setPeriod] = useState<"month" | "year">("month");
 
-  async function goCheckout(tier: "starter" | "plus" | "gold") {
+  async function goCheckout(tier: "plus") {
     setLoading(tier);
     try {
       const session = await stripeCheckout.mutateAsync({ tier, billingPeriod: period });
@@ -1137,7 +1137,7 @@ function PostSignupPricingScreen({ onContinueFree, trialExpired }: { onContinueF
   const ff: React.CSSProperties = { fontFamily: "'Fredoka One', cursive" };
   const plans = [
     {
-      tier: "starter" as const,
+      tier: "plus" as const,
       name: "GlowJo",
       emoji: "☀️",
       color: "#ff9a3c",
