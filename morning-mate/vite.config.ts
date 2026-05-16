@@ -190,7 +190,6 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    https: true,
     host: true,
     allowedHosts: true,
     fs: {
