@@ -23,10 +23,10 @@ const validateEmail = (email: string): boolean => {
 // ── DEMO TASKS ──
 const DEMO_TASKS = [
   { emoji: "☀️", label: "WAKE UP!", mascot: "😄", speech: "Rise and shine superstar!", voice: "Rise and shine superstar! You got this!", stars: 1 },
-  { emoji: "🛁", label: "SHOWER TIME!", mascot: "😊", speech: "So squeaky clean!", voice: "Clean champion coming through! Looking great!", stars: 2 },
-  { emoji: "🥛", label: "EAT BREAKFAST!", mascot: "🤩", speech: "Superpowers loaded!", voice: "Fuel up! You are a rocket today!", stars: 3 },
-  { emoji: "🪥", label: "BRUSH TEETH!", mascot: "😁", speech: "Dazzling smile!", voice: "Shiniest smile in the whole world! Great job!", stars: 4 },
-  { emoji: "🎒", label: "PACK YOUR BAG!", mascot: "🚀", speech: "Ready to fly!", voice: "Zip it up! You are totally ready to fly!", stars: 5 },
+  { emoji: "🪥", label: "BRUSH TEETH!", mascot: "😁", speech: "Dazzling smile!", voice: "Shiniest smile in the whole world! Great job!", stars: 2 },
+  { emoji: "🧼", label: "WASH YOUR FACE!", mascot: "😊", speech: "So fresh and clean!", voice: "Fresh face — you look absolutely amazing!", stars: 3 },
+  { emoji: "👕", label: "GET DRESSED!", mascot: "🤩", speech: "Looking brilliant!", voice: "You look absolutely wonderful today!", stars: 4 },
+  { emoji: "👟", label: "PUT ON SHOES!", mascot: "🚀", speech: "Ready to go!", voice: "Shoes on — brilliant! Almost time to head out!", stars: 5 },
   { emoji: "🚀", label: "LET'S GO!", mascot: "🏆", speech: "You are LEGENDARY!", voice: "Daily winner! You are absolutely LEGENDARY!", stars: 6 },
 ];
 
