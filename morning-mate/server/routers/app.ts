@@ -95,8 +95,17 @@ export const appRouter = router({
       if (input.language !== undefined) updates.language = input.language;
       if (input.enabledTasks !== undefined) updates.enabledTasks = JSON.stringify(input.enabledTasks);
       if (input.avatarEmoji !== undefined) updates.avatarEmoji = input.avatarEmoji || null;
-      if (input.stars !== undefined) updates.stars = input.stars;
-      if (input.streak !== undefined) updates.streak = input.streak;
+      if (input.stars !== undefined) {
+        // Only allow incrementing by a safe amount — never let client set arbitrary values
+        const currentStars = found.stars ?? 0;
+        const maxAllowed = currentStars + 10; // max 10 stars per sync (covers all tasks)
+        updates.stars = Math.min(input.stars, maxAllowed);
+      }
+      if (input.streak !== undefined) {
+        // Streak can only go up by 1 per day — cap it
+        const currentStreak = found.streak ?? 0;
+        updates.streak = Math.min(input.streak, currentStreak + 1);
+      }
       if (input.completedDays !== undefined) updates.completedDays = JSON.stringify(input.completedDays);
       if (input.markCompletedToday) updates.lastCompletedDate = new Date();
 
