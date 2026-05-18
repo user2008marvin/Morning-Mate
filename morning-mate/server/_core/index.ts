@@ -18,9 +18,6 @@ import { getUserByStripeCustomerId, getUserByStripeSubscriptionId, updateSubscri
 // All existing product IDs map to plus — one paid tier
 const PRODUCT_TO_TIER: Record<string, "plus"> = {
   "prod_UGKF6VcynDXxdu": "plus",
-  "prod_UFv1lk6xTeRu0r": "plus",
-  "prod_UFv7wwXLIFTBhw": "plus",
-  "prod_UFvCIa9o0bg0Ei": "plus",
 };
 
 function tierFromProductId(_productId: string): "plus" {
