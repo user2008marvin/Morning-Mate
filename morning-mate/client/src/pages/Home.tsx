@@ -232,6 +232,7 @@ export default function Home() {
   const [emailStatus, setEmailStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [emailError, setEmailError] = useState("");
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalInitialView, setAuthModalInitialView] = useState<"login" | "register">("login");
   const [pendingTier, setPendingTier] = useState<"plus" | null>(null);
   const [pendingNav, setPendingNav] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 520);
@@ -328,6 +329,7 @@ export default function Home() {
   const handleCheckout = (tier: "plus") => {
     if (!meQuery.data) {
       setPendingTier(tier);
+      setAuthModalInitialView("login");
       setAuthModalOpen(true);
     } else {
       doCheckout(tier);
@@ -358,6 +360,7 @@ export default function Home() {
       navigate("/app");
     } else {
       setPendingNav("/app");
+      setAuthModalInitialView("register");
       setAuthModalOpen(true);
     }
   };
@@ -804,6 +807,7 @@ export default function Home() {
         open={authModalOpen}
         onOpenChange={setAuthModalOpen}
         onSuccess={handleAuthSuccess}
+        initialView={authModalInitialView}
       />
     </div>
   );
