@@ -11,11 +11,12 @@ interface AuthModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: (isNewAccount: boolean) => void;
+  initialView?: "login" | "register";
 }
 
 type View = "login" | "register" | "forgot" | "forgot-sent";
 
-export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
+export function AuthModal({ open, onOpenChange, onSuccess, initialView = "login" }: AuthModalProps) {
   const [view, setView] = useState<View>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,9 +39,9 @@ export function AuthModal({ open, onOpenChange, onSuccess }: AuthModalProps) {
       setName("");
       setForgotEmail("");
       setError("");
-      setView("login");
+      setView(initialView);
     }
-  }, [open]);
+  }, [open, initialView]);
 
   const clearForm = () => {
     setEmail("");
