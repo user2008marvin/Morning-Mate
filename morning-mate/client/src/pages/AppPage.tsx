@@ -9,7 +9,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { getRecording } from "@/lib/voiceRecordings";
 import { AuthModal } from "@/components/AuthModal";
 import { fetchWeather, WeatherResult } from "@/lib/weather";
-import { NightScreen, NightWinScreen, RoutineModeToggle } from "./NightRoutine";
+import { NightScreen, NightWinScreen, RoutineModeToggle, stopNightMusic } from "./NightRoutine";
 
 // ── CONSTANTS ──
 const TASKS_EN = [
@@ -1257,6 +1257,7 @@ export default function AppPage() {
 
   // Load a specific child's data into app state
   function loadChild(child: any) {
+    stopNightMusic();
     setChildId(child.id);
     // Freemium users are always in morning mode — clear any stale night preference
     const rawMode = (localStorage.getItem("gj_routine_mode") as "morning" | "night") || "morning";
@@ -1476,6 +1477,7 @@ export default function AppPage() {
               alert("🌙 Night Mode is part of GlowJo!\n\nUpgrade at getglowjo.com for just $9.99/month to unlock the full bedtime routine, Moony mascot, personalised bedtime stories, and calming night music.");
               return;
             }
+            if (m === "morning") stopNightMusic();
             setRoutineMode(m); localStorage.setItem("gj_routine_mode", m);
           }}
         />
@@ -1499,6 +1501,7 @@ export default function AppPage() {
                   alert("🌙 Night Mode is part of GlowJo!\n\nUpgrade at getglowjo.com for just $9.99/month to unlock the full bedtime routine, Moony mascot, personalised bedtime stories, and calming night music.");
                   return;
                 }
+                if (m === "morning") stopNightMusic();
                 setRoutineMode(m); localStorage.setItem("gj_routine_mode", m);
               }}
             />
