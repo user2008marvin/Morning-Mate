@@ -47,9 +47,9 @@ function startNightMusic() {
   } catch {}
 }
 
-function stopNightMusic() {
+export function stopNightMusic() {
   if (_nightMusicAudio) {
-    _nightMusicAudio.pause();
+    try { _nightMusicAudio.pause(); } catch {}
     _nightMusicAudio.currentTime = 0;
     _nightMusicAudio = null;
   }
