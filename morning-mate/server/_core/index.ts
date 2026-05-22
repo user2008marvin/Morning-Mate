@@ -298,29 +298,26 @@ async function startServer() {
     });
   });
 
-  // Quick Stripe connection test — disabled in production
-  if (process.env.NODE_ENV === "production") {
-    app.use("/api/stripe-test", (_req, res) => {
-      res.status(403).json({ error: "Disabled in production." });
+  // Quick Stripe connection test — dev only, never shipped to production
+  if (process.env.NODE_ENV !== "production") {
+    app.get("/api/stripe-test", async (req, res) => {
+      const stripeKey = (process.env.STRIPE_SECRET_KEY || "").replace(/^=+/, "").trim();
+      if (!stripeKey) return res.json({ success: false, error: "STRIPE_SECRET_KEY not set" });
+      try {
+        const Stripe = (await import("stripe")).default;
+        const stripe = new Stripe(stripeKey);
+        const products = await stripe.products.list({ active: true, limit: 5 });
+        return res.json({
+          success: true,
+          keyPrefix: stripeKey.slice(0, 12) + "...",
+          productCount: products.data.length,
+          products: products.data.map(p => ({ name: p.name, active: p.active })),
+        });
+      } catch (e: any) {
+        return res.json({ success: false, error: e.message, keyPrefix: stripeKey.slice(0, 12) + "..." });
+      }
     });
   }
-  app.get("/api/stripe-test", async (req, res) => {
-    const stripeKey = (process.env.STRIPE_SECRET_KEY || "").replace(/^=+/, "").trim();
-    if (!stripeKey) return res.json({ success: false, error: "STRIPE_SECRET_KEY not set" });
-    try {
-      const Stripe = (await import("stripe")).default;
-      const stripe = new Stripe(stripeKey);
-      const products = await stripe.products.list({ active: true, limit: 5 });
-      return res.json({
-        success: true,
-        keyPrefix: stripeKey.slice(0, 12) + "...",
-        productCount: products.data.length,
-        products: products.data.map(p => ({ name: p.name, active: p.active })),
-      });
-    } catch (e: any) {
-      return res.json({ success: false, error: e.message, keyPrefix: stripeKey.slice(0, 12) + "..." });
-    }
-  });
 
   // One-time Stripe setup — creates GlowJo products and prices in your Stripe account
   app.get("/setup-stripe", async (req, res) => {
