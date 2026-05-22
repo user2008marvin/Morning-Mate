@@ -244,18 +244,10 @@
     grid-template-columns: 1fr 1fr !important;
     gap: 60px !important;
   }
-  
-  .pricing-grid {
-    grid-template-columns: repeat(4, 1fr) !important;
-  }
 }
 
 @media (max-width: 767px) {
   .academic-grid {
-    grid-template-columns: 1fr !important;
-  }
-  
-  .pricing-grid {
     grid-template-columns: 1fr !important;
   }
 }
