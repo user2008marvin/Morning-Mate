@@ -14,7 +14,7 @@ export default function Success() {
 
   const { data: subscription, refetch } = trpc.subscription.getSubscription.useQuery(undefined, {
     enabled: !!user,
-    refetchInterval: 2000,
+    refetchInterval: status === "success" ? false : 2000,
     refetchIntervalInBackground: true,
   });
 
