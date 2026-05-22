@@ -4,7 +4,6 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { subscriptionRouter } from "./routers/subscription";
 import { appRouter as appFeaturesRouter } from "./routers/app";
-import { ttsRouter } from "./routers/tts";
 import { stripeRouter } from "./routers/stripe";
 import { analyticsRouter } from "./routers/analytics";
 import { emailRouter } from "./routers/email";
@@ -160,7 +159,6 @@ export const appRouter = router({
 
   subscription: subscriptionRouter,
   app: appFeaturesRouter,
-  tts: ttsRouter,
   stripe: stripeRouter,
   analytics: analyticsRouter,
   email: emailRouter,
