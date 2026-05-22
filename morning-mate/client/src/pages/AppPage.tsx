@@ -576,13 +576,17 @@ function MainScreen({
     }
   }, [ringProgress]);
 
+  const processingRef = useRef(false);
+
   function handleTap() {
+    if (processingRef.current) return;
     unlockAudioContext(); // pre-warm audio context on first gesture — fixes desktop Chrome async play
     if (!started) {
       setStarted(true);
       startRing(180, activeTasks[0]?.label); return;
     }
     if (!currentTask || flashSticker) return;
+    processingRef.current = true;
     const completion = state.language === "es" ? currentTask.voice_es : currentTask.voice_en;
     stopKidsMusic();
     stopSendMusic();
@@ -594,6 +598,7 @@ function MainScreen({
     // Flash sticker on the circle for 1 second
     setFlashSticker(currentTask.sticker);
     setTimeout(() => {
+      processingRef.current = false;
       setFlashSticker(null);
       const nextIdx = taskIdx + 1;
       if (nextIdx >= totalTasks) {
@@ -1284,6 +1289,19 @@ export default function AppPage() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, [screen]);
 
+  // Stop music on screen lock, phone call, or tab switch — don't auto-resume
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        stopKidsMusic();
+        stopNightMusic();
+        stopSendMusic();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
   // Load a specific child's data into app state
   function loadChild(child: any) {
     setChildId(child.id);
@@ -1380,7 +1398,10 @@ export default function AppPage() {
       if (childId) {
         // Mark night routine done for this child today so they can't replay it
         localStorage.setItem(`gj_night_done_${childId}`, todayStr);
-        syncProgress.mutate({ childId, stars: newStars, streak: appState.streak, completedDays: newCompletedDays });
+        syncProgress.mutate(
+          { childId, stars: newStars, streak: appState.streak, completedDays: newCompletedDays },
+          { onError: () => syncProgress.mutate({ childId, stars: newStars, streak: appState.streak, completedDays: newCompletedDays }) }
+        );
       }
       setScreen("win");
       return;
@@ -1402,7 +1423,13 @@ export default function AppPage() {
     if (childId) {
       syncProgress.mutate(
         { childId, stars: newStars, streak: newStreak, completedDays: newCompletedDays, markCompletedToday: true },
-        { onSuccess: () => { setServerLastCompleted(todayStr); refetchChildren(); } }
+        {
+          onSuccess: () => { setServerLastCompleted(todayStr); refetchChildren(); },
+          onError: () => syncProgress.mutate(
+            { childId, stars: newStars, streak: newStreak, completedDays: newCompletedDays, markCompletedToday: true },
+            { onSuccess: () => { setServerLastCompleted(todayStr); refetchChildren(); } }
+          ),
+        }
       );
     }
     setScreen("win");
