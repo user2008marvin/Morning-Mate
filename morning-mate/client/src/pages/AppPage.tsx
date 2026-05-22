@@ -1532,7 +1532,9 @@ export default function AppPage() {
               alert("🌙 Night Mode is part of GlowJo!\n\nUpgrade at getglowjo.com for just $9.99/month to unlock the full bedtime routine, Moony mascot, personalised bedtime stories, and calming night music.");
               return;
             }
-            if (m === "morning") stopNightMusic();
+            stopNightMusic();
+            stopKidsMusic();
+            try { window.speechSynthesis.cancel(); } catch {}
             setRoutineMode(m); localStorage.setItem("gj_routine_mode", m);
           }}
         />
@@ -1556,7 +1558,9 @@ export default function AppPage() {
                   alert("🌙 Night Mode is part of GlowJo!\n\nUpgrade at getglowjo.com for just $9.99/month to unlock the full bedtime routine, Moony mascot, personalised bedtime stories, and calming night music.");
                   return;
                 }
-                if (m === "morning") stopNightMusic();
+                stopNightMusic();
+                stopKidsMusic();
+                try { window.speechSynthesis.cancel(); } catch {}
                 setRoutineMode(m); localStorage.setItem("gj_routine_mode", m);
               }}
             />
