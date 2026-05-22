@@ -239,20 +239,21 @@ export function NightScreen({
   // Without this, the t=4.5s cancel fires mid-congrats and cuts the speech off.
   const introTimer1 = useRef<ReturnType<typeof setTimeout> | null>(null);
   const introTimer2 = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nightAudioRef = useRef<HTMLAudioElement | null>(null);
 
   function clearIntroTimers() {
     if (introTimer1.current) { clearTimeout(introTimer1.current); introTimer1.current = null; }
     if (introTimer2.current) { clearTimeout(introTimer2.current); introTimer2.current = null; }
   }
 
-  // Self-contained music — creates and cleans up its own audio instance
+  // Cleanup night audio on unmount
   useEffect(() => {
-    if (sendMode) return;
-    const audio = new Audio("/music/glowjo-night-calm.mp3");
-    audio.loop = true;
-    audio.volume = 0.15;
-    audio.play().catch(() => {});
-    return () => { audio.pause(); audio.currentTime = 0; };
+    return () => {
+      if (nightAudioRef.current) {
+        nightAudioRef.current.pause();
+        nightAudioRef.current = null;
+      }
+    };
   }, []);
 
   // First prompt on mount; cancel speech on unmount
@@ -284,6 +285,15 @@ export function NightScreen({
     // Cancel intro timers immediately — prevents the t=4.5s cancel from
     // interrupting the congrats speech if the child taps within the first few seconds
     clearIntroTimers();
+
+    // Start music on first user gesture (bypasses browser autoplay block)
+    if (!sendMode && !nightAudioRef.current) {
+      const audio = new Audio(NIGHT_MUSIC_TRACK);
+      audio.loop = true;
+      audio.volume = 0.15;
+      audio.play().catch(() => {});
+      nightAudioRef.current = audio;
+    }
 
     const t = enabledTasks[idx];
 
