@@ -545,6 +545,7 @@ function MainScreen({
   useEffect(() => () => {
     stopKidsMusic();
     stopSendMusic();
+    stopNightMusic();
     clearInterval(ringTimer.current);
     try { window.speechSynthesis.cancel(); } catch {}
   }, []);
