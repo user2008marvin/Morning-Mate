@@ -2,6 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import Stripe from "stripe";
 import * as db from "../db";
+import { sendEmail } from "../utils/email";
 
 /**
  * Stripe payment processing for GlowJo subscriptions
@@ -291,8 +292,16 @@ export const stripeRouter = router({
 
             // Send welcome email on first subscription
             if (event.type === "customer.subscription.created") {
-              console.log(`[Stripe] Welcome email would be sent to ${user.email}`);
-              // Email sending can be implemented here
+              await sendEmail({
+                to: user.email!,
+                subject: "Welcome to GlowJo ☀️",
+                template: "subscription-welcome",
+                data: {
+                  userName: user.name || "there",
+                  currentPeriodEnd: new Date(sub.current_period_end * 1000)
+                    .toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
+                },
+              }).catch((err: any) => console.error("[Stripe] Welcome email failed:", err.message));
             }
 
             break;
