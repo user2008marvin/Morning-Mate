@@ -245,15 +245,18 @@ export function NightScreen({
     if (introTimer2.current) { clearTimeout(introTimer2.current); introTimer2.current = null; }
   }
 
-  // startNightMusic already guards against duplicate instances — call it freely;
-  // on first tap it retries in case the browser blocked autoplay on mount.
-  function tryStartMusic() {
-    if (!sendMode) startNightMusic();
-  }
-
-  // Start music and first prompt on mount; stop everything on unmount
+  // Self-contained music — creates and cleans up its own audio instance
   useEffect(() => {
-    tryStartMusic();
+    if (sendMode) return;
+    const audio = new Audio("/music/glowjo-night-calm.mp3");
+    audio.loop = true;
+    audio.volume = 0.15;
+    audio.play().catch(() => {});
+    return () => { audio.pause(); audio.currentTime = 0; };
+  }, []);
+
+  // First prompt on mount; cancel speech on unmount
+  useEffect(() => {
     if (!startedRef.current && enabledTasks.length > 0) {
       startedRef.current = true;
       const t = enabledTasks[0];
@@ -270,7 +273,6 @@ export function NightScreen({
     }
     return () => {
       clearIntroTimers();
-      stopNightMusic();
       window.speechSynthesis?.cancel();
     };
   }, []);
@@ -282,9 +284,6 @@ export function NightScreen({
     // Cancel intro timers immediately — prevents the t=4.5s cancel from
     // interrupting the congrats speech if the child taps within the first few seconds
     clearIntroTimers();
-
-    // On first tap, try to start music (handles autoplay-blocked browsers)
-    tryStartMusic();
 
     const t = enabledTasks[idx];
 
@@ -324,7 +323,6 @@ export function NightScreen({
           nightSpeak(state.language === "es" ? nextTask.prompt_es : nextTask.prompt_en, state.language);
         }, 500);
       } else {
-        stopNightMusic();
         setTimeout(() => onWin(enabledTasks.length), 600);
       }
     });
