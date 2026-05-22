@@ -909,8 +909,12 @@ function WinScreen({ state, onParent, onNext, onSwitchChild, sendMode }: { state
   useEffect(() => {
     if (!sendMode && confettiRef.current) spawnConfetti(confettiRef.current);
     const msg = sendMode
-      ? `Well done, ${state.childName}! You completed your whole morning routine. You should feel very proud!`
-      : "You've done it! You are absolutely brilliant and Sunny is so incredibly proud of you today! Now give us all a GlowJo thumbs up!";
+      ? state.language === "es"
+        ? `¡Muy bien, ${state.childName}! Has completado toda tu rutina de la mañana. ¡Deberías sentirte muy orgulloso!`
+        : `Well done, ${state.childName}! You completed your whole morning routine. You should feel very proud!`
+      : state.language === "es"
+        ? `¡Lo lograste! ¡Eres absolutamente increíble y Sunny está muy orgulloso de ti hoy! ¡Danos un pulgar arriba de GlowJo!`
+        : "You've done it! You are absolutely brilliant and Sunny is so incredibly proud of you today! Now give us all a GlowJo thumbs up!";
     speak(msg, state.language);
   }, []);
 
@@ -918,7 +922,9 @@ function WinScreen({ state, onParent, onNext, onSwitchChild, sendMode }: { state
   const newSticker = WIN_STICKERS[Math.min(state.stars, WIN_STICKERS.length - 1)];
 
   function share(type: "whatsapp" | "copy") {
-    const msg = `${state.childName} just crushed their morning routine on GlowJo! 🏆⭐ ${state.streak} day streak! Try it free: https://getglowjo.com`;
+    const msg = state.language === "es"
+      ? `¡${state.childName} completó su rutina matutina en GlowJo! 🏆⭐ ¡${state.streak} días seguidos! Pruébalo gratis: https://getglowjo.com`
+      : `${state.childName} just crushed their morning routine on GlowJo! 🏆⭐ ${state.streak} day streak! Try it free: https://getglowjo.com`;
     if (type === "whatsapp") window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
     else { navigator.clipboard?.writeText(msg); alert("Link copied!"); }
   }
@@ -1594,19 +1600,23 @@ export default function AppPage() {
         <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 32, background: "linear-gradient(180deg,#fff8ee 0%,#ffecd2 100%)" }}>
           <div style={{ fontSize: 72, marginBottom: 8 }}>🌅</div>
           <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 32, color: "#ff5f1f", marginBottom: 12 }}>
-            All done for today!
+            {appState.language === "es" ? "¡Todo listo por hoy!" : "All done for today!"}
           </div>
           <div style={{ fontSize: 18, color: "#7a5c3a", fontWeight: 700, marginBottom: 8 }}>
             {routineMode === "night"
-              ? `${appState.childName} is all ready for bed! 🌙`
-              : `${appState.childName} crushed this morning! ⭐`}
+              ? appState.language === "es"
+                ? `¡${appState.childName} está listo para dormir! 🌙`
+                : `${appState.childName} is all ready for bed! 🌙`
+              : appState.language === "es"
+                ? `¡${appState.childName} completó esta mañana! ⭐`
+                : `${appState.childName} crushed this morning! ⭐`}
           </div>
           <div style={{ fontSize: 15, color: "#a07850", lineHeight: 1.6, marginBottom: 32, maxWidth: 280 }}>
             {children && children.length > 1
-              ? "Amazing work! Is another child ready for their turn?"
+              ? appState.language === "es" ? "¡Increíble! ¿Otro niño está listo para su turno?" : "Amazing work! Is another child ready for their turn?"
               : routineMode === "night"
-                ? "Sleep tight! Come back tomorrow for the next adventure."
-                : "The next routine unlocks tomorrow morning. Come back then to keep the streak going!"}
+                ? appState.language === "es" ? "¡Buenas noches! Vuelve mañana para la próxima aventura." : "Sleep tight! Come back tomorrow for the next adventure."
+                : appState.language === "es" ? "La siguiente rutina se desbloquea mañana por la mañana. ¡Vuelve para mantener la racha!" : "The next routine unlocks tomorrow morning. Come back then to keep the streak going!"}
           </div>
           <div style={{ display: "flex", gap: 24, marginBottom: 36 }}>
             <div style={{ textAlign: "center" }}>
