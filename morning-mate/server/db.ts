@@ -52,6 +52,7 @@ async function runStartupMigrations(dbUrl: string) {
     await conn.execute(`CREATE TABLE IF NOT EXISTS \`childProfiles\` (
       \`id\` int AUTO_INCREMENT NOT NULL,
       \`userId\` int NOT NULL,
+      \`avatarEmoji\` varchar(10) NULL,
       \`name\` varchar(100) NOT NULL,
       \`age\` int,
       \`schoolTime\` varchar(5),
@@ -104,9 +105,6 @@ async function runStartupMigrations(dbUrl: string) {
       `ALTER TABLE users ADD COLUMN resetTokenExpiry TIMESTAMP NULL`
     ).catch(() => {});
 
-    await conn.execute(
-      `ALTER TABLE childProfiles ADD COLUMN avatarEmoji VARCHAR(10) NULL`
-    ).catch(() => {});
 
     await conn.end();
     console.log("[DB] Startup migrations complete — all tables ready");
