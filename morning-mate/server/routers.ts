@@ -6,6 +6,7 @@ import { subscriptionRouter } from "./routers/subscription";
 import { appRouter as appFeaturesRouter } from "./routers/app";
 import { stripeRouter } from "./routers/stripe";
 import { analyticsRouter } from "./routers/analytics";
+import { emailRouter } from "./routers/email";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -160,6 +161,7 @@ export const appRouter = router({
   app: appFeaturesRouter,
   stripe: stripeRouter,
   analytics: analyticsRouter,
+  email: emailRouter,
 });
 
 export type AppRouter = typeof appRouter;
