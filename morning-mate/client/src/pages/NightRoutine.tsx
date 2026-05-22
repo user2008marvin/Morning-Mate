@@ -293,6 +293,7 @@ export function NightScreen({
       audio.volume = 0.15;
       audio.play().catch(() => {});
       nightAudioRef.current = audio;
+      _nightMusicAudio = audio; // keep module-level ref in sync so stopNightMusic() can reach it
     }
 
     const t = enabledTasks[idx];
