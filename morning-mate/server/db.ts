@@ -482,6 +482,11 @@ export async function cancelSubscription(userId: number) {
 
   await db
     .update(subscriptions)
-    .set({ status: "canceled", updatedAt: new Date() })
+    .set({
+      tier: "freemium",
+      status: "canceled",
+      stripeSubscriptionId: null,
+      updatedAt: new Date(),
+    })
     .where(eq(subscriptions.userId, userId));
 }
