@@ -1257,7 +1257,6 @@ export default function AppPage() {
 
   // Load a specific child's data into app state
   function loadChild(child: any) {
-    stopNightMusic();
     setChildId(child.id);
     // Freemium users are always in morning mode — clear any stale night preference
     const rawMode = (localStorage.getItem("gj_routine_mode") as "morning" | "night") || "morning";
