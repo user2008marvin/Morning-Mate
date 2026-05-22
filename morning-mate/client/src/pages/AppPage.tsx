@@ -1256,6 +1256,34 @@ export default function AppPage() {
     }
   }, [isDemo, userFetched, user]);
 
+  // Stop all audio/speech if the user navigates away from the page entirely
+  useEffect(() => {
+    const handleUnload = () => {
+      stopKidsMusic();
+      stopNightMusic();
+      stopSendMusic();
+      try { window.speechSynthesis.cancel(); } catch {}
+    };
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, []);
+
+  // Intercept back button — stop audio and keep user inside the app
+  useEffect(() => {
+    const handlePopState = () => {
+      stopKidsMusic();
+      stopNightMusic();
+      stopSendMusic();
+      try { window.speechSynthesis.cancel(); } catch {}
+      if (screen === "main" || screen === "win") {
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [screen]);
+
   // Load a specific child's data into app state
   function loadChild(child: any) {
     setChildId(child.id);
