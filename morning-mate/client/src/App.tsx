@@ -14,6 +14,7 @@ import Success from "./pages/Success";
 import Help from "./pages/Help";
 import ResetPassword from "./pages/ResetPassword";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Admin from "./pages/Admin";
 function Router() {
   return (
     <Switch>
@@ -26,6 +27,7 @@ function Router() {
       <Route path={"/privacy"}><Redirect to="/privacy-policy" /></Route>
       <Route path={"/privacy-policy"} component={PrivacyPolicy} />
       <Route path={"/reset-password"} component={ResetPassword} />
+      <Route path={"/admin"} component={Admin} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
