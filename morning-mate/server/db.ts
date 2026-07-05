@@ -93,6 +93,18 @@ async function runStartupMigrations(dbUrl: string) {
       CONSTRAINT \`emails_email_unique\` UNIQUE(\`email\`)
     )`);
 
+    await conn.execute(`CREATE TABLE IF NOT EXISTS \`analyticsEvents\` (
+      \`id\` int AUTO_INCREMENT NOT NULL,
+      \`type\` enum('pageview','event','conversion') NOT NULL,
+      \`name\` varchar(128),
+      \`url\` varchar(512),
+      \`tier\` varchar(32),
+      \`amount\` int,
+      \`data\` text,
+      \`createdAt\` timestamp NOT NULL DEFAULT (now()),
+      CONSTRAINT \`analyticsEvents_id\` PRIMARY KEY(\`id\`)
+    )`);
+
     await conn.execute(
       `ALTER TABLE users ADD COLUMN passwordHash VARCHAR(255) NULL`
     ).catch(() => {});
