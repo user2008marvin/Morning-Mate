@@ -298,7 +298,7 @@ export const stripeRouter = router({
                 template: "subscription-welcome",
                 data: {
                   userName: user.name || "there",
-                  currentPeriodEnd: new Date(sub.current_period_end * 1000)
+                  currentPeriodEnd: new Date(subscription.current_period_end * 1000)
                     .toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
                 },
               }).catch((err: any) => console.error("[Stripe] Welcome email failed:", err.message));
