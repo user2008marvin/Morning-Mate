@@ -86,3 +86,21 @@ export const emails = mysqlTable("emails", {
 
 export type Email = typeof emails.$inferSelect;
 export type InsertEmail = typeof emails.$inferInsert;
+
+/**
+ * Analytics events — pageviews, custom events, conversions.
+ * Persisted to the database (not in-memory) so counts survive server restarts.
+ */
+export const analyticsEvents = mysqlTable("analyticsEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  type: mysqlEnum("type", ["pageview", "event", "conversion"]).notNull(),
+  name: varchar("name", { length: 128 }),
+  url: varchar("url", { length: 512 }),
+  tier: varchar("tier", { length: 32 }),
+  amount: int("amount"),
+  data: text("data"), // JSON blob for arbitrary extra fields
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
