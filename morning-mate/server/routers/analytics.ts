@@ -2,11 +2,8 @@ import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { emails } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
-
-// In-memory storage for analytics events (for real-time tracking)
-const analyticsEvents: any[] = [];
+import { emails, analyticsEvents, users } from "../../drizzle/schema";
+import { eq, gte, sql } from "drizzle-orm";
 
 export const analyticsRouter = router({
   /**
@@ -75,17 +72,23 @@ export const analyticsRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      analyticsEvents.push(input);
-
-      console.log(`[Analytics] Event tracked: ${input.type} - ${input.name}`);
-
-      // TODO: Send to analytics service (Mixpanel, Amplitude, PostHog, etc.)
-      // const analytics = require('analytics-node');
-      // analytics.track({
-      //   userId: 'user-id',
-      //   event: input.name,
-      //   properties: input.data,
-      // });
+      try {
+        const db = await getDb();
+        if (db) {
+          await db.insert(analyticsEvents).values({
+            type: input.type,
+            name: input.name ?? null,
+            url: input.url ?? null,
+            tier: input.tier ?? null,
+            amount: input.amount ?? null,
+            data: input.data ? JSON.stringify(input.data) : null,
+          });
+        } else {
+          console.warn("[Analytics] DB unavailable, event dropped:", input.type, input.name);
+        }
+      } catch (error) {
+        console.error("[Analytics] Error persisting event:", error);
+      }
 
       return { success: true };
     }),
@@ -106,7 +109,6 @@ export const analyticsRouter = router({
     })
     .query(async () => {
       try {
-        // Get email count from database
         const db = await getDb();
         if (!db) {
           throw new TRPCError({
@@ -115,12 +117,41 @@ export const analyticsRouter = router({
           });
         }
 
+        const windows = [
+          { key: "last24h", hours: 24 },
+          { key: "last48h", hours: 48 },
+          { key: "last7d", hours: 24 * 7 },
+        ] as const;
+
+        const signups: Record<string, number> = {};
+        const pageviews: Record<string, number> = {};
+
+        for (const w of windows) {
+          const cutoff = sql`NOW() - INTERVAL ${w.hours} HOUR`;
+          const [[userRow]] = await Promise.all([
+            db.select({ cnt: sql<number>`COUNT(*)` }).from(users).where(gte(users.createdAt, cutoff as any)),
+          ]);
+          signups[w.key] = Number(userRow?.cnt ?? 0);
+
+          const [[eventRow]] = await Promise.all([
+            db
+              .select({ cnt: sql<number>`COUNT(*)` })
+              .from(analyticsEvents)
+              .where(sql`${analyticsEvents.type} = 'pageview' AND ${analyticsEvents.createdAt} >= ${cutoff}`),
+          ]);
+          pageviews[w.key] = Number(eventRow?.cnt ?? 0);
+        }
+
+        const [[totalUsersRow]] = await Promise.all([
+          db.select({ cnt: sql<number>`COUNT(*)` }).from(users),
+        ]);
         const emailCount = await db.select().from(emails);
 
         return {
+          totalUsers: Number(totalUsersRow?.cnt ?? 0),
+          signups,
+          pageviews,
           totalEmails: emailCount.length,
-          totalEvents: analyticsEvents.length,
-          conversionEvents: analyticsEvents.filter((e: any) => e.type === "conversion").length,
           emails: emailCount.map((e: any) => ({
             email: e.email,
             subscribedAt: e.subscribedAt,
