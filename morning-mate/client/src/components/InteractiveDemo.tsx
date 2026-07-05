@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 
 /**
@@ -6,9 +6,23 @@ import { X } from "lucide-react";
  * Lets parents try the kid app for 2 minutes before committing
  * Dramatically improves conversion rates
  */
+
+// Same task → music mapping used in the real kids' app (AppPage.tsx),
+// so the demo sounds just like the real experience.
+const TASK_MUSIC: Record<string, string> = {
+  "WAKE UP!": "/music/jump-time.mp3",
+  "BRUSH TEETH!": "/music/dancing-silly.mp3",
+  "WASH YOUR FACE!": "/music/cute.mp3",
+  "GET DRESSED!": "/music/clap-and-sing.mp3",
+  "PUT ON SHOES!": "/music/good-morning.mp3",
+  "LET'S GO!": "/music/chicken-chase.mp3",
+};
+const WIN_MUSIC = "/music/winner.mp3";
+
 export function InteractiveDemo({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [currentTask, setCurrentTask] = useState(0);
   const [stars, setStars] = useState(0);
+  const musicRef = useRef<HTMLAudioElement | null>(null);
 
   const tasks = [
     { emoji: "☀️", label: "WAKE UP!",        voice: "Rise and shine superstar!" },
@@ -18,6 +32,49 @@ export function InteractiveDemo({ isOpen, onClose }: { isOpen: boolean; onClose:
     { emoji: "👟", label: "PUT ON SHOES!",   voice: "Shoes on — brilliant! Almost there!" },
     { emoji: "🚀", label: "LET'S GO!",       voice: "Daily winner! You are LEGENDARY!" },
   ];
+
+  const playMusic = (src: string) => {
+    if (musicRef.current) {
+      musicRef.current.pause();
+      musicRef.current = null;
+    }
+    try {
+      const audio = new Audio(src);
+      audio.loop = false;
+      audio.volume = 0.35;
+      audio.play().catch(() => {});
+      musicRef.current = audio;
+    } catch {
+      // ignore playback errors (e.g. autoplay restrictions)
+    }
+  };
+
+  const stopMusic = () => {
+    if (musicRef.current) {
+      musicRef.current.pause();
+      musicRef.current.currentTime = 0;
+      musicRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      stopMusic();
+      return;
+    }
+    if (currentTask === -1) {
+      playMusic(WIN_MUSIC);
+    } else {
+      const label = tasks[currentTask]?.label;
+      const src = (label && TASK_MUSIC[label]) || Object.values(TASK_MUSIC)[0];
+      playMusic(src);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, currentTask]);
+
+  useEffect(() => {
+    return () => stopMusic();
+  }, []);
 
   const handleTaskComplete = () => {
     setStars(stars + 1);
